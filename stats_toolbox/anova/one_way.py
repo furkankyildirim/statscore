@@ -1,7 +1,7 @@
 """One-way ANOVA: partitioning TSS and testing equality of means."""
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 import numpy as np
 

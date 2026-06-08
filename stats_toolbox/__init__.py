@@ -5,34 +5,34 @@ multiple comparison procedures (Bonferroni, Sidak, Scheffe, Tukey), and
 OLS-based multiple linear regression with simultaneous inference and prediction.
 """
 
-from stats_toolbox.utils.enums import (
-    CorrectionMethod,
-    PredictionMethod,
-    TwoWayTestFactor,
-)
 from stats_toolbox.anova import (
-    ANOVA1_partition_TSS,
-    ANOVA1_test_equality,
+    ANOVA2_MLE,
+    ANOVA1_CI_linear_combs,
     ANOVA1_is_contrast,
     ANOVA1_is_orthogonal,
-    Bonferroni_correction,
-    Sidak_correction,
-    ANOVA1_CI_linear_combs,
+    ANOVA1_partition_TSS,
+    ANOVA1_test_equality,
     ANOVA1_test_linear_combs,
     ANOVA2_partition_TSS,
-    ANOVA2_MLE,
     ANOVA2_test_equality,
+    Bonferroni_correction,
+    Sidak_correction,
 )
 from stats_toolbox.regression import (
     Mult_LR_Least_squares,
     Mult_LR_partition_TSS,
-    Mult_norm_LR_simul_CI,
     Mult_norm_LR_CR,
     Mult_norm_LR_is_in_CR,
-    Mult_norm_LR_test_general,
-    Mult_norm_LR_test_comp,
-    Mult_norm_LR_test_linear_reg,
     Mult_norm_LR_pred_CI,
+    Mult_norm_LR_simul_CI,
+    Mult_norm_LR_test_comp,
+    Mult_norm_LR_test_general,
+    Mult_norm_LR_test_linear_reg,
+)
+from stats_toolbox.utils.enums import (
+    CorrectionMethod,
+    PredictionMethod,
+    TwoWayTestFactor,
 )
 
 __version__ = "1.0.0"

@@ -1,15 +1,15 @@
 """Inference for multiple normal linear regression:
 simultaneous CIs, confidence regions, and hypothesis tests."""
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 import numpy as np
 
-from stats_toolbox.utils.distributions import f_critical, f_pvalue, t_critical, t_pvalue
+from stats_toolbox.regression.least_squares import LeastSquaresResult, Mult_LR_Least_squares
+from stats_toolbox.utils.distributions import f_critical, f_pvalue, t_critical
 from stats_toolbox.utils.enums import PredictionMethod
-from stats_toolbox.utils.validation import validate_design_matrix, validate_C_matrix
-from stats_toolbox.regression.least_squares import Mult_LR_Least_squares, LeastSquaresResult
+from stats_toolbox.utils.validation import validate_C_matrix, validate_design_matrix
 
 
 @dataclass

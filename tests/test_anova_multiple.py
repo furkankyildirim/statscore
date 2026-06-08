@@ -4,12 +4,12 @@ import numpy as np
 import pytest
 
 from stats_toolbox.anova.multiple_tests import (
+    ANOVA1_CI_linear_combs,
     ANOVA1_is_contrast,
     ANOVA1_is_orthogonal,
+    ANOVA1_test_linear_combs,
     Bonferroni_correction,
     Sidak_correction,
-    ANOVA1_CI_linear_combs,
-    ANOVA1_test_linear_combs,
 )
 from stats_toolbox.utils.enums import CorrectionMethod
 
@@ -112,8 +112,7 @@ class TestCILinearCombs:
         assert len(result.intervals) == 3
 
     def test_tukey_invalid_raises(self):
-        C = np.array([[1, 0, 0, -1]])  # pairwise but only 1
-        # non-pairwise
+        # non-pairwise — Tukey requires pairwise comparisons
         C2 = np.array([[1, 1, -1, -1]])
         with pytest.raises(ValueError):
             ANOVA1_CI_linear_combs(self.data, 0.05, C2, method=CorrectionMethod.TUKEY)

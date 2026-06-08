@@ -80,7 +80,14 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
-ignore = ["E501"]
+ignore = [
+    "E501",
+    "N802",   # function name should be lowercase — intentional math naming
+    "N803",   # argument name should be lowercase — intentional math naming
+    "N806",   # variable in function should be lowercase — intentional math naming
+    "N815",   # mixedCase variable in class scope — intentional math naming
+    "E741",   # ambiguous variable name (I, J, K etc.) — standard math notation
+]
 
 [tool.mypy]
 python_version = "3.9"

@@ -1,20 +1,22 @@
 """Multiple testing procedures for one-way ANOVA:
 contrasts, orthogonality, corrections, simultaneous CIs and tests."""
 
+from __future__ import annotations
+
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Optional, Sequence
 
 import numpy as np
 
+from stats_toolbox.anova.one_way import ANOVA1_partition_TSS
 from stats_toolbox.utils.distributions import (
     f_critical,
-    t_critical,
     studentized_range_critical,
+    t_critical,
     t_pvalue,
 )
 from stats_toolbox.utils.enums import CorrectionMethod
-from stats_toolbox.utils.validation import validate_data_groups, validate_contrast_matrix
-from stats_toolbox.anova.one_way import ANOVA1_partition_TSS
+from stats_toolbox.utils.validation import validate_contrast_matrix, validate_data_groups
 
 
 @dataclass
@@ -24,7 +26,7 @@ class OrthogonalityResult:
     is_orthogonal: bool
     c1_is_contrast: bool
     c2_is_contrast: bool
-    warning: Optional[str]
+    warning: str | None
 
 
 @dataclass
@@ -92,7 +94,7 @@ def ANOVA1_is_orthogonal(
     c1_is_contrast: bool = ANOVA1_is_contrast(c1)
     c2_is_contrast: bool = ANOVA1_is_contrast(c2)
 
-    warning: Optional[str] = None
+    warning: str | None = None
     if not c1_is_contrast or not c2_is_contrast:
         parts: list[str] = []
         if not c1_is_contrast:
@@ -190,7 +192,7 @@ def _compute_ci_half_width(
     I: int,
     m: int,
     alpha: float,
-    n_equal: Optional[int],
+    n_equal: int | None,
     scheffe_numerator_df: int,
 ) -> float:
     """Compute the half-width for a single linear combination's CI."""
@@ -223,7 +225,7 @@ def _validate_method_for_data(
     all_pairwise: bool,
 ) -> CorrectionMethod | list[CorrectionMethod]:
     """Validate and resolve method choice."""
-    n_equal: Optional[int] = int(n[0]) if np.all(n == n[0]) else None
+    n_equal: int | None = int(n[0]) if np.all(n == n[0]) else None
 
     if method == CorrectionMethod.TUKEY:
         if not all_pairwise:
@@ -258,7 +260,7 @@ def _choose_best_method(
 ) -> list[CorrectionMethod]:
     """Return candidate methods for narrowest CI selection."""
     candidates: list[CorrectionMethod] = []
-    n_equal: Optional[int] = int(n[0]) if np.all(n == n[0]) else None
+    n_equal: int | None = int(n[0]) if np.all(n == n[0]) else None
 
     candidates.append(CorrectionMethod.SCHEFFE)
     candidates.append(CorrectionMethod.BONFERRONI)
@@ -311,7 +313,7 @@ def ANOVA1_CI_linear_combs(
     SS_w: float = partition.SS_within
     n_total: int = int(n.sum())
     df_w: int = n_total - I
-    n_equal: Optional[int] = int(n[0]) if np.all(n == n[0]) else None
+    n_equal: int | None = int(n[0]) if np.all(n == n[0]) else None
 
     all_contrasts: bool = _all_are_contrasts(C)
     all_pairwise: bool = _all_are_pairwise(C)
@@ -320,8 +322,8 @@ def ANOVA1_CI_linear_combs(
     resolved = _validate_method_for_data(method, C, n, all_contrasts, all_pairwise)
 
     if isinstance(resolved, list):
-        best_method: Optional[CorrectionMethod] = None
-        best_half_widths: Optional[np.ndarray] = None
+        best_method: CorrectionMethod | None = None
+        best_half_widths: np.ndarray | None = None
         for candidate in resolved:
             hws: np.ndarray = np.array([
                 _compute_ci_half_width(candidate, C[j], n, SS_w, df_w, I, m, alpha, n_equal, s_df)
@@ -402,7 +404,7 @@ def ANOVA1_test_linear_combs(
     SS_w: float = partition.SS_within
     n_total: int = int(n.sum())
     df_w: int = n_total - I
-    n_equal: Optional[int] = int(n[0]) if np.all(n == n[0]) else None
+    n_equal: int | None = int(n[0]) if np.all(n == n[0]) else None
 
     all_contrasts: bool = _all_are_contrasts(C)
     all_pairwise: bool = _all_are_pairwise(C)
@@ -411,8 +413,8 @@ def ANOVA1_test_linear_combs(
     resolved = _validate_method_for_data(method, C, n, all_contrasts, all_pairwise)
 
     if isinstance(resolved, list):
-        best_method: Optional[CorrectionMethod] = None
-        best_crit: Optional[np.ndarray] = None
+        best_method: CorrectionMethod | None = None
+        best_crit: np.ndarray | None = None
         for candidate in resolved:
             hws: np.ndarray = np.array([
                 _compute_ci_half_width(candidate, C[j], n, SS_w, df_w, I, m, alpha, n_equal, s_df)

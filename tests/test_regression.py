@@ -3,15 +3,15 @@
 import numpy as np
 import pytest
 
-from stats_toolbox.regression.least_squares import Mult_LR_Least_squares, Mult_LR_partition_TSS
 from stats_toolbox.regression.inference import (
-    Mult_norm_LR_simul_CI,
     Mult_norm_LR_CR,
     Mult_norm_LR_is_in_CR,
-    Mult_norm_LR_test_general,
+    Mult_norm_LR_simul_CI,
     Mult_norm_LR_test_comp,
+    Mult_norm_LR_test_general,
     Mult_norm_LR_test_linear_reg,
 )
+from stats_toolbox.regression.least_squares import Mult_LR_Least_squares, Mult_LR_partition_TSS
 from stats_toolbox.regression.prediction import Mult_norm_LR_pred_CI
 from stats_toolbox.utils.enums import PredictionMethod
 
@@ -193,8 +193,7 @@ class TestTestLinearReg:
         n = 50
         X = np.column_stack([np.ones(n), np.random.randn(n)])
         y = np.ones(n) * 5 + np.random.normal(0, 1, n)  # no slope
-        result = Mult_norm_LR_test_linear_reg(X, y, alpha=0.05)
-        # Might not reject; with seed 42 the noise might cause rejection
+        Mult_norm_LR_test_linear_reg(X, y, alpha=0.05)
         # Use a more definitive test
         y2 = np.random.normal(5, 10, n)
         X2 = np.column_stack([np.ones(n), np.linspace(0, 1, n) * 0.001])

@@ -7,28 +7,28 @@ Exercises all 20 public functions end-to-end with representative sample data.
 import numpy as np
 
 from stats_toolbox import (
-    ANOVA1_partition_TSS,
-    ANOVA1_test_equality,
+    ANOVA2_MLE,
+    ANOVA1_CI_linear_combs,
     ANOVA1_is_contrast,
     ANOVA1_is_orthogonal,
-    Bonferroni_correction,
-    Sidak_correction,
-    ANOVA1_CI_linear_combs,
+    ANOVA1_partition_TSS,
+    ANOVA1_test_equality,
     ANOVA1_test_linear_combs,
     ANOVA2_partition_TSS,
-    ANOVA2_MLE,
     ANOVA2_test_equality,
+    Bonferroni_correction,
+    CorrectionMethod,
     Mult_LR_Least_squares,
     Mult_LR_partition_TSS,
-    Mult_norm_LR_simul_CI,
     Mult_norm_LR_CR,
     Mult_norm_LR_is_in_CR,
-    Mult_norm_LR_test_general,
-    Mult_norm_LR_test_comp,
-    Mult_norm_LR_test_linear_reg,
     Mult_norm_LR_pred_CI,
-    CorrectionMethod,
+    Mult_norm_LR_simul_CI,
+    Mult_norm_LR_test_comp,
+    Mult_norm_LR_test_general,
+    Mult_norm_LR_test_linear_reg,
     PredictionMethod,
+    Sidak_correction,
     TwoWayTestFactor,
 )
 
@@ -61,7 +61,7 @@ print(f"  Toxin 3: {toxin3}")
 print(f"  Control: {control}")
 
 result = ANOVA1_partition_TSS(anova_data)
-print(f"\nResults:")
+print("\nResults:")
 print(f"  Group means: {result.group_means}")
 print(f"  Grand mean:  {result.grand_mean:.4f}")
 print(f"  SS_total:    {result.SS_total:.4f}")
@@ -77,7 +77,7 @@ separator("2. ANOVA1_test_equality")
 print("Testing H0: mu_1 = mu_2 = mu_3 = mu_4 at alpha = 0.05")
 
 result = ANOVA1_test_equality(anova_data, alpha=0.05)
-print(f"\nANOVA Table:")
+print("\nANOVA Table:")
 print(f"  {'Source':<12} {'df':<5} {'SS':<12} {'MS':<12} {'F':<10}")
 print(f"  {'Between':<12} {result.df_between:<5} {result.SS_between:<12.4f} {result.MS_between:<12.4f} {result.F_statistic:<10.4f}")
 print(f"  {'Within':<12} {result.df_within:<5} {result.SS_within:<12.4f} {result.MS_within:<12.4f}")
@@ -144,7 +144,7 @@ corrected = Sidak_correction(alpha, m)
 print(f"  FWER alpha = {alpha}, number of tests m = {m}")
 print(f"  Individual significance level: 1-(1-alpha)^(1/m) = {corrected:.6f}")
 print(f"  (Compare Bonferroni: {Bonferroni_correction(alpha, m):.6f})")
-print(f"  Sidak is less conservative (larger individual alpha).")
+print("  Sidak is less conservative (larger individual alpha).")
 
 
 # =============================================================================
@@ -216,7 +216,7 @@ mle = ANOVA2_MLE(data_2way)
 print(f"  mu_hat = {mle.mu:.4f}")
 print(f"  a_hat  = {mle.a}")
 print(f"  b_hat  = {mle.b}")
-print(f"  delta_hat =")
+print("  delta_hat =")
 print(f"    {mle.delta}")
 
 
@@ -291,7 +291,7 @@ print(f"  Check: RegSS + RSS = {result.RegSS + result.RSS:.4f} (should = TSS)")
 # =============================================================================
 separator("14. Mult_norm_LR_simul_CI")
 result = Mult_norm_LR_simul_CI(X, y, alpha=0.1)
-print(f"  Simultaneous 90% confidence intervals for beta:")
+print("  Simultaneous 90% confidence intervals for beta:")
 print(f"  Method: {result.method.value}")
 labels = ["beta_0 (intercept)", "beta_1 (attend)", "beta_2 (homework)"]
 for i, (lo, hi) in enumerate(result.intervals):
@@ -304,9 +304,9 @@ for i, (lo, hi) in enumerate(result.intervals):
 separator("15. Mult_norm_LR_CR")
 C = np.eye(3)
 cr = Mult_norm_LR_CR(X, y, C, alpha=0.1)
-print(f"  90% Confidence region for beta (full vector):")
+print("  90% Confidence region for beta (full vector):")
 print(f"  Center: {cr.center}")
-print(f"  Shape matrix (C(X^TX)^-1 C^T):")
+print("  Shape matrix (C(X^TX)^-1 C^T):")
 for row in cr.shape_matrix:
     print(f"    {row}")
 print(f"  Radius^2: {cr.radius_squared:.4f}")
