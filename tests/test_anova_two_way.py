@@ -107,6 +107,12 @@ class TestANOVA2TestEquality:
         with pytest.raises(ValueError):
             ANOVA2_test_equality(self.data, test=TwoWayTestFactor("C"))
 
+    def test_k1_raises(self):
+        # K=1 makes df_E=0; validation must reject this before division by zero.
+        data_k1 = np.ones((2, 3, 1))
+        with pytest.raises(ValueError, match="K >= 2"):
+            ANOVA2_test_equality(data_k1, alpha=0.05, test=TwoWayTestFactor.A)
+
     def test_full_table_structure(self):
         result = ANOVA2_test_equality(self.data, alpha=0.1, test=TwoWayTestFactor.A)
         table = result.full_table

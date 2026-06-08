@@ -1,13 +1,14 @@
 """
 Demonstration script for statscore.
 
-Exercises all 20 public functions end-to-end with representative sample data.
+Exercises all 29 public functions end-to-end with representative sample data.
 """
 
 import numpy as np
 
 from statscore import (
     ANOVA2_MLE,
+    AlternativeHypothesis,
     ANOVA1_CI_linear_combs,
     ANOVA1_is_contrast,
     ANOVA1_is_orthogonal,
@@ -30,10 +31,19 @@ from statscore import (
     PredictionMethod,
     Sidak_correction,
     TwoWayTestFactor,
+    bayes_normal_mean_known_var,
+    bayes_normal_mean_unknown_var,
+    bayes_normal_mean_unknown_var_summary,
+    chi2_test_variance,
+    f_test_variances,
+    t_test_mean,
+    t_test_paired,
+    t_test_two_sample,
+    z_test_mean,
 )
 
 
-def separator(title):
+def separator(title: str) -> None:
     print(f"\n{'='*70}")
     print(f"  {title}")
     print(f"{'='*70}\n")
@@ -118,7 +128,6 @@ print(f"    Orthogonal? {result12.is_orthogonal}")
 print(f"  c1 = {c1}, c3 = {c3}")
 print(f"    Orthogonal? {result13.is_orthogonal}")
 
-# Test with non-contrast
 c_bad = np.array([1, 1, 0, 0])
 result_bad = ANOVA1_is_orthogonal(n, c_bad, c2)
 print(f"\n  c_bad = {c_bad}, c2 = {c2}")
@@ -233,7 +242,6 @@ for test_type in [TwoWayTestFactor.A, TwoWayTestFactor.B, TwoWayTestFactor.AB]:
     print(f"    F={result.F_statistic:.4f}, F_crit={result.F_critical:.4f}, p={result.p_value:.6f}")
     print(f"    Decision: {'Reject H0' if result.reject_H0 else 'Do not reject H0'}\n")
 
-# Print full table
 result = ANOVA2_test_equality(data_2way, alpha=0.05, test=TwoWayTestFactor.A)
 print("  Full ANOVA table:")
 print(f"  {'Source':<10} {'df':<5} {'SS':<12} {'MS':<12} {'F':<10}")
@@ -253,8 +261,8 @@ print(f"  {'Total':<10} {t['df']:<5} {t['SS']:<12.4f}")
 attend = np.array([1, 0.5, 0.2, 0.4, 0.5, 0.7, 0.8, 0.9, 0.6, 0.1, 0, 0, 0.7, 0.8, 1])
 homework = np.array([0.25, 1, 0.5, 1, 1, 0.75, 1, 0.25, 0, 0, 1, 0.5, 0.25, 0.75, 1])
 grade = np.array([60, 65, 40, 70, 65, 70, 85, 70, 44, 20, 40, 30, 50, 77, 90], dtype=float)
-n = len(grade)
-X = np.column_stack([np.ones(n), attend, homework])
+n_obs = len(grade)
+X = np.column_stack([np.ones(n_obs), attend, homework])
 y = grade
 
 
@@ -269,7 +277,7 @@ print(f"\n  beta_hat = {result.beta_hat}")
 print(f"    beta_0 (intercept): {result.beta_hat[0]:.4f}")
 print(f"    beta_1 (attend):    {result.beta_hat[1]:.4f}")
 print(f"    beta_2 (homework):  {result.beta_hat[2]:.4f}")
-print(f"  sigma^2 MLE:     {result.sigma2_mle:.4f}")
+print(f"  sigma^2 MLE:             {result.sigma2_mle:.4f}")
 print(f"  sigma^2 unbiased (Se^2): {result.sigma2_unbiased:.4f}")
 print(f"  Se = {np.sqrt(result.sigma2_unbiased):.4f}")
 
@@ -302,8 +310,8 @@ for i, (lo, hi) in enumerate(result.intervals):
 # DEMO 15: Mult_norm_LR_CR
 # =============================================================================
 separator("15. Mult_norm_LR_CR")
-C = np.eye(3)
-cr = Mult_norm_LR_CR(X, y, C, alpha=0.1)
+C_full = np.eye(3)
+cr = Mult_norm_LR_CR(X, y, C_full, alpha=0.1)
 print("  90% Confidence region for beta (full vector):")
 print(f"  Center: {cr.center}")
 print("  Shape matrix (C(X^TX)^-1 C^T):")
@@ -317,11 +325,10 @@ print(f"  F_critical: {cr.F_critical:.4f}")
 # DEMO 16: Mult_norm_LR_is_in_CR
 # =============================================================================
 separator("16. Mult_norm_LR_is_in_CR")
-C = np.eye(3)
 c0_in = np.array([20, 40, 20])
 c0_out = np.array([0, 0, 0])
-print(f"  Testing if c0 = {c0_in} is in 90% CR: {Mult_norm_LR_is_in_CR(X, y, C, c0_in, alpha=0.1)}")
-print(f"  Testing if c0 = {c0_out} is in 90% CR: {Mult_norm_LR_is_in_CR(X, y, C, c0_out, alpha=0.1)}")
+print(f"  Testing if c0 = {c0_in} is in 90% CR: {Mult_norm_LR_is_in_CR(X, y, C_full, c0_in, alpha=0.1)}")
+print(f"  Testing if c0 = {c0_out} is in 90% CR: {Mult_norm_LR_is_in_CR(X, y, C_full, c0_out, alpha=0.1)}")
 
 
 # =============================================================================
@@ -374,10 +381,8 @@ print(f"  Decision:    {'Reject H0' if result.reject_H0 else 'Do not reject H0'}
 # DEMO 20: Mult_norm_LR_pred_CI
 # =============================================================================
 separator("20. Mult_norm_LR_pred_CI")
-print("Prediction: A student with full attendance and no homework.")
-print("  d = (1, 1.0, 0.0)")
-print("Also predict for: half attendance and full homework completion.")
-print("  d = (1, 0.5, 1.0)")
+print("Prediction: A student with full attendance and no homework (d = (1, 1.0, 0.0))")
+print("Also predict: half attendance, full homework completion (d = (1, 0.5, 1.0))")
 
 D = np.array([
     [1, 1.0, 0.0],
@@ -391,6 +396,193 @@ for i, (lo, hi) in enumerate(result.intervals):
 
 
 # =============================================================================
+# NORMAL DISTRIBUTION SIGNIFICANCE TESTING DATA
+# =============================================================================
+# Blood pressure readings from two groups of patients
+bp_treatment = np.array([138, 142, 130, 145, 137, 140, 133, 148, 135, 141], dtype=float)
+bp_control = np.array([155, 162, 149, 158, 160, 153, 157, 151, 164, 156], dtype=float)
+
+
+# =============================================================================
+# DEMO 21: z_test_mean
+# =============================================================================
+separator("21. z_test_mean")
+print("Testing H0: mu = 150 for blood pressure (sigma = 10 known)")
+result = z_test_mean(
+    bp_treatment, mu0=150.0, sigma=10.0, alpha=0.05,
+    alternative=AlternativeHypothesis.TWO_SIDED,
+)
+print(f"  n = {result.n}, x_bar = {result.x_bar:.4f}")
+print(f"  Z statistic:  {result.z_statistic:.4f}")
+print(f"  Z critical:   ±{result.z_critical:.4f}")
+print(f"  p-value:      {result.p_value:.6f}")
+print(f"  Decision:     {'Reject H0' if result.reject_H0 else 'Do not reject H0'}")
+
+print("\nOne-sided test: H0: mu >= 150 vs H1: mu < 150")
+result_less = z_test_mean(
+    bp_treatment, mu0=150.0, sigma=10.0, alpha=0.05,
+    alternative=AlternativeHypothesis.LESS,
+)
+print(f"  Z statistic: {result_less.z_statistic:.4f}, p-value: {result_less.p_value:.6f}")
+print(f"  Decision:    {'Reject H0' if result_less.reject_H0 else 'Do not reject H0'}")
+
+
+# =============================================================================
+# DEMO 22: t_test_mean
+# =============================================================================
+separator("22. t_test_mean")
+print("Testing H0: mu = 150 for blood pressure (sigma unknown)")
+result = t_test_mean(
+    bp_treatment, mu0=150.0, alpha=0.05,
+    alternative=AlternativeHypothesis.TWO_SIDED,
+)
+print(f"  n = {result.n}, x_bar = {result.x_bar:.4f}, s = {result.s:.4f}")
+print(f"  T statistic:  {result.t_statistic:.4f}")
+print(f"  T critical:   ±{result.t_critical:.4f}  (df = {result.df})")
+print(f"  p-value:      {result.p_value:.6f}")
+print(f"  Decision:     {'Reject H0' if result.reject_H0 else 'Do not reject H0'}")
+
+
+# =============================================================================
+# DEMO 23: chi2_test_variance
+# =============================================================================
+separator("23. chi2_test_variance")
+print("Testing H0: sigma^2 = 100 for blood pressure measurements")
+result = chi2_test_variance(
+    bp_treatment, sigma0_sq=100.0, alpha=0.05,
+    alternative=AlternativeHypothesis.TWO_SIDED,
+)
+print(f"  n = {result.n}, s^2 = {result.s2:.4f}")
+print(f"  Chi2 statistic: {result.chi2_statistic:.4f}")
+print(f"  Critical region: < {result.chi2_critical_lower:.4f} or > {result.chi2_critical_upper:.4f}")
+print(f"  p-value:        {result.p_value:.6f}")
+print(f"  Decision:       {'Reject H0' if result.reject_H0 else 'Do not reject H0'}")
+
+
+# =============================================================================
+# DEMO 24: t_test_two_sample
+# =============================================================================
+separator("24. t_test_two_sample")
+print("Testing H0: mu_treatment = mu_control (two-sample t-test)")
+
+print("\n  Equal variance (pooled):")
+result = t_test_two_sample(
+    bp_treatment, bp_control, alpha=0.05,
+    alternative=AlternativeHypothesis.TWO_SIDED, equal_var=True,
+)
+print(f"  x1_bar = {result.x1_bar:.2f}, x2_bar = {result.x2_bar:.2f}")
+print(f"  T statistic: {result.t_statistic:.4f}, df = {result.df}")
+print(f"  p-value:     {result.p_value:.6f}")
+print(f"  Decision:    {'Reject H0' if result.reject_H0 else 'Do not reject H0'}")
+
+print("\n  Welch's t-test (unequal variance):")
+result_welch = t_test_two_sample(
+    bp_treatment, bp_control, alpha=0.05,
+    alternative=AlternativeHypothesis.TWO_SIDED, equal_var=False,
+)
+print(f"  T statistic: {result_welch.t_statistic:.4f}, df = {result_welch.df}")
+print(f"  p-value:     {result_welch.p_value:.6f}")
+print(f"  Decision:    {'Reject H0' if result_welch.reject_H0 else 'Do not reject H0'}")
+
+
+# =============================================================================
+# DEMO 25: t_test_paired
+# =============================================================================
+separator("25. t_test_paired")
+print("Paired t-test: blood pressure before vs. after treatment")
+bp_before = np.array([158, 163, 151, 162, 155, 160, 157, 165, 153, 159], dtype=float)
+bp_after = np.array([138, 142, 130, 145, 137, 140, 133, 148, 135, 141], dtype=float)
+
+result = t_test_paired(
+    bp_before, bp_after, alpha=0.05,
+    alternative=AlternativeHypothesis.GREATER,
+)
+print(f"  n = {result.n}, d_bar = {result.d_bar:.4f} (mean reduction)")
+print(f"  T statistic: {result.t_statistic:.4f}, df = {result.df}")
+print(f"  p-value:     {result.p_value:.6f}")
+print(f"  Decision:    {'Reject H0' if result.reject_H0 else 'Do not reject H0'}")
+print("  (H1: before > after, i.e., treatment reduces blood pressure)")
+
+
+# =============================================================================
+# DEMO 26: f_test_variances
+# =============================================================================
+separator("26. f_test_variances")
+print("Testing H0: sigma^2_treatment = sigma^2_control")
+result = f_test_variances(
+    bp_treatment, bp_control, alpha=0.05,
+    alternative=AlternativeHypothesis.TWO_SIDED,
+)
+print(f"  s1^2 = {result.s1_sq:.4f} (treatment), s2^2 = {result.s2_sq:.4f} (control)")
+print(f"  F statistic: {result.f_statistic:.4f}")
+print(f"  Critical region: < {result.f_critical_lower:.4f} or > {result.f_critical_upper:.4f}")
+print(f"  p-value:     {result.p_value:.6f}")
+print(f"  Decision:    {'Reject H0' if result.reject_H0 else 'Do not reject H0'}")
+
+
+# =============================================================================
+# BAYESIAN DATA
+# =============================================================================
+# Lab measurement data with known/unknown variance scenarios
+measurements = np.array([9.8, 10.2, 10.1, 9.9, 10.3, 9.7, 10.0, 10.4, 9.6, 10.1], dtype=float)
+
+
+# =============================================================================
+# DEMO 27: bayes_normal_mean_known_var
+# =============================================================================
+separator("27. bayes_normal_mean_known_var")
+print("Bayesian inference: sensor measurement with known variance sigma^2 = 0.04")
+print("Prior: mu ~ N(10.0, 0.04 / 2)  =>  kappa0 = 2, mu0 = 10.0")
+
+result = bayes_normal_mean_known_var(
+    measurements, sigma_sq=0.04, mu0=10.0, kappa0=2.0, alpha=0.05,
+)
+print(f"\n  n = {result.n}, x_bar = {result.x_bar:.4f}")
+print(f"  Posterior: mu | x ~ N({result.mu_n:.4f}, {result.posterior_variance:.6f})")
+print(f"  Posterior mean:    {result.posterior_mean:.6f}")
+print(f"  Posterior std:     {result.posterior_std:.6f}")
+print(f"  95% Credible interval: ({result.credible_interval[0]:.4f}, {result.credible_interval[1]:.4f})")
+print("\n  Posterior predictive:")
+print(f"  Predictive mean:   {result.predictive_mean:.6f}")
+print(f"  Predictive std:    {result.predictive_std:.6f}")
+print(f"  95% Predictive interval: ({result.predictive_interval[0]:.4f}, {result.predictive_interval[1]:.4f})")
+
+
+# =============================================================================
+# DEMO 28: bayes_normal_mean_unknown_var
+# =============================================================================
+separator("28. bayes_normal_mean_unknown_var")
+print("Bayesian inference: sensor measurement with unknown variance")
+print("Prior: (mu, tau) ~ Normal-Gamma(mu0=10.0, kappa0=1, alpha0=2, beta0=0.1)")
+
+result = bayes_normal_mean_unknown_var(
+    measurements, mu0=10.0, kappa0=1.0, alpha0=2.0, beta0=0.1, alpha=0.05,
+)
+print(f"\n  n = {result.n}, x_bar = {result.x_bar:.4f}")
+print("\n  Posterior hyperparameters:")
+print(f"    mu_n    = {result.mu_n:.6f}")
+print(f"    kappa_n = {result.kappa_n:.6f}")
+print(f"    alpha_n = {result.alpha_n:.6f}")
+print(f"    beta_n  = {result.beta_n:.6f}")
+print("\n  Posterior summaries:")
+print(f"    E[mu]      = {result.posterior_mean_mu:.6f}")
+print(f"    E[tau]     = {result.posterior_mean_precision:.6f}")
+if result.posterior_mean_variance is not None:
+    print(f"    E[sigma^2] = {result.posterior_mean_variance:.6f}")
+print("\n  95% Credible intervals:")
+print(f"    mu:      ({result.mu_credible_interval[0]:.4f}, {result.mu_credible_interval[1]:.4f})")
+print(f"    sigma^2: ({result.variance_credible_interval[0]:.4f}, {result.variance_credible_interval[1]:.4f})")
+
+
+# =============================================================================
+# DEMO 29: bayes_normal_mean_unknown_var_summary
+# =============================================================================
+separator("29. bayes_normal_mean_unknown_var_summary")
+print("Formatted posterior summary (same result as Demo 28):\n")
+bayes_normal_mean_unknown_var_summary(result)
+
+
+# =============================================================================
 separator("DEMO COMPLETE")
-print("All 20 statscore functions demonstrated successfully.")
+print("All 29 statscore functions demonstrated successfully.")
 print()

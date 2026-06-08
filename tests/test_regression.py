@@ -82,6 +82,19 @@ class TestPartitionTSS:
         result = Mult_LR_partition_TSS(X, y)
         assert 0 <= result.R_squared <= 1
 
+    def test_adj_r_squared(self):
+        np.random.seed(10)
+        n = 30
+        X = np.column_stack([np.ones(n), np.random.randn(n)])
+        y = X @ [1, 2] + np.random.randn(n)
+        result = Mult_LR_partition_TSS(X, y)
+        # adj R² = 1 - (1 - R²)(n-1)/(n-p)
+        n_obs, p = X.shape
+        expected_adj = 1.0 - (1.0 - result.R_squared) * (n_obs - 1) / (n_obs - p)
+        assert np.isclose(result.adj_R_squared, expected_adj)
+        # adj R² <= R² when p > 1
+        assert result.adj_R_squared <= result.R_squared
+
 
 class TestSimulCI:
     def test_intervals_contain_true_beta(self):

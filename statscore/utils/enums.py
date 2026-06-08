@@ -41,3 +41,15 @@ class TwoWayTestFactor(Enum):
     A = "A"
     B = "B"
     AB = "AB"
+
+
+class AlternativeHypothesis(Enum):
+    """Alternative hypothesis direction for significance tests.
+
+    Used by z_test_mean, t_test_mean, chi2_test_variance,
+    t_test_two_sample, t_test_paired, f_test_variances.
+    """
+
+    TWO_SIDED = "two-sided"
+    LESS = "less"
+    GREATER = "greater"

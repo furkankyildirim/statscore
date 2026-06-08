@@ -4,6 +4,37 @@ from collections.abc import Sequence
 
 import numpy as np
 
+from statscore.utils.enums import AlternativeHypothesis
+
+
+def validate_positive(value: float, name: str) -> None:
+    """Raise ValueError if value is not strictly positive."""
+    if value <= 0:
+        raise ValueError(f"{name} must be positive, got {value}.")
+
+
+def validate_non_negative(value: float, name: str) -> None:
+    """Raise ValueError if value is negative."""
+    if value < 0:
+        raise ValueError(f"{name} must be non-negative, got {value}.")
+
+
+def validate_1d_sample(x: np.ndarray, name: str = "x", min_obs: int = 2) -> None:
+    """Raise ValueError if x is not a 1-D array with at least min_obs observations."""
+    if x.ndim != 1:
+        raise ValueError(f"{name} must be a 1-D array.")
+    if len(x) < min_obs:
+        raise ValueError(f"{name} must have at least {min_obs} observations.")
+
+
+def validate_alternative(alternative: AlternativeHypothesis) -> None:
+    """Raise TypeError if alternative is not an AlternativeHypothesis enum member."""
+    if not isinstance(alternative, AlternativeHypothesis):
+        raise TypeError(
+            f"alternative must be an AlternativeHypothesis enum member, "
+            f"got {type(alternative).__name__!r}."
+        )
+
 
 def validate_design_matrix(X: np.ndarray) -> None:
     """Validate that X is a full-rank n x (k+1) design matrix with n > k+1."""
@@ -44,8 +75,12 @@ def validate_two_way_data(data: np.ndarray) -> None:
     I, J, K = data.shape
     if I < 2 or J < 2:
         raise ValueError("Need at least 2 levels for each factor.")
-    if K < 1:
-        raise ValueError("Need at least 1 replicate per cell.")
+    if K < 2:
+        raise ValueError(
+            "Two-way ANOVA with replication requires at least 2 replicates per cell "
+            "(K >= 2). With K=1 the error degrees of freedom are zero and MS_E cannot "
+            "be estimated."
+        )
 
 
 def validate_contrast_matrix(C: np.ndarray, I: int) -> None:

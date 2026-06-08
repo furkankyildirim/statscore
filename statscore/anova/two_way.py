@@ -45,6 +45,50 @@ class ANOVA2TestResult:
     full_table: dict[str, dict[str, float]]
 
 
+def ANOVA2_print_table(result: ANOVA2TestResult) -> None:
+    """Print a formatted two-way ANOVA table.
+
+    Parameters
+    ----------
+    result : ANOVA2TestResult
+        Output from ANOVA2_test_equality.
+    """
+    t = result.full_table
+    w = 66
+    decision = "Reject H0" if result.reject_H0 else "Fail to reject H0"
+
+    def _row(label: str, entry: dict[str, float], f_str: str = "") -> str:
+        df  = int(entry["df"])
+        ss  = entry["SS"]
+        ms  = entry.get("MS", float("nan"))
+        f   = entry.get("F", float("nan"))
+        ms_s = f"{ms:>12.4f}" if not (ms != ms) else f"{'':>12}"
+        f_s  = f"{f:>10.4f}"  if (f_str or not (f != f)) and not (f != f) else f"{'':>10}"
+        return f"  {label:<14} {df:>5} {ss:>12.4f} {ms_s} {f_s}"
+
+    print("=" * w)
+    print("  Two-Way ANOVA Table")
+    print("=" * w)
+    print(f"  {'Source':<14} {'df':>5} {'SS':>12} {'MS':>12} {'F':>10}")
+    print("-" * w)
+    print(_row("Factor A",      t["A"],      "f"))
+    print(_row("Factor B",      t["B"],      "f"))
+    print(_row("Interaction AB", t["AB"],    "f"))
+    print(_row("Within (Error)", t["within"], ""))
+    print("-" * w)
+    # Total row has no MS or F
+    df_tot = int(t["total"]["df"])
+    ss_tot = t["total"]["SS"]
+    print(f"  {'Total':<14} {df_tot:>5} {ss_tot:>12.4f} {'':>12} {'':>10}")
+    print("=" * w)
+    print(f"  Testing:          {result.source.value}")
+    print(f"  F statistic:      {result.F_statistic:.4f}")
+    print(f"  F critical:       {result.F_critical:.4f}")
+    print(f"  p-value:          {result.p_value:.4f}")
+    print(f"  Decision:         {decision}")
+    print("=" * w)
+
+
 def ANOVA2_partition_TSS(data: np.ndarray) -> ANOVA2PartitionResult:
     """Partition total sum of squares in a two-way ANOVA layout.
 

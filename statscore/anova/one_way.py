@@ -78,6 +78,32 @@ def ANOVA1_partition_TSS(data: Sequence[np.ndarray]) -> ANOVA1PartitionResult:
     )
 
 
+def ANOVA1_print_table(result: ANOVA1TestResult) -> None:
+    """Print a formatted one-way ANOVA table.
+
+    Parameters
+    ----------
+    result : ANOVA1TestResult
+        Output from ANOVA1_test_equality.
+    """
+    w = 58
+    decision = "Reject H0" if result.reject_H0 else "Fail to reject H0"
+    print("=" * w)
+    print("  One-Way ANOVA Table")
+    print("=" * w)
+    print(f"  {'Source':<12} {'df':>5} {'SS':>12} {'MS':>12} {'F':>10}")
+    print("-" * w)
+    print(f"  {'Between':<12} {result.df_between:>5} {result.SS_between:>12.4f} {result.MS_between:>12.4f} {result.F_statistic:>10.4f}")
+    print(f"  {'Within':<12} {result.df_within:>5} {result.SS_within:>12.4f} {result.MS_within:>12.4f} {'':>10}")
+    print("-" * w)
+    print(f"  {'Total':<12} {result.df_total:>5} {result.SS_total:>12.4f} {'':>12} {'':>10}")
+    print("=" * w)
+    print(f"  F critical (α={result.alpha}): {result.F_critical:.4f}")
+    print(f"  p-value:                  {result.p_value:.4f}")
+    print(f"  Decision:                 {decision}")
+    print("=" * w)
+
+
 def ANOVA1_test_equality(data: Sequence[np.ndarray], alpha: float = 0.05) -> ANOVA1TestResult:
     """Test equality of means in a one-way ANOVA layout.
 
