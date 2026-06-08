@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stats-toolbox"
+version = "1.0.0"
+description = "A production-quality Python library for Analysis of Variance (ANOVA) and Multiple Linear Regression with structured output, simultaneous inference, and FWER control."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [
+    { name = "Furkan K. Yıldırım", email = "contact@furkankyildirim.com" },
+]
+maintainers = [
+    { name = "Furkan K. Yıldırım", email = "contact@furkankyildirim.com" },
+]
+keywords = [
+    "statistics",
+    "anova",
+    "regression",
+    "hypothesis-testing",
+    "confidence-intervals",
+    "linear-model",
+    "f-test",
+    "multiple-comparisons",
+    "bonferroni",
+    "scheffe",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering",
+    "Typing :: Typed",
+]
+dependencies = [
+    "numpy>=1.21",
+    "scipy>=1.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.4",
+    "mypy>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/furkankyildirim/stats-toolbox"
+Repository = "https://github.com/furkankyildirim/stats-toolbox"
+Documentation = "https://github.com/furkankyildirim/stats-toolbox#readme"
+Issues = "https://github.com/furkankyildirim/stats-toolbox/issues"
+Changelog = "https://github.com/furkankyildirim/stats-toolbox/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+include = ["stats_toolbox*"]
+exclude = ["tests*", "examples*"]
+
+[tool.setuptools.package-data]
+stats_toolbox = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers -v"
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
