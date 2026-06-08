@@ -33,7 +33,6 @@ from statscore import (
     TwoWayTestFactor,
     bayes_normal_mean_known_var,
     bayes_normal_mean_unknown_var,
-    bayes_normal_mean_unknown_var_summary,
     chi2_test_variance,
     f_test_variances,
     t_test_mean,
@@ -575,11 +574,11 @@ print(f"    sigma^2: ({result.variance_credible_interval[0]:.4f}, {result.varian
 
 
 # =============================================================================
-# DEMO 29: bayes_normal_mean_unknown_var_summary
+# DEMO 29: bayes_normal_mean_unknown_var — .summary()
 # =============================================================================
-separator("29. bayes_normal_mean_unknown_var_summary")
+separator("29. bayes_normal_mean_unknown_var — result.summary()")
 print("Formatted posterior summary (same result as Demo 28):\n")
-bayes_normal_mean_unknown_var_summary(result)
+result.summary()
 
 
 # =============================================================================

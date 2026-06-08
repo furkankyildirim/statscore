@@ -36,6 +36,22 @@ class ZTestResult:
     mu0: float
     sigma: float
 
+    def summary(self) -> None:
+        w = 60
+        decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
+        two_sided = self.alternative is AlternativeHypothesis.TWO_SIDED
+        crit_str = f"±{self.z_critical:.4f}" if two_sided else f"{self.z_critical:.4f}"
+        print("=" * w)
+        print("  One-Sample Z-Test")
+        print("=" * w)
+        print(f"  n = {self.n}    x̄ = {self.x_bar:.4f}    σ = {self.sigma:.4f}")
+        print(f"  H0: μ = {self.mu0}    Alternative: {self.alternative.value}")
+        print("-" * w)
+        print(f"  Z-statistic: {self.z_statistic:.4f}    Z-critical: {crit_str}")
+        print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
+        print(f"  Decision:    {decision}")
+        print("=" * w)
+
 
 @dataclass
 class TTestOneSampleResult:
@@ -53,6 +69,22 @@ class TTestOneSampleResult:
     s: float
     df: int
 
+    def summary(self) -> None:
+        w = 60
+        decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
+        two_sided = self.alternative is AlternativeHypothesis.TWO_SIDED
+        crit_str = f"±{self.t_critical:.4f}" if two_sided else f"{self.t_critical:.4f}"
+        print("=" * w)
+        print("  One-Sample t-Test")
+        print("=" * w)
+        print(f"  n = {self.n}    x̄ = {self.x_bar:.4f}    s = {self.s:.4f}    df = {self.df}")
+        print(f"  H0: μ = {self.mu0}    Alternative: {self.alternative.value}")
+        print("-" * w)
+        print(f"  t-statistic: {self.t_statistic:.4f}    t-critical: {crit_str}")
+        print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
+        print(f"  Decision:    {decision}")
+        print("=" * w)
+
 
 @dataclass
 class Chi2VarianceTestResult:
@@ -69,6 +101,21 @@ class Chi2VarianceTestResult:
     s2: float
     sigma0_sq: float
     df: int
+
+    def summary(self) -> None:
+        w = 60
+        decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
+        print("=" * w)
+        print("  Chi-Squared Variance Test")
+        print("=" * w)
+        print(f"  n = {self.n}    s² = {self.s2:.4f}    df = {self.df}")
+        print(f"  H0: σ² = {self.sigma0_sq}    Alternative: {self.alternative.value}")
+        print("-" * w)
+        print(f"  χ²-statistic: {self.chi2_statistic:.4f}")
+        print(f"  Critical region: < {self.chi2_critical_lower:.4f}  or  > {self.chi2_critical_upper:.4f}")
+        print(f"  p-value:      {self.p_value:.4f}    alpha: {self.alpha}")
+        print(f"  Decision:     {decision}")
+        print("=" * w)
 
 
 def z_test_mean(

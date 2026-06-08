@@ -3,11 +3,9 @@
 from statscore.bayes.conjugate import (
     bayes_normal_mean_known_var,
     bayes_normal_mean_unknown_var,
-    bayes_normal_mean_unknown_var_summary,
 )
 
 __all__ = [
     "bayes_normal_mean_known_var",
     "bayes_normal_mean_unknown_var",
-    "bayes_normal_mean_unknown_var_summary",
 ]

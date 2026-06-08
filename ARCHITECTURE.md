@@ -7,7 +7,8 @@
 │                   statscore (public API)                    │  ← top-level __init__.py
 ├─────────────────────────────────────────────────────────────┤
 │  statscore.anova  statscore.regression  statscore.testing   │  ← domain modules
-│                   statscore.bayes                           │
+│  statscore.bayes  statscore.diagnostics statscore.plots     │
+│  statscore.io                                               │
 ├─────────────────────────────────────────────────────────────┤
 │                      statscore.utils                        │  ← base layer
 │   ├── enums.py          (type definitions)                  │
@@ -20,11 +21,14 @@
 
 | Layer | May import from | Must NOT import from |
 |-------|----------------|---------------------|
-| `utils` | External packages only (numpy, scipy) | `anova`, `regression`, `testing`, `bayes` |
-| `anova` | `statscore.utils`, other `anova` submodules | `regression`, `testing`, `bayes` |
-| `regression` | `statscore.utils`, other `regression` submodules | `anova`, `testing`, `bayes` |
-| `testing` | `statscore.utils` | `anova`, `regression`, `bayes` |
-| `bayes` | `statscore.utils` | `anova`, `regression`, `testing` |
+| `utils` | External packages only (numpy, scipy) | `anova`, `regression`, `testing`, `bayes`, `diagnostics`, `plots`, `io` |
+| `anova` | `statscore.utils`, other `anova` submodules | `regression`, `testing`, `bayes`, `diagnostics`, `plots`, `io` |
+| `regression` | `statscore.utils`, other `regression` submodules | `anova`, `testing`, `bayes`, `diagnostics`, `plots`, `io` |
+| `testing` | `statscore.utils` | `anova`, `regression`, `bayes`, `diagnostics`, `plots`, `io` |
+| `bayes` | `statscore.utils` | `anova`, `regression`, `testing`, `diagnostics`, `plots`, `io` |
+| `diagnostics` | `statscore.utils`, `statscore.regression.least_squares` | `anova`, `testing`, `bayes`, `plots`, `io` |
+| `plots` | External packages only (numpy, scipy, matplotlib) | all statscore domain modules (accepts result dataclasses duck-typed) |
+| `io` | External packages only (pandas) | all statscore domain modules |
 | top-level `__init__` | all domain modules, `statscore.utils.enums` | — |
 
 No circular dependencies exist. The dependency graph is a strict DAG:
@@ -35,14 +39,18 @@ utils.enums         ← anova.two_way, anova.multiple_tests, regression.predicti
                     ← utils.distributions, utils.validation
 utils.distributions ← anova.one_way, anova.two_way, anova.multiple_tests
                     ← regression.least_squares, regression.inference, regression.prediction
+                    ← regression.summary
                     ← testing.one_sample, testing.two_sample
                     ← bayes.conjugate
+                    ← diagnostics
 utils.validation    ← anova.one_way, anova.two_way, anova.multiple_tests
                     ← regression.least_squares, regression.inference, regression.prediction
                     ← testing.one_sample, testing.two_sample
                     ← bayes.conjugate
+                    ← diagnostics
 anova.one_way       ← anova.multiple_tests (intra-layer)
-regression.least_squares ← regression.inference, regression.prediction (intra-layer)
+regression.least_squares ← regression.inference, regression.prediction, regression.summary (intra-layer)
+                         ← diagnostics (cross-layer, read-only)
 ```
 
 ## Import Style
@@ -128,11 +136,11 @@ Domain-specific validators (`validate_design_matrix`, `validate_data_groups`, et
 
 The public API is defined exclusively through `__all__` in each `__init__.py`:
 
-- `statscore.__all__` — 4 enums + 29 functions (33 total symbols)
+- `statscore.__all__` — 4 enums + 29 statistical functions + 2 regression summary + 4 diagnostics + 5 plots + 2 I/O (46 total symbols)
 - `statscore.anova.__all__` — 11 ANOVA functions
-- `statscore.regression.__all__` — 9 regression functions
+- `statscore.regression.__all__` — 9 regression functions + `RegressionSummaryResult`, `regression_summary` (11 total)
 - `statscore.testing.__all__` — 6 testing functions
-- `statscore.bayes.__all__` — 3 Bayesian functions
+- `statscore.bayes.__all__` — 2 Bayesian functions
 
 Users should import from the top-level namespace:
 
@@ -149,7 +157,7 @@ from statscore import (
 
 ## Adding New Modules
 
-1. Place the module in the correct layer (`utils/`, `anova/`, `regression/`, `testing/`, or `bayes/`).
+1. Place the module in the correct layer (`utils/`, `anova/`, `regression/`, `testing/`, `bayes/`, or top-level for cross-cutting concerns like `diagnostics`, `plots`, `io`).
 2. Use only absolute imports from `statscore.*`.
 3. Respect the layer dependency rules above — domain modules must not import from each other.
 4. Add complete type annotations to all functions and dataclass fields.
@@ -158,3 +166,4 @@ from statscore import (
 7. Export public symbols through the subpackage `__init__.py` and add to `__all__`.
 8. Re-export from the top-level `__init__.py` if it belongs to the user-facing API.
 9. Add tests in `tests/` and extend `examples/demo.py`.
+10. Update `CHANGELOG.md` (new `[x.y.z]` entry) and `ARCHITECTURE.md` (layer rules, DAG, public API counts).

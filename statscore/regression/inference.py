@@ -21,6 +21,20 @@ class SimultaneousCIBetaResult:
     half_widths: np.ndarray
     method: PredictionMethod
 
+    def summary(self) -> None:
+        w = 64
+        print("=" * w)
+        print("  Simultaneous CIs for Regression Coefficients")
+        print(f"  Method: {self.method.value}")
+        print("=" * w)
+        print(f"  {'Coefficient':<14} {'Estimate':>10} {'Half-Width':>12} {'Lower':>10} {'Upper':>10}")
+        print("-" * w)
+        for i, (lo, hi) in enumerate(self.intervals):
+            b = float(self.beta_hat[i])
+            hw = float(self.half_widths[i])
+            print(f"  {'beta_' + str(i):<14} {b:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
+        print("=" * w)
+
 
 @dataclass
 class ConfidenceRegionResult:
@@ -46,6 +60,20 @@ class HypothesisTestResult:
     alpha: float
     df_numerator: int
     df_denominator: int
+
+    def summary(self) -> None:
+        w = 60
+        decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
+        print("=" * w)
+        print("  Regression Hypothesis Test")
+        print("=" * w)
+        print(f"  df_numerator = {self.df_numerator}    df_denominator = {self.df_denominator}")
+        print(f"  alpha = {self.alpha}")
+        print("-" * w)
+        print(f"  F-statistic: {self.test_statistic:.4f}    F-critical: {self.F_critical:.4f}")
+        print(f"  p-value:     {self.p_value:.4f}")
+        print(f"  Decision:    {decision}")
+        print("=" * w)
 
 
 def Mult_norm_LR_simul_CI(

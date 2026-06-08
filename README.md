@@ -15,9 +15,14 @@ A production-quality Python library for **ANOVA**, **normal distribution signifi
 - **Simultaneous Inference** — confidence intervals, confidence regions (ellipsoids), general hypothesis tests
 - **Prediction Intervals** — Scheffé and Bonferroni simultaneous prediction CIs
 - **Bayesian Conjugate Inference** — Normal-Normal (known variance) and Normal-Gamma (unknown variance) conjugate posteriors with credible intervals and posterior predictive distributions
+- **Regression Summary** — full OLS summary table (coefficients, SE, t-stats, p-values, F-test) analogous to R's `summary(lm(...))`
+- **Diagnostics** — Shapiro-Wilk normality test, Levene's variance homogeneity test, leverage/standardized residuals/Cook's D with influence flags, mean confidence intervals
+- **Visualization** — scatter+fit, residuals vs. fitted, normal Q-Q, ANOVA box plots, Bayesian posterior plots; all return `matplotlib.Figure`
+- **Data I/O** — load `.csv`, `.tsv`, `.xlsx`, `.json` into a `LoadedData` result via a single `load_data` call
+- **Interactive CLI** — `statscore` command launches an 11-item text menu covering all major analyses
 - **Structured Output** — all functions return typed dataclass objects, not raw tuples
 - **Type-Safe Enums** — all categorical parameters use enums; no raw strings
-- **Minimal Dependencies** — only NumPy and SciPy required
+- **Standard Dependencies** — NumPy, SciPy, pandas, matplotlib
 
 ## Installation
 
@@ -31,7 +36,7 @@ cd statscore
 pip install -e ".[dev]"
 ```
 
-**Requirements:** Python >= 3.9, NumPy >= 1.21, SciPy >= 1.7
+**Requirements:** Python >= 3.9, NumPy >= 1.21, SciPy >= 1.7, pandas >= 1.3, matplotlib >= 3.5
 
 ## Quick Start
 
@@ -39,7 +44,7 @@ pip install -e ".[dev]"
 
 ```python
 import numpy as np
-from statscore import ANOVA1_partition_TSS, ANOVA1_test_equality, ANOVA1_print_table
+from statscore import ANOVA1_partition_TSS, ANOVA1_test_equality
 
 data = [
     np.array([28, 23, 14, 27, 31]),
@@ -53,7 +58,7 @@ print(f"SS_within = {partition.SS_within}")
 print(f"SS_between = {partition.SS_between}")
 
 result = ANOVA1_test_equality(data, alpha=0.05)
-ANOVA1_print_table(result)
+result.summary()
 # ==========================================================
 #   One-Way ANOVA Table
 # ==========================================================
@@ -74,7 +79,7 @@ ANOVA1_print_table(result)
 
 ```python
 import numpy as np
-from statscore import ANOVA2_test_equality, ANOVA2_print_table, TwoWayTestFactor
+from statscore import ANOVA2_test_equality, TwoWayTestFactor
 
 # data shape: (I, J, K) — I levels of A, J levels of B, K replicates
 data = np.array([
@@ -83,7 +88,7 @@ data = np.array([
 ], dtype=float)
 
 result = ANOVA2_test_equality(data, alpha=0.05, test=TwoWayTestFactor.B)
-ANOVA2_print_table(result)
+result.summary()
 # ==================================================================
 #   Two-Way ANOVA Table
 # ==================================================================
@@ -182,35 +187,40 @@ for i, (lo, hi) in enumerate(pred.intervals):
 
 ```python
 import numpy as np
-from statscore import bayes_normal_mean_known_var, bayes_normal_mean_unknown_var, bayes_normal_mean_unknown_var_summary
+from statscore import bayes_normal_mean_known_var, bayes_normal_mean_unknown_var
 
 x = np.array([9.8, 10.2, 10.1, 9.9, 10.3, 9.7, 10.0, 10.4])
 
 # Known variance: Normal-Normal conjugate
 result = bayes_normal_mean_known_var(x, sigma_sq=0.04, mu0=10.0, kappa0=2.0)
-print(f"Posterior mean: {result.posterior_mean:.4f}")
-print(f"95% Credible interval: {result.credible_interval}")
+result.summary()
 
 # Unknown variance: Normal-Gamma conjugate
 result = bayes_normal_mean_unknown_var(x, mu0=10.0, kappa0=1.0, alpha0=2.0, beta0=0.1)
-bayes_normal_mean_unknown_var_summary(result)
+result.summary()
 ```
 
 ## Package Structure
 
 ```
 statscore/
-├── __init__.py              # Top-level exports (35 public symbols)
+├── __init__.py              # Top-level exports
+├── __main__.py              # python -m statscore entry point
+├── cli.py                   # Interactive CLI (11-item menu)
+├── diagnostics.py           # shapiro_wilk_test, levene_test, regression_diagnostics, mean_confidence_interval
+├── io.py                    # load_data (csv/tsv/xlsx/json → LoadedData)
+├── plots.py                 # plot_regression, plot_residuals, plot_qq, plot_anova_groups, plot_posterior_normal
 ├── anova/
-│   ├── one_way.py           # ANOVA1_partition_TSS, ANOVA1_test_equality, ANOVA1_print_table
-│   ├── two_way.py           # ANOVA2_partition_TSS, ANOVA2_MLE, ANOVA2_test_equality, ANOVA2_print_table
+│   ├── one_way.py           # ANOVA1_partition_TSS, ANOVA1_test_equality
+│   ├── two_way.py           # ANOVA2_partition_TSS, ANOVA2_MLE, ANOVA2_test_equality
 │   └── multiple_tests.py    # Contrasts, orthogonality, corrections, CI, tests
 ├── bayes/
 │   └── conjugate.py         # bayes_normal_mean_known_var, bayes_normal_mean_unknown_var
 ├── regression/
 │   ├── least_squares.py     # Mult_LR_Least_squares, Mult_LR_partition_TSS (R², adj R²)
 │   ├── inference.py         # Simultaneous CI, CR, general/component/linear tests
-│   └── prediction.py        # Mult_norm_LR_pred_CI
+│   ├── prediction.py        # Mult_norm_LR_pred_CI
+│   └── summary.py           # regression_summary (full OLS summary table)
 ├── testing/
 │   ├── one_sample.py        # z_test_mean, t_test_mean, chi2_test_variance
 │   └── two_sample.py        # t_test_two_sample, t_test_paired, f_test_variances
@@ -237,7 +247,6 @@ statscore/
 |----------|-------------|
 | `ANOVA1_partition_TSS(data)` | Partition SS_total into SS_within and SS_between |
 | `ANOVA1_test_equality(data, alpha)` | F-test for equality of group means |
-| `ANOVA1_print_table(result)` | Print formatted one-way ANOVA table |
 | `ANOVA1_is_contrast(c)` | Check if coefficients form a contrast |
 | `ANOVA1_is_orthogonal(n, c1, c2)` | Check orthogonality of two contrasts |
 | `Bonferroni_correction(alpha, m)` | Bonferroni-corrected significance level |
@@ -247,7 +256,6 @@ statscore/
 | `ANOVA2_partition_TSS(data)` | Two-way ANOVA sum of squares partition |
 | `ANOVA2_MLE(data)` | MLE for μ, α_i, β_j, δ_{ij} |
 | `ANOVA2_test_equality(data, alpha, test)` | Two-way ANOVA F-tests (A, B, AB) |
-| `ANOVA2_print_table(result)` | Print formatted two-way ANOVA table |
 
 ### Normal Distribution Testing Functions
 
@@ -280,7 +288,37 @@ statscore/
 |----------|-------------|
 | `bayes_normal_mean_known_var(x, sigma_sq, mu0, kappa0, alpha)` | Normal-Normal conjugate posterior |
 | `bayes_normal_mean_unknown_var(x, mu0, kappa0, alpha0, beta0, alpha)` | Normal-Gamma conjugate posterior |
-| `bayes_normal_mean_unknown_var_summary(result)` | Print formatted posterior summary |
+
+### Regression Summary
+
+| Function | Description |
+|----------|-------------|
+| `regression_summary(X, y, alpha, feature_names)` | Full OLS summary: β̂, SE, t-stats, p-values, CIs, R², F-test |
+
+### Diagnostics Functions
+
+| Function | Description |
+|----------|-------------|
+| `shapiro_wilk_test(x, alpha)` | Shapiro-Wilk normality test |
+| `levene_test(data, alpha)` | Levene's test for homogeneity of variances |
+| `regression_diagnostics(X, y)` | Leverage, standardized residuals, Cook's D |
+| `mean_confidence_interval(x, alpha, sigma)` | CI for the mean (z or t) |
+
+### Visualization Functions
+
+| Function | Description |
+|----------|-------------|
+| `plot_regression(x, y, beta_hat, ...)` | Scatter plot with fitted regression line |
+| `plot_residuals(fitted, residuals, ...)` | Residuals vs. fitted values |
+| `plot_qq(x, ...)` | Normal Q-Q plot |
+| `plot_anova_groups(data, group_labels, ...)` | Box plots with jittered points for ANOVA groups |
+| `plot_posterior_normal(result, ...)` | Prior/posterior densities with credible interval shading |
+
+### I/O Functions
+
+| Function | Description |
+|----------|-------------|
+| `load_data(path, **kwargs)` | Load `.csv`, `.tsv`, `.xlsx`, `.xls`, `.json` → `LoadedData` |
 
 ## Mathematical Background
 
@@ -356,7 +394,19 @@ mypy statscore/
 python examples/demo.py
 ```
 
-This exercises all 31 functions with representative sample data.
+This exercises all major functions with representative sample data.
+
+## Interactive CLI
+
+```bash
+# After pip install:
+statscore
+
+# Or directly:
+python -m statscore
+```
+
+The CLI provides an 11-item menu covering ANOVA, hypothesis tests, regression, diagnostics, and Bayesian inference. Data can be entered as space/comma-separated numbers or loaded from a file (`.csv`, `.tsv`, `.xlsx`, `.json`).
 
 ## License
 

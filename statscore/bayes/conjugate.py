@@ -26,6 +26,31 @@ class NormalMeanKnownVarResult:
     x_bar: float
     alpha: float
 
+    def summary(self) -> None:
+        w = 60
+        pct = int((1 - self.alpha) * 100)
+        ci_lo, ci_hi = self.credible_interval
+        pi_lo, pi_hi = self.predictive_interval
+        print("=" * w)
+        print("  Bayesian Normal Posterior  (Known Variance)")
+        print("=" * w)
+        print(f"  n = {self.n}    x̄ = {self.x_bar:.6f}    sigma² known")
+        print("-" * (w - 2))
+        print("  Posterior hyperparameters:")
+        print(f"    mu_n    = {self.mu_n:.6f}")
+        print(f"    kappa_n = {self.kappa_n:.6f}")
+        print("-" * (w - 2))
+        print(f"  Posterior: μ | x ~ N({self.posterior_mean:.6f}, {self.posterior_variance:.6f})")
+        print(f"    mean = {self.posterior_mean:.6f}")
+        print(f"    std  = {self.posterior_std:.6f}")
+        print(f"  {pct}% Credible interval: ({ci_lo:.6f}, {ci_hi:.6f})")
+        print("-" * (w - 2))
+        print("  Posterior predictive:")
+        print(f"    mean = {self.predictive_mean:.6f}")
+        print(f"    std  = {self.predictive_std:.6f}")
+        print(f"  {pct}% Predictive interval: ({pi_lo:.6f}, {pi_hi:.6f})")
+        print("=" * w)
+
 
 @dataclass
 class NormalMeanUnknownVarResult:
@@ -43,6 +68,33 @@ class NormalMeanUnknownVarResult:
     n: int
     x_bar: float
     alpha: float
+
+    def summary(self) -> None:
+        pct = int((1 - self.alpha) * 100)
+        print("=" * 60)
+        print("  Bayesian Normal-Gamma Posterior Summary")
+        print("=" * 60)
+        print(f"  Observations (n):          {self.n}")
+        print(f"  Sample mean (x_bar):       {self.x_bar:.6f}")
+        print("-" * 60)
+        print("  Posterior Hyperparameters:")
+        print(f"    mu_n    = {self.mu_n:.6f}")
+        print(f"    kappa_n = {self.kappa_n:.6f}")
+        print(f"    alpha_n = {self.alpha_n:.6f}")
+        print(f"    beta_n  = {self.beta_n:.6f}")
+        print("-" * 60)
+        print("  Posterior Summaries:")
+        print(f"    E[mu]      = {self.posterior_mean_mu:.6f}")
+        print(f"    E[tau]     = {self.posterior_mean_precision:.6f}")
+        if self.posterior_mean_variance is not None:
+            print(f"    E[sigma^2] = {self.posterior_mean_variance:.6f}")
+        else:
+            print("    E[sigma^2] = undefined (alpha_n <= 1)")
+        print("-" * 60)
+        print(f"  {pct}% Credible Intervals:")
+        print(f"    mu:      ({self.mu_credible_interval[0]:.6f}, {self.mu_credible_interval[1]:.6f})")
+        print(f"    sigma^2: ({self.variance_credible_interval[0]:.6f}, {self.variance_credible_interval[1]:.6f})")
+        print("=" * 60)
 
 
 def bayes_normal_mean_known_var(
@@ -197,36 +249,3 @@ def bayes_normal_mean_unknown_var(
     )
 
 
-def bayes_normal_mean_unknown_var_summary(result: NormalMeanUnknownVarResult) -> None:
-    """Print a formatted summary of Normal-Gamma posterior inference.
-
-    Parameters
-    ----------
-    result : NormalMeanUnknownVarResult
-        Output from bayes_normal_mean_unknown_var.
-    """
-    pct = int((1 - result.alpha) * 100)
-    print("=" * 60)
-    print("  Bayesian Normal-Gamma Posterior Summary")
-    print("=" * 60)
-    print(f"  Observations (n):          {result.n}")
-    print(f"  Sample mean (x_bar):       {result.x_bar:.6f}")
-    print("-" * 60)
-    print("  Posterior Hyperparameters:")
-    print(f"    mu_n    = {result.mu_n:.6f}")
-    print(f"    kappa_n = {result.kappa_n:.6f}")
-    print(f"    alpha_n = {result.alpha_n:.6f}")
-    print(f"    beta_n  = {result.beta_n:.6f}")
-    print("-" * 60)
-    print("  Posterior Summaries:")
-    print(f"    E[mu]      = {result.posterior_mean_mu:.6f}")
-    print(f"    E[tau]     = {result.posterior_mean_precision:.6f}")
-    if result.posterior_mean_variance is not None:
-        print(f"    E[sigma^2] = {result.posterior_mean_variance:.6f}")
-    else:
-        print("    E[sigma^2] = undefined (alpha_n <= 1)")
-    print("-" * 60)
-    print(f"  {pct}% Credible Intervals:")
-    print(f"    mu:      ({result.mu_credible_interval[0]:.6f}, {result.mu_credible_interval[1]:.6f})")
-    print(f"    sigma^2: ({result.variance_credible_interval[0]:.6f}, {result.variance_credible_interval[1]:.6f})")
-    print("=" * 60)

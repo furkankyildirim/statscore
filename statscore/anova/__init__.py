@@ -6,13 +6,12 @@ from statscore.anova.multiple_tests import (
     Bonferroni_correction,
     Sidak_correction,
 )
-from statscore.anova.one_way import ANOVA1_partition_TSS, ANOVA1_print_table, ANOVA1_test_equality
-from statscore.anova.two_way import ANOVA2_MLE, ANOVA2_partition_TSS, ANOVA2_print_table, ANOVA2_test_equality
+from statscore.anova.one_way import ANOVA1_partition_TSS, ANOVA1_test_equality
+from statscore.anova.two_way import ANOVA2_MLE, ANOVA2_partition_TSS, ANOVA2_test_equality
 
 __all__ = [
     "ANOVA1_partition_TSS",
     "ANOVA1_test_equality",
-    "ANOVA1_print_table",
     "ANOVA1_is_contrast",
     "ANOVA1_is_orthogonal",
     "Bonferroni_correction",
@@ -22,5 +21,4 @@ __all__ = [
     "ANOVA2_partition_TSS",
     "ANOVA2_MLE",
     "ANOVA2_test_equality",
-    "ANOVA2_print_table",
 ]

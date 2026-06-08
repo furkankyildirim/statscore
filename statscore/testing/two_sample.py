@@ -41,6 +41,24 @@ class TTestTwoSampleResult:
     equal_var: bool
     pooled_var: float | None
 
+    def summary(self) -> None:
+        w = 60
+        decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
+        variance_label = "pooled" if self.equal_var else "Welch"
+        two_sided = self.alternative is AlternativeHypothesis.TWO_SIDED
+        crit_str = f"±{self.t_critical:.4f}" if two_sided else f"{self.t_critical:.4f}"
+        print("=" * w)
+        print(f"  Two-Sample t-Test  ({variance_label})")
+        print("=" * w)
+        print(f"  n1 = {self.n1}    x̄1 = {self.x1_bar:.4f}    s1 = {self.s1:.4f}")
+        print(f"  n2 = {self.n2}    x̄2 = {self.x2_bar:.4f}    s2 = {self.s2:.4f}")
+        print(f"  df = {self.df}    Alternative: {self.alternative.value}")
+        print("-" * w)
+        print(f"  t-statistic: {self.t_statistic:.4f}    t-critical: {crit_str}")
+        print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
+        print(f"  Decision:    {decision}")
+        print("=" * w)
+
 
 @dataclass
 class TTestPairedResult:
@@ -56,6 +74,22 @@ class TTestPairedResult:
     d_bar: float
     s_d: float
     df: int
+
+    def summary(self) -> None:
+        w = 60
+        decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
+        two_sided = self.alternative is AlternativeHypothesis.TWO_SIDED
+        crit_str = f"±{self.t_critical:.4f}" if two_sided else f"{self.t_critical:.4f}"
+        print("=" * w)
+        print("  Paired t-Test")
+        print("=" * w)
+        print(f"  n = {self.n}    d̄ = {self.d_bar:.4f}    s_d = {self.s_d:.4f}    df = {self.df}")
+        print(f"  H0: μ_D = 0    Alternative: {self.alternative.value}")
+        print("-" * w)
+        print(f"  t-statistic: {self.t_statistic:.4f}    t-critical: {crit_str}")
+        print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
+        print(f"  Decision:    {decision}")
+        print("=" * w)
 
 
 @dataclass
@@ -75,6 +109,22 @@ class FTestVariancesResult:
     s2_sq: float
     df1: int
     df2: int
+
+    def summary(self) -> None:
+        w = 60
+        decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
+        print("=" * w)
+        print("  F-Test for Equality of Variances")
+        print("=" * w)
+        print(f"  n1 = {self.n1}    s1² = {self.s1_sq:.4f}    df1 = {self.df1}")
+        print(f"  n2 = {self.n2}    s2² = {self.s2_sq:.4f}    df2 = {self.df2}")
+        print(f"  Alternative: {self.alternative.value}")
+        print("-" * w)
+        print(f"  F-statistic: {self.f_statistic:.4f}")
+        print(f"  Critical region: < {self.f_critical_lower:.4f}  or  > {self.f_critical_upper:.4f}")
+        print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
+        print(f"  Decision:    {decision}")
+        print("=" * w)
 
 
 def t_test_two_sample(

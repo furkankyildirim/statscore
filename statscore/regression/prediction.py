@@ -19,6 +19,20 @@ class PredictionCIResult:
     half_widths: np.ndarray
     method_used: PredictionMethod
 
+    def summary(self) -> None:
+        w = 64
+        print("=" * w)
+        print("  Simultaneous Prediction Intervals")
+        print(f"  Method: {self.method_used.value}")
+        print("=" * w)
+        print(f"  {'#':<5} {'Point Est':>10} {'Half-Width':>12} {'Lower':>10} {'Upper':>10}")
+        print("-" * w)
+        for i, (lo, hi) in enumerate(self.intervals):
+            pe = float(self.point_estimates[i])
+            hw = float(self.half_widths[i])
+            print(f"  {i+1:<5} {pe:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
+        print("=" * w)
+
 
 def Mult_norm_LR_pred_CI(
     X: np.ndarray,

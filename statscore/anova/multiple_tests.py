@@ -38,6 +38,20 @@ class SimultaneousCIResult:
     point_estimates: np.ndarray
     half_widths: np.ndarray
 
+    def summary(self) -> None:
+        w = 60
+        print("=" * w)
+        print("  Simultaneous Confidence Intervals")
+        print(f"  Method: {self.method_used.value}")
+        print("=" * w)
+        print(f"  {'Interval':<10} {'Point Est':>10} {'Half-Width':>12} {'Lower':>10} {'Upper':>10}")
+        print("-" * w)
+        for i, (lo, hi) in enumerate(self.intervals):
+            pe = float(self.point_estimates[i])
+            hw = float(self.half_widths[i])
+            print(f"  CI_{i+1:<7} {pe:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
+        print("=" * w)
+
 
 @dataclass
 class SimultaneousTestResult:
@@ -49,6 +63,22 @@ class SimultaneousTestResult:
     reject: np.ndarray
     method_used: CorrectionMethod
     FWER: float
+
+    def summary(self) -> None:
+        w = 68
+        print("=" * w)
+        print(f"  Simultaneous Hypothesis Tests   (FWER = {self.FWER})")
+        print(f"  Method: {self.method_used.value}")
+        print("=" * w)
+        print(f"  {'#':<5} {'|T|':>10} {'Critical':>10} {'p-value':>10} {'Reject?':>10}")
+        print("-" * w)
+        for i in range(len(self.test_statistics)):
+            ts = float(self.test_statistics[i])
+            cv = float(self.critical_values[i])
+            pv = float(self.p_values[i])
+            rej = "Yes" if bool(self.reject[i]) else "No"
+            print(f"  {i+1:<5} {ts:>10.4f} {cv:>10.4f} {pv:>10.4f} {rej:>10}")
+        print("=" * w)
 
 
 def ANOVA1_is_contrast(c: np.ndarray) -> bool:

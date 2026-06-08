@@ -2,12 +2,10 @@
 
 import numpy as np
 import pytest
-from scipy import stats
 
 from statscore.bayes.conjugate import (
     bayes_normal_mean_known_var,
     bayes_normal_mean_unknown_var,
-    bayes_normal_mean_unknown_var_summary,
 )
 
 
@@ -108,10 +106,10 @@ class TestBayesNormalMeanUnknownVar:
         assert upper > lower
 
     def test_summary_prints(self, capsys):
-        """Summary function should produce output."""
+        """summary() method should produce output."""
         x = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
         result = bayes_normal_mean_unknown_var(x, mu0=3.0, kappa0=1.0, alpha0=2.0, beta0=1.0)
-        bayes_normal_mean_unknown_var_summary(result)
+        result.summary()
         captured = capsys.readouterr()
         assert "Posterior Hyperparameters" in captured.out
         assert "mu_n" in captured.out

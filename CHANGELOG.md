@@ -38,6 +38,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ANOVA1_print_table(result)` — prints a formatted one-way ANOVA table (Source / df / SS / MS / F) with F critical, p-value, and decision.
 - `ANOVA2_print_table(result)` — prints a formatted two-way ANOVA table (Factor A, Factor B, Interaction AB, Within, Total rows) with the tested source, F statistic, F critical, p-value, and decision.
 
+**Visualization** (`statscore.plots`):
+- `plot_regression` — scatter plot with fitted regression line (simple regression)
+- `plot_residuals` — residuals vs. fitted values plot
+- `plot_qq` — normal Q-Q plot
+- `plot_anova_groups` — side-by-side box plots with jittered data points for ANOVA groups
+- `plot_posterior_normal` — prior/posterior density plot for Normal-Normal conjugate model; shades the credible interval
+- All plot functions return a `matplotlib.figure.Figure` object
+
+**Diagnostics** (`statscore.diagnostics`):
+- `shapiro_wilk_test` — Shapiro-Wilk normality test returning `ShapiroWilkResult`
+- `levene_test` — Levene's test for homogeneity of variances returning `LeveneResult`
+- `regression_diagnostics` — leverage, standardized residuals, and Cook's D returning `RegressionDiagnosticsResult`; flags high-leverage (h > 2p/n) and influential (Cook's D > 4/n) observations
+- `mean_confidence_interval` — z-interval (σ known) or t-interval (σ unknown) returning `MeanConfidenceIntervalResult`
+
+**Data I/O** (`statscore.io`):
+- `load_data` — loads tabular data from `.csv`, `.tsv`, `.xlsx`/`.xls`, `.json` via pandas; returns `LoadedData` with DataFrame, path, format, dimensions, and column names
+
+**Regression summary** (`statscore.regression.summary`):
+- `regression_summary` — full OLS summary analogous to R's `summary(lm(...))`: coefficient estimates, standard errors, t-statistics, p-values (significance stars), confidence intervals, R², adjusted R², overall F-test; returns `RegressionSummaryResult`
+
+**Interactive CLI** (`statscore.cli`):
+- `statscore` command-line entry point via `python -m statscore` or the installed `statscore` script
+- Fifteen interactive menu items: One-Way/Two-Way ANOVA, Z-test, one/two-sample and paired t-tests, chi-squared variance test, F-test for variances, simple linear regression (with optional plot saving), regression diagnostics, Shapiro-Wilk normality check, Levene variance homogeneity check, mean confidence interval, and both Bayesian conjugate models
+- Accepts inline numbers or file paths (`.csv`, `.tsv`, `.xlsx`, `.xls`, `.json`) for all data inputs
+
 ### Fixed
 
 - `validate_two_way_data`: K=1 now raises `ValueError` (K ≥ 2 required). With K=1, `df_E = I·J·(K-1) = 0`, making MS_E undefined; previously caused a silent division-by-zero.
@@ -46,10 +71,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `utils.validation`: shared helpers centralised here; `one_sample.py`, `two_sample.py`, and `conjugate.py` now import from `utils` instead of defining local copies
-- `__init__.py`: version bumped to `0.0.2`; 9 new testing functions, 3 Bayesian functions, and `AlternativeHypothesis` enum added to `__all__`
-- `pyproject.toml`: description updated to reflect new modules
-- Test suite expanded from 58 to 98 tests; new files `test_testing_one_sample.py`, `test_testing_two_sample.py`, `test_bayes_conjugate.py`; new cases `test_k1_raises`, `test_adj_r_squared`
-- `examples/demo.py` extended from 20 to 29 demos
+- `statscore.__all__`: version bumped to `0.0.2`; added 9 testing functions, 3 Bayesian functions, `AlternativeHypothesis` enum, `LoadedData`, `load_data`, `ShapiroWilkResult`, `LeveneResult`, `RegressionDiagnosticsResult`, `MeanConfidenceIntervalResult`, `shapiro_wilk_test`, `levene_test`, `regression_diagnostics`, `mean_confidence_interval`, `plot_regression`, `plot_residuals`, `plot_qq`, `plot_anova_groups`, `plot_posterior_normal`, `RegressionSummaryResult`, `regression_summary`
+- `statscore.regression.__all__`: added `RegressionSummaryResult`, `regression_summary`
+- `pyproject.toml`: added `pandas>=1.3` and `matplotlib>=3.5` to dependencies; registered `statscore = "statscore.cli:main"` console script entry point; description updated to reflect new modules
+- Test suite expanded from 58 to 172 tests; new files `test_testing_one_sample.py`, `test_testing_two_sample.py`, `test_bayes_conjugate.py`, `test_plots.py`, `test_diagnostics.py`, `test_io.py`, `test_cli.py`, `test_regression_summary.py`; new cases `test_k1_raises`, `test_adj_r_squared`
+- `examples/demo.py` extended from 20 to 29 demos and then to 587 lines covering all new functions
 
 ## [0.0.1] - 2026-06-08
 
