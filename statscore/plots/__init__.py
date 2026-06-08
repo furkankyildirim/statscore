@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from statscore.methods.bayes._results import NormalMeanKnownVarResult
 
 import matplotlib
 import numpy as np
@@ -140,19 +144,15 @@ def plot_t_test(
 
     if alternative == "two-sided":
         crit_abs = abs(t_critical)
-        mask_left = x <= -crit_abs
-        mask_right = x >= crit_abs
-        ax.fill_between(x, pdf, where=mask_left, alpha=0.3, color="crimson", label="Rejection region")
-        ax.fill_between(x, pdf, where=mask_right, alpha=0.3, color="crimson")
+        ax.fill_between(x, pdf, where=(x <= -crit_abs).tolist(), alpha=0.3, color="crimson", label="Rejection region")
+        ax.fill_between(x, pdf, where=(x >= crit_abs).tolist(), alpha=0.3, color="crimson")
         ax.axvline(-crit_abs, color="crimson", linestyle="--", linewidth=1.2)
         ax.axvline(crit_abs, color="crimson", linestyle="--", linewidth=1.2)
     elif alternative == "greater":
-        mask = x >= t_critical
-        ax.fill_between(x, pdf, where=mask, alpha=0.3, color="crimson", label="Rejection region")
+        ax.fill_between(x, pdf, where=(x >= t_critical).tolist(), alpha=0.3, color="crimson", label="Rejection region")
         ax.axvline(t_critical, color="crimson", linestyle="--", linewidth=1.2)
     else:
-        mask = x <= t_critical
-        ax.fill_between(x, pdf, where=mask, alpha=0.3, color="crimson", label="Rejection region")
+        ax.fill_between(x, pdf, where=(x <= t_critical).tolist(), alpha=0.3, color="crimson", label="Rejection region")
         ax.axvline(t_critical, color="crimson", linestyle="--", linewidth=1.2)
 
     ax.axvline(t_statistic, color="darkgreen", linestyle="-", linewidth=2, label=f"t = {t_statistic:.4f}")
@@ -184,27 +184,80 @@ def plot_f_test(
 
     if alternative == "two-sided":
         if f_critical_low > 0:
-            mask_left = x <= f_critical_low
-            ax.fill_between(x, pdf, where=mask_left, alpha=0.3, color="crimson", label="Rejection region")
+            ax.fill_between(x, pdf, where=(x <= f_critical_low).tolist(), alpha=0.3, color="crimson", label="Rejection region")
             ax.axvline(f_critical_low, color="crimson", linestyle="--", linewidth=1.2)
         if np.isfinite(f_critical_up):
-            mask_right = x >= f_critical_up
-            ax.fill_between(x, pdf, where=mask_right, alpha=0.3, color="crimson")
+            ax.fill_between(x, pdf, where=(x >= f_critical_up).tolist(), alpha=0.3, color="crimson")
             ax.axvline(f_critical_up, color="crimson", linestyle="--", linewidth=1.2)
     elif alternative == "greater":
         if np.isfinite(f_critical_up):
-            mask = x >= f_critical_up
-            ax.fill_between(x, pdf, where=mask, alpha=0.3, color="crimson", label="Rejection region")
+            ax.fill_between(x, pdf, where=(x >= f_critical_up).tolist(), alpha=0.3, color="crimson", label="Rejection region")
             ax.axvline(f_critical_up, color="crimson", linestyle="--", linewidth=1.2)
     else:
         if f_critical_low > 0:
-            mask = x <= f_critical_low
-            ax.fill_between(x, pdf, where=mask, alpha=0.3, color="crimson", label="Rejection region")
+            ax.fill_between(x, pdf, where=(x <= f_critical_low).tolist(), alpha=0.3, color="crimson", label="Rejection region")
             ax.axvline(f_critical_low, color="crimson", linestyle="--", linewidth=1.2)
 
     ax.axvline(f_statistic, color="darkgreen", linestyle="-", linewidth=2, label=f"F = {f_statistic:.4f}")
 
     ax.set_xlabel("F")
+    ax.set_ylabel("Density")
+    ax.set_title(title)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    return fig
+
+
+def plot_posterior_normal(
+    result: NormalMeanKnownVarResult,
+    title: str = "Prior vs Posterior (Normal, Known Variance)",
+) -> Figure:
+    """Plot prior and posterior densities for Normal-Normal conjugate model.
+
+    Parameters
+    ----------
+    result : NormalMeanKnownVarResult
+        Output of bayes_normal_mean_known_var.
+    title : str
+        Plot title.
+
+    Returns
+    -------
+    Figure
+    """
+    kappa0 = result.kappa_n - result.n
+    post_var = result.posterior_variance
+    post_std = result.posterior_std
+    post_mean = result.mu_n
+    prior_var = post_var * result.kappa_n / kappa0 if kappa0 > 0 else post_var * 10
+    prior_std = float(np.sqrt(prior_var))
+    prior_mean = (
+        (post_mean * result.kappa_n - result.n * result.x_bar) / kappa0
+        if kappa0 > 0
+        else post_mean
+    )
+
+    x_range_sigma = 4.0
+    x_min = post_mean - x_range_sigma * max(post_std, prior_std)
+    x_max = post_mean + x_range_sigma * max(post_std, prior_std)
+    x = np.linspace(x_min, x_max, 500)
+
+    prior_pdf = stats.norm.pdf(x, loc=prior_mean, scale=prior_std)
+    post_pdf = stats.norm.pdf(x, loc=post_mean, scale=post_std)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.plot(x, prior_pdf, color="gray", linestyle="--", linewidth=1.5, label="Prior")
+    ax.plot(x, post_pdf, color="steelblue", linewidth=2, label="Posterior")
+
+    ci_lower, ci_upper = result.credible_interval
+    ci_mask = ((x >= ci_lower) & (x <= ci_upper)).tolist()
+    pct = int((1 - result.alpha) * 100)
+    ax.fill_between(x, post_pdf, where=ci_mask, alpha=0.3, color="steelblue",
+                    label=f"{pct}% Credible interval")
+    ax.axvline(post_mean, color="crimson", linestyle="-", linewidth=1.2, alpha=0.8,
+               label=f"Post. mean = {post_mean:.4f}")
+    ax.set_xlabel("μ")
     ax.set_ylabel("Density")
     ax.set_title(title)
     ax.legend()

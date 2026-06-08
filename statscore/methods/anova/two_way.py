@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import numpy as np
 
-from statscore.methods.anova._results import ANOVA2MLEResult, ANOVA2PartitionResult, ANOVA2TestResult
+from statscore.methods.anova._results import (
+    ANOVA2MLEResult,
+    ANOVA2PartitionResult,
+    ANOVA2TestResult,
+)
 from statscore.utils.distributions import f_critical, f_pvalue
 from statscore.utils.enums import TwoWayTestFactor
 from statscore.utils.validation import validate_two_way_data

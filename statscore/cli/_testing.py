@@ -17,10 +17,13 @@ def _run_z_test() -> None:
     alt = AlternativeHypothesis(alt_str)
 
     result = z_test_mean(x, mu0=mu0, sigma=sigma, alpha=alpha, alternative=alt)
-    print(f"\n  Z-statistic: {result.z_statistic:.4f}")
-    print(f"  Z-critical:  {result.z_critical:.4f}")
-    print(f"  p-value:     {result.p_value:.4f}")
-    print(f"  Decision:    {'Reject H0' if result.reject_H0 else 'Fail to reject H0'}")
+    result.summary()
+
+    show_plot = input("  Show distribution plot? (y/n) [n]: ").strip().lower()
+    if show_plot == "y":
+        fig = result.plot()
+        fig.savefig("z_test_plot.png", dpi=150)
+        print("  Plot saved to z_test_plot.png")
 
 
 def _run_one_sample_t_test() -> None:
@@ -34,10 +37,13 @@ def _run_one_sample_t_test() -> None:
     alt = AlternativeHypothesis(alt_str)
 
     result = t_test_mean(x, mu0, alpha=alpha, alternative=alt)
-    print(f"\n  t-statistic: {result.t_statistic:.4f}")
-    print(f"  t-critical:  {result.t_critical:.4f}")
-    print(f"  p-value:     {result.p_value:.4f}")
-    print(f"  Decision:    {'Reject H0' if result.reject_H0 else 'Fail to reject H0'}")
+    result.summary()
+
+    show_plot = input("  Show distribution plot? (y/n) [n]: ").strip().lower()
+    if show_plot == "y":
+        fig = result.plot()
+        fig.savefig("t_test_one_sample.png", dpi=150)
+        print("  Plot saved to t_test_one_sample.png")
 
 
 def _run_two_sample_t_test() -> None:
@@ -52,10 +58,13 @@ def _run_two_sample_t_test() -> None:
     eq_var = input("  Assume equal variances? (y/n) [y]: ").strip().lower() != "n"
 
     result = t_test_two_sample(x1, x2, alpha=alpha, alternative=alt, equal_var=eq_var)
-    print(f"\n  t-statistic: {result.t_statistic:.4f}")
-    print(f"  t-critical:  {result.t_critical:.4f}")
-    print(f"  p-value:     {result.p_value:.4f}")
-    print(f"  Decision:    {'Reject H0' if result.reject_H0 else 'Fail to reject H0'}")
+    result.summary()
+
+    show_plot = input("  Show distribution plot? (y/n) [n]: ").strip().lower()
+    if show_plot == "y":
+        fig = result.plot()
+        fig.savefig("t_test_two_sample.png", dpi=150)
+        print("  Plot saved to t_test_two_sample.png")
 
 
 def _run_paired_t_test() -> None:
@@ -69,10 +78,13 @@ def _run_paired_t_test() -> None:
     alt = AlternativeHypothesis(alt_str)
 
     result = t_test_paired(x1, x2, alpha=alpha, alternative=alt)
-    print(f"\n  t-statistic: {result.t_statistic:.4f}")
-    print(f"  t-critical:  {result.t_critical:.4f}")
-    print(f"  p-value:     {result.p_value:.4f}")
-    print(f"  Decision:    {'Reject H0' if result.reject_H0 else 'Fail to reject H0'}")
+    result.summary()
+
+    show_plot = input("  Show distribution plot? (y/n) [n]: ").strip().lower()
+    if show_plot == "y":
+        fig = result.plot()
+        fig.savefig("t_test_paired.png", dpi=150)
+        print("  Plot saved to t_test_paired.png")
 
 
 def _run_f_test() -> None:
@@ -86,10 +98,13 @@ def _run_f_test() -> None:
     alt = AlternativeHypothesis(alt_str)
 
     result = f_test_variances(x1, x2, alpha=alpha, alternative=alt)
-    print(f"\n  F-statistic: {result.f_statistic:.4f}")
-    print(f"  F-critical:  [{result.f_critical_lower:.4f}, {result.f_critical_upper:.4f}]")
-    print(f"  p-value:     {result.p_value:.4f}")
-    print(f"  Decision:    {'Reject H0' if result.reject_H0 else 'Fail to reject H0'}")
+    result.summary()
+
+    show_plot = input("  Show distribution plot? (y/n) [n]: ").strip().lower()
+    if show_plot == "y":
+        fig = result.plot()
+        fig.savefig("f_test_variances.png", dpi=150)
+        print("  Plot saved to f_test_variances.png")
 
 
 def _run_chi2_test() -> None:
@@ -103,9 +118,13 @@ def _run_chi2_test() -> None:
     alt = AlternativeHypothesis(alt_str)
 
     result = chi2_test_variance(x, sigma0_sq=sigma0_sq, alpha=alpha, alternative=alt)
-    print(f"\n  Chi2-statistic: {result.chi2_statistic:.4f}")
-    print(f"  p-value:        {result.p_value:.4f}")
-    print(f"  Decision:       {'Reject H0' if result.reject_H0 else 'Fail to reject H0'}")
+    result.summary()
+
+    show_plot = input("  Show distribution plot? (y/n) [n]: ").strip().lower()
+    if show_plot == "y":
+        fig = result.plot()
+        fig.savefig("chi2_test.png", dpi=150)
+        print("  Plot saved to chi2_test.png")
 
 
 def _run_normality_check() -> None:
@@ -115,11 +134,13 @@ def _run_normality_check() -> None:
     alpha = float(input("  Alpha [0.05]: ").strip() or "0.05")
 
     result = shapiro_wilk_test(x, alpha=alpha)
-    print(f"\n  Shapiro-Wilk statistic: {result.statistic:.4f}")
-    print(f"  p-value:               {result.p_value:.4f}")
-    print(
-        f"  Decision:              {'Reject H0 (not normal)' if result.reject_H0 else 'Fail to reject H0 (consistent with normality)'}"
-    )
+    result.summary()
+
+    show_plot = input("  Show Q-Q plot? (y/n) [n]: ").strip().lower()
+    if show_plot == "y":
+        fig = result.plot(x)
+        fig.savefig("shapiro_qq.png", dpi=150)
+        print("  Plot saved to shapiro_qq.png")
 
 
 def _run_levene_check() -> None:
@@ -129,11 +150,15 @@ def _run_levene_check() -> None:
     alpha = float(input("  Alpha [0.05]: ").strip() or "0.05")
 
     result = levene_test(groups, alpha=alpha)
-    print(f"\n  Levene statistic: {result.statistic:.4f}")
-    print(f"  p-value:          {result.p_value:.4f}")
-    print(
-        f"  Decision:         {'Reject H0 (variances differ)' if result.reject_H0 else 'Fail to reject H0 (variances are homogeneous)'}"
-    )
+    result.summary()
+
+    show_plot = input("  Show group box plots? (y/n) [n]: ").strip().lower()
+    if show_plot == "y":
+        from statscore.plots import plot_anova_groups
+
+        fig = plot_anova_groups(groups, title="Levene Test — Group Distributions")
+        fig.savefig("levene_groups.png", dpi=150)
+        print("  Plot saved to levene_groups.png")
 
 
 def _run_mean_ci() -> None:
@@ -146,3 +171,9 @@ def _run_mean_ci() -> None:
 
     result = mean_confidence_interval(x, alpha=alpha, sigma=sigma)
     result.summary()
+
+    show_plot = input("  Show CI plot? (y/n) [n]: ").strip().lower()
+    if show_plot == "y":
+        fig = result.plot()
+        fig.savefig("mean_ci.png", dpi=150)
+        print("  Plot saved to mean_ci.png")

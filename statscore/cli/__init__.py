@@ -5,10 +5,19 @@ from __future__ import annotations
 import argparse
 import sys
 
-from statscore.cli._anova import _run_one_way_anova, _run_two_way_anova
+from statscore.cli._anova import (
+    _run_anova_multiple_comparisons,
+    _run_one_way_anova,
+    _run_two_way_anova,
+)
 from statscore.cli._regression import (
+    _run_bayes_beta_binomial,
+    _run_bayes_gamma_poisson,
     _run_bayes_known_var,
     _run_bayes_unknown_var,
+    _run_mcmc_normal,
+    _run_mcmc_regression,
+    _run_multiple_regression,
     _run_regression_diagnostics,
     _run_simple_regression,
 )
@@ -25,45 +34,69 @@ from statscore.cli._testing import (
 )
 
 _MENU_HANDLERS = {
-    "1": _run_one_way_anova,
-    "2": _run_two_way_anova,
-    "3": _run_z_test,
-    "4": _run_one_sample_t_test,
-    "5": _run_two_sample_t_test,
-    "6": _run_paired_t_test,
-    "7": _run_chi2_test,
-    "8": _run_f_test,
-    "9": _run_simple_regression,
-    "10": _run_regression_diagnostics,
-    "11": _run_normality_check,
-    "12": _run_levene_check,
-    "13": _run_mean_ci,
-    "14": _run_bayes_known_var,
-    "15": _run_bayes_unknown_var,
+    # ── ANOVA ──────────────────────────────────────────────────────────────
+    "1":  _run_one_way_anova,
+    "2":  _run_two_way_anova,
+    "3":  _run_anova_multiple_comparisons,
+    # ── Significance Tests ─────────────────────────────────────────────────
+    "4":  _run_z_test,
+    "5":  _run_one_sample_t_test,
+    "6":  _run_two_sample_t_test,
+    "7":  _run_paired_t_test,
+    "8":  _run_chi2_test,
+    "9":  _run_f_test,
+    # ── Regression ────────────────────────────────────────────────────────
+    "10": _run_simple_regression,
+    "11": _run_multiple_regression,
+    "12": _run_regression_diagnostics,
+    # ── Diagnostics ───────────────────────────────────────────────────────
+    "13": _run_normality_check,
+    "14": _run_levene_check,
+    "15": _run_mean_ci,
+    # ── Bayesian (Conjugate) ───────────────────────────────────────────────
+    "16": _run_bayes_known_var,
+    "17": _run_bayes_unknown_var,
+    "18": _run_bayes_beta_binomial,
+    "19": _run_bayes_gamma_poisson,
+    # ── Bayesian (MCMC) ────────────────────────────────────────────────────
+    "20": _run_mcmc_normal,
+    "21": _run_mcmc_regression,
 }
 
 
 def _print_menu() -> None:
-    print("=" * 60)
-    print("  statscore — Statistical Toolbox")
+    print("=" * 64)
+    print("  statscore — Statistical Toolbox  (v0.0.3)")
     print("  Type a number to select a method, or 'q' to quit.")
-    print("=" * 60)
-    print("  [1]  One-Way ANOVA")
-    print("  [2]  Two-Way ANOVA")
-    print("  [3]  Z-test for Mean (sigma known)")
-    print("  [4]  One-Sample t-test")
-    print("  [5]  Two-Sample t-test")
-    print("  [6]  Paired t-test")
-    print("  [7]  Chi-squared Test for Variance")
-    print("  [8]  F-test for Variances")
-    print("  [9]  Simple Linear Regression")
-    print("  [10] Regression Diagnostics (Leverage / Cook's D)")
-    print("  [11] Normality Check (Shapiro-Wilk)")
-    print("  [12] Variance Homogeneity (Levene)")
-    print("  [13] Confidence Interval for Mean")
-    print("  [14] Bayesian Inference (Normal, known variance)")
-    print("  [15] Bayesian Inference (Normal, unknown variance)")
-    print("=" * 60)
+    print("=" * 64)
+    print("  ── ANOVA ──────────────────────────────────────────────")
+    print("  [1]  One-Way ANOVA (F-test, ANOVA table)")
+    print("  [2]  Two-Way ANOVA (Factor A / B / Interaction)")
+    print("  [3]  Multiple Comparisons (Bonferroni/Scheffe/Tukey/Sidak)")
+    print("  ── Significance Tests ─────────────────────────────────")
+    print("  [4]  Z-test for Mean (sigma known)")
+    print("  [5]  One-Sample t-test")
+    print("  [6]  Two-Sample t-test (pooled or Welch)")
+    print("  [7]  Paired t-test")
+    print("  [8]  Chi-squared Test for Variance")
+    print("  [9]  F-test for Variances")
+    print("  ── Regression ─────────────────────────────────────────")
+    print("  [10] Simple Linear Regression")
+    print("  [11] Multiple Linear Regression (full inference suite)")
+    print("  [12] Regression Diagnostics (Leverage / Cook's D)")
+    print("  ── Diagnostics ────────────────────────────────────────")
+    print("  [13] Normality Check (Shapiro-Wilk + Q-Q plot)")
+    print("  [14] Variance Homogeneity (Levene)")
+    print("  [15] Confidence Interval for Mean")
+    print("  ── Bayesian Inference — Conjugate Priors ──────────────")
+    print("  [16] Bayesian Inference — Normal (known variance)")
+    print("  [17] Bayesian Inference — Normal-Gamma (unknown variance)")
+    print("  [18] Bayesian Inference — Beta-Binomial (success prob.)")
+    print("  [19] Bayesian Inference — Gamma-Poisson (count rate)")
+    print("  ── Bayesian Inference — MCMC ──────────────────────────")
+    print("  [20] Bayesian MCMC — Normal mean & variance")
+    print("  [21] Bayesian MCMC — Linear Regression")
+    print("=" * 64)
 
 
 def main() -> None:

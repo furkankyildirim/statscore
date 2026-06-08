@@ -8,6 +8,7 @@ normal distribution significance tests, and Bayesian conjugate prior inference.
 
 from __future__ import annotations
 
+from statscore.io import LoadedData, load_data
 from statscore.methods.anova import (
     anova1_ci_linear_combs,
     anova1_is_contrast,
@@ -22,8 +23,15 @@ from statscore.methods.anova import (
     sidak_correction,
 )
 from statscore.methods.bayes import (
+    ConjugateModelResult,
+    MCMCResult,
+    bayes_beta_binomial,
+    bayes_gamma_poisson,
     bayes_normal_mean_known_var,
     bayes_normal_mean_unknown_var,
+    mcmc_linear_regression,
+    mcmc_normal_mean_unknown_var,
+    run_mcmc,
 )
 from statscore.methods.diagnostics import (
     LeveneResult,
@@ -34,16 +42,6 @@ from statscore.methods.diagnostics import (
     mean_confidence_interval,
     regression_diagnostics,
     shapiro_wilk_test,
-)
-from statscore.io import LoadedData, load_data
-from statscore.plots import (
-    plot_anova_groups,
-    plot_f_test,
-    plot_qq,
-    plot_regression,
-    plot_residuals,
-    plot_simultaneous_ci,
-    plot_t_test,
 )
 from statscore.methods.regression import (
     RegressionSummaryResult,
@@ -65,6 +63,16 @@ from statscore.methods.testing import (
     t_test_paired,
     t_test_two_sample,
     z_test_mean,
+)
+from statscore.plots import (
+    plot_anova_groups,
+    plot_f_test,
+    plot_posterior_normal,
+    plot_qq,
+    plot_regression,
+    plot_residuals,
+    plot_simultaneous_ci,
+    plot_t_test,
 )
 from statscore.utils.enums import (
     AlternativeHypothesis,
@@ -110,6 +118,13 @@ __all__ = [
     "f_test_variances",
     "bayes_normal_mean_known_var",
     "bayes_normal_mean_unknown_var",
+    "run_mcmc",
+    "mcmc_normal_mean_unknown_var",
+    "mcmc_linear_regression",
+    "bayes_beta_binomial",
+    "bayes_gamma_poisson",
+    "MCMCResult",
+    "ConjugateModelResult",
     "LoadedData",
     "load_data",
     "ShapiroWilkResult",
@@ -127,4 +142,5 @@ __all__ = [
     "plot_t_test",
     "plot_f_test",
     "plot_simultaneous_ci",
+    "plot_posterior_normal",
 ]

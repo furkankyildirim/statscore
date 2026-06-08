@@ -11,9 +11,11 @@ import numpy as np
 
 from statscore import (
     AlternativeHypothesis,
+    ConjugateModelResult,
     CorrectionMethod,
     LeveneResult,
     LoadedData,
+    MCMCResult,
     MeanConfidenceIntervalResult,
     PredictionMethod,
     RegressionDiagnosticsResult,
@@ -29,6 +31,8 @@ from statscore import (
     anova2_mle,
     anova2_partition_tss,
     anova2_test_equality,
+    bayes_beta_binomial,
+    bayes_gamma_poisson,
     bayes_normal_mean_known_var,
     bayes_normal_mean_unknown_var,
     bonferroni_correction,
@@ -36,6 +40,8 @@ from statscore import (
     f_test_variances,
     levene_test,
     load_data,
+    mcmc_linear_regression,
+    mcmc_normal_mean_unknown_var,
     mean_confidence_interval,
     mult_lr_least_squares,
     mult_lr_partition_tss,
@@ -47,12 +53,16 @@ from statscore import (
     mult_norm_lr_test_general,
     mult_norm_lr_test_linear_reg,
     plot_anova_groups,
+    plot_f_test,
     plot_posterior_normal,
     plot_qq,
     plot_regression,
     plot_residuals,
+    plot_simultaneous_ci,
+    plot_t_test,
     regression_diagnostics,
     regression_summary,
+    run_mcmc,
     shapiro_wilk_test,
     sidak_correction,
     t_test_mean,
@@ -785,6 +795,222 @@ bayes_result = bayes_normal_mean_known_var(
 )
 fig = plot_posterior_normal(bayes_result, title="Posterior — Sensor Mean (known var)")
 print(f"  Figure type: {type(fig).__name__}  axes: {len(fig.axes)}")
+fig.clf()
+
+
+# =============================================================================
+# DEMO 41: bayes_beta_binomial
+# =============================================================================
+separator("41. bayes_beta_binomial")
+print("Drug trial: 47 responders out of 60 patients")
+print("Prior: p ~ Beta(5, 5)  (weakly informative, centered at 0.5)")
+
+result_bb = bayes_beta_binomial(
+    n_trials=60,
+    n_successes=47,
+    alpha0=5.0,
+    beta0=5.0,
+    alpha=0.05,
+)
+result_bb.summary()
+assert isinstance(result_bb, ConjugateModelResult)
+print(f"  Posterior alpha_n = {result_bb.posterior_params['alpha_n']}")
+print(f"  Posterior beta_n  = {result_bb.posterior_params['beta_n']}")
+
+fig = result_bb.plot()
+print(f"  Figure type: {type(fig).__name__}  axes: {len(fig.axes)}")
+fig.clf()
+
+
+# =============================================================================
+# DEMO 42: bayes_gamma_poisson
+# =============================================================================
+separator("42. bayes_gamma_poisson")
+print("Call centre: daily arrival counts over 10 days")
+print("Prior: lambda ~ Gamma(2, 0.2)  (prior mean = 10 calls/day)")
+
+arrivals = np.array([8, 12, 7, 10, 9, 11, 13, 8, 10, 9], dtype=float)
+result_gp = bayes_gamma_poisson(arrivals, alpha0=2.0, beta0=0.2, alpha=0.05)
+result_gp.summary()
+assert isinstance(result_gp, ConjugateModelResult)
+print(f"  Posterior mean lambda = {result_gp.posterior_mean:.4f}")
+print(f"  MLE lambda (x_bar)    = {result_gp.data_summary['x_bar']:.4f}")
+
+fig = result_gp.plot()
+print(f"  Figure type: {type(fig).__name__}  axes: {len(fig.axes)}")
+fig.clf()
+
+
+# =============================================================================
+# DEMO 43: mcmc_normal_mean_unknown_var
+# =============================================================================
+separator("43. mcmc_normal_mean_unknown_var")
+print("MCMC for sensor data: Normal(mu, sigma²) with weakly informative priors")
+
+result_mcmc_n = mcmc_normal_mean_unknown_var(
+    measurements,
+    mu_prior_mean=10.0,
+    mu_prior_std=5.0,
+    sigma_prior_alpha=2.0,
+    sigma_prior_beta=0.5,
+    n_iter=12_000,
+    n_burnin=2_000,
+    alpha=0.05,
+)
+result_mcmc_n.summary()
+assert isinstance(result_mcmc_n, MCMCResult)
+print(f"  Acceptance rate: {result_mcmc_n.acceptance_rate:.3f}")
+print(f"  Posterior samples shape: {result_mcmc_n.posterior_samples.shape}")
+
+fig = result_mcmc_n.plot()
+print(f"  Figure type: {type(fig).__name__}  axes: {len(fig.axes)}")
+fig.clf()
+
+
+# =============================================================================
+# DEMO 44: mcmc_linear_regression
+# =============================================================================
+separator("44. mcmc_linear_regression")
+print("Bayesian regression via MCMC: Grade ~ Attend + Homework")
+print("  Prior: beta_j ~ N(0, 20²),  sigma ~ InvGamma(2, 1)")
+
+result_mcmc_lr = mcmc_linear_regression(
+    X,
+    y,
+    beta_prior_std=20.0,
+    sigma_prior_alpha=2.0,
+    sigma_prior_beta=1.0,
+    n_iter=15_000,
+    n_burnin=3_000,
+    alpha=0.05,
+)
+result_mcmc_lr.summary()
+assert isinstance(result_mcmc_lr, MCMCResult)
+print(f"  Parameters: {result_mcmc_lr.param_names}")
+print(f"  Acceptance rate: {result_mcmc_lr.acceptance_rate:.3f}")
+
+fig = result_mcmc_lr.plot()
+print(f"  Figure type: {type(fig).__name__}  axes: {len(fig.axes)}")
+fig.clf()
+
+
+# =============================================================================
+# DEMO 45: run_mcmc  (custom log-posterior)
+# =============================================================================
+separator("45. run_mcmc — custom Exponential rate model")
+print("Custom MCMC: x_i ~ Exp(lambda),  prior lambda ~ Gamma(2, 1)")
+print("  Reparameterised as log_lambda for unconstrained sampling")
+
+exp_data = np.array([1.2, 0.8, 2.1, 0.5, 1.7, 0.9, 1.4, 2.3, 0.6, 1.1], dtype=float)
+n_exp  = len(exp_data)
+sum_x  = float(exp_data.sum())
+a0, b0 = 2.0, 1.0  # Gamma prior hyper-parameters
+
+
+def log_post_exp(params: np.ndarray) -> float:
+    """Log-posterior for Exp(lambda) with Gamma(a0, b0) prior (log_lambda parameterisation)."""
+    log_lam = float(params[0])
+    lam = np.exp(log_lam)
+    ll   = n_exp * log_lam - lam * sum_x
+    lp   = (a0 - 1) * log_lam - b0 * lam
+    return float(ll + lp + log_lam)  # Jacobian for change of variables
+
+
+result_custom = run_mcmc(
+    log_posterior=log_post_exp,
+    init=np.array([np.log(1.0 / exp_data.mean())]),
+    param_names=["log_lambda"],
+    n_iter=10_000,
+    n_burnin=2_000,
+    proposal_std=np.array([0.3]),
+    alpha=0.05,
+    model_name="Exponential(lambda)",
+)
+result_custom.summary()
+assert isinstance(result_custom, MCMCResult)
+
+lam_samples = np.exp(result_custom.posterior_samples[:, 0])
+print(f"\n  Back-transformed posterior (lambda = exp(log_lambda)):")
+print(f"    Posterior mean:  {lam_samples.mean():.4f}")
+print(f"    Posterior std:   {lam_samples.std(ddof=1):.4f}")
+print(f"    MLE lambda:      {1.0 / exp_data.mean():.4f}  (1 / x_bar)")
+
+fig = result_custom.plot()
+print(f"  Figure type: {type(fig).__name__}  axes: {len(fig.axes)}")
+fig.clf()
+
+
+# =============================================================================
+# DEMO 46: plot_t_test
+# =============================================================================
+separator("46. plot_t_test")
+t_res = t_test_mean(
+    bp_treatment, mu0=150.0, alpha=0.05, alternative=AlternativeHypothesis.TWO_SIDED
+)
+print(f"  T statistic: {t_res.t_statistic:.4f},  df={t_res.df},  "
+      f"t_crit=±{t_res.t_critical:.4f}")
+
+fig = plot_t_test(
+    t_statistic=t_res.t_statistic,
+    t_critical=t_res.t_critical,
+    df=t_res.df,
+    alternative=t_res.alternative.value,
+    title="One-Sample t-test — Blood Pressure",
+)
+print(f"  Figure type: {type(fig).__name__}  axes: {len(fig.axes)}")
+fig.clf()
+
+
+# =============================================================================
+# DEMO 47: plot_f_test
+# =============================================================================
+separator("47. plot_f_test")
+f_res = f_test_variances(
+    bp_treatment, bp_control, alpha=0.05, alternative=AlternativeHypothesis.TWO_SIDED
+)
+print(f"  F statistic:  {f_res.f_statistic:.4f}")
+print(f"  F critical:   [{f_res.f_critical_lower:.4f}, {f_res.f_critical_upper:.4f}]")
+print(f"  p-value:      {f_res.p_value:.6f}")
+
+fig = plot_f_test(
+    f_statistic=f_res.f_statistic,
+    f_critical_low=f_res.f_critical_lower,
+    f_critical_up=f_res.f_critical_upper,
+    df1=f_res.df1,
+    df2=f_res.df2,
+    alternative=f_res.alternative.value,
+    title="F-test for Variances — Blood Pressure",
+)
+print(f"  Figure type: {type(fig).__name__}  axes: {len(fig.axes)}")
+fig.clf()
+
+
+# =============================================================================
+# DEMO 48: plot_simultaneous_ci
+# =============================================================================
+separator("48. plot_simultaneous_ci")
+print("Simultaneous CI forest plot for toxin contrasts vs control:")
+
+C = np.array(
+    [
+        [1, 0, 0, -1],
+        [0, 1, 0, -1],
+        [0, 0, 1, -1],
+        [1 / 3, 1 / 3, 1 / 3, -1],
+    ]
+)
+ci_result_plot = anova1_ci_linear_combs(anova_data, alpha=0.05, C=C, method=CorrectionMethod.BEST)
+labels = ["Toxin1 − Ctrl", "Toxin2 − Ctrl", "Toxin3 − Ctrl", "Mean − Ctrl"]
+
+fig = plot_simultaneous_ci(
+    point_estimates=ci_result_plot.point_estimates,
+    intervals=ci_result_plot.intervals,
+    method=ci_result_plot.method_used.value,
+    labels=labels,
+    title="Simultaneous CIs — Toxin vs Control",
+)
+print(f"  Figure type: {type(fig).__name__}  axes: {len(fig.axes)}")
+print(f"  Method used: {ci_result_plot.method_used.value}")
 fig.clf()
 
 

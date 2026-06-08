@@ -53,15 +53,15 @@ class ZTestResult:
         z_crit = self.z_critical
         if self.alternative is AlternativeHypothesis.TWO_SIDED:
             crit_abs = abs(z_crit)
-            ax.fill_between(x, pdf, where=x <= -crit_abs, alpha=0.3, color="crimson", label="Rejection region")
-            ax.fill_between(x, pdf, where=x >= crit_abs, alpha=0.3, color="crimson")
+            ax.fill_between(x, pdf, where=(x <= -crit_abs).tolist(), alpha=0.3, color="crimson", label="Rejection region")
+            ax.fill_between(x, pdf, where=(x >= crit_abs).tolist(), alpha=0.3, color="crimson")
             ax.axvline(-crit_abs, color="crimson", linestyle="--", linewidth=1.2)
             ax.axvline(crit_abs, color="crimson", linestyle="--", linewidth=1.2)
         elif self.alternative is AlternativeHypothesis.GREATER:
-            ax.fill_between(x, pdf, where=x >= z_crit, alpha=0.3, color="crimson", label="Rejection region")
+            ax.fill_between(x, pdf, where=(x >= z_crit).tolist(), alpha=0.3, color="crimson", label="Rejection region")
             ax.axvline(z_crit, color="crimson", linestyle="--", linewidth=1.2)
         else:
-            ax.fill_between(x, pdf, where=x <= z_crit, alpha=0.3, color="crimson", label="Rejection region")
+            ax.fill_between(x, pdf, where=(x <= z_crit).tolist(), alpha=0.3, color="crimson", label="Rejection region")
             ax.axvline(z_crit, color="crimson", linestyle="--", linewidth=1.2)
 
         ax.axvline(self.z_statistic, color="darkgreen", linestyle="-", linewidth=2, label=f"Z = {self.z_statistic:.4f}")
@@ -163,18 +163,18 @@ class Chi2VarianceTestResult:
 
         if self.alternative is AlternativeHypothesis.TWO_SIDED:
             if self.chi2_critical_lower > 0:
-                ax.fill_between(x, pdf, where=x <= self.chi2_critical_lower, alpha=0.3, color="crimson", label="Rejection region")
+                ax.fill_between(x, pdf, where=(x <= self.chi2_critical_lower).tolist(), alpha=0.3, color="crimson", label="Rejection region")
                 ax.axvline(self.chi2_critical_lower, color="crimson", linestyle="--", linewidth=1.2)
             if np.isfinite(self.chi2_critical_upper):
-                ax.fill_between(x, pdf, where=x >= self.chi2_critical_upper, alpha=0.3, color="crimson")
+                ax.fill_between(x, pdf, where=(x >= self.chi2_critical_upper).tolist(), alpha=0.3, color="crimson")
                 ax.axvline(self.chi2_critical_upper, color="crimson", linestyle="--", linewidth=1.2)
         elif self.alternative is AlternativeHypothesis.GREATER:
             if np.isfinite(self.chi2_critical_upper):
-                ax.fill_between(x, pdf, where=x >= self.chi2_critical_upper, alpha=0.3, color="crimson", label="Rejection region")
+                ax.fill_between(x, pdf, where=(x >= self.chi2_critical_upper).tolist(), alpha=0.3, color="crimson", label="Rejection region")
                 ax.axvline(self.chi2_critical_upper, color="crimson", linestyle="--", linewidth=1.2)
         else:
             if self.chi2_critical_lower > 0:
-                ax.fill_between(x, pdf, where=x <= self.chi2_critical_lower, alpha=0.3, color="crimson", label="Rejection region")
+                ax.fill_between(x, pdf, where=(x <= self.chi2_critical_lower).tolist(), alpha=0.3, color="crimson", label="Rejection region")
                 ax.axvline(self.chi2_critical_lower, color="crimson", linestyle="--", linewidth=1.2)
 
         ax.axvline(self.chi2_statistic, color="darkgreen", linestyle="-", linewidth=2, label=f"χ² = {self.chi2_statistic:.4f}")

@@ -58,9 +58,13 @@ dev = [
     "ruff>=0.4",
     "mypy>=1.0",
 ]
+ui = [
+    "streamlit>=1.30",
+]
 
 [project.scripts]
 statscore = "statscore.cli:main"
+statscore-ui = "statscore.app._launcher:run"
 
 [project.urls]
 Homepage = "https://github.com/furkankyildirim/statscore"
@@ -107,4 +111,16 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "pandas.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "statscore.app"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "streamlit.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "matplotlib.*"
 ignore_missing_imports = true
