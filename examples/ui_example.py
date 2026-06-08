@@ -33,6 +33,40 @@ import textwrap
 import numpy as np
 import pandas as pd
 
+from statscore import (
+    AlternativeHypothesis,
+    CorrectionMethod,
+    PredictionMethod,
+    TwoWayTestFactor,
+    anova1_ci_linear_combs,
+    anova1_test_equality,
+    anova1_test_linear_combs,
+    anova2_test_equality,
+    bayes_beta_binomial,
+    bayes_gamma_poisson,
+    bayes_normal_mean_known_var,
+    bayes_normal_mean_unknown_var,
+    chi2_test_variance,
+    f_test_variances,
+    mult_lr_least_squares,
+    mult_norm_lr_pred_ci,
+    mult_norm_lr_simul_ci,
+    regression_diagnostics,
+    regression_summary,
+    t_test_mean,
+    t_test_paired,
+    t_test_two_sample,
+    z_test_mean,
+)
+from statscore.plots import (
+    plot_anova_groups,
+    plot_posterior_normal,
+    plot_qq,
+    plot_regression,
+    plot_residuals,
+    plot_simultaneous_ci,
+)
+
 # =============================================================================
 # Helpers shared across all sections
 # =============================================================================
@@ -91,9 +125,6 @@ print(df.describe())
 # =============================================================================
 sep("ANOVA page — One-Way ANOVA")
 
-from statscore import anova1_test_equality
-from statscore.plots import plot_anova_groups
-
 group_a = df[df["group"] == "A"]["score"].values.astype(float)
 group_b = df[df["group"] == "B"]["score"].values.astype(float)
 groups = [group_a, group_b]
@@ -114,8 +145,6 @@ print("  → Box plot saved to /tmp/ui_anova_boxplot.png")
 # =============================================================================
 sep("ANOVA page — Two-Way ANOVA (I=2, J=3, K=4)")
 
-from statscore import anova2_test_equality, TwoWayTestFactor
-
 data_2way = np.array([
     [[4, 5, 6, 5], [7, 9, 8, 12], [10, 12, 11, 19]],
     [[6, 6, 4, 4], [13, 15, 12, 12], [12, 13, 10, 13]],
@@ -131,9 +160,6 @@ for factor in [TwoWayTestFactor.A, TwoWayTestFactor.B, TwoWayTestFactor.AB]:
 # UI: Z-test widget — sample data, mu0, sigma, alpha, alternative
 # =============================================================================
 sep("Significance Tests page — Z-test for Mean")
-
-from statscore import z_test_mean, AlternativeHypothesis
-from statscore.plots import plot_t_test  # UI uses this for Z as well
 
 bp_treat = np.array([138, 142, 130, 145, 137, 140, 133, 148, 135, 141], dtype=float)
 
@@ -152,8 +178,6 @@ print("  → Z-test distribution plot saved to /tmp/ui_z_test.png")
 # UI: one-sample t-test, two-sample t-test, paired t-test widgets
 # =============================================================================
 sep("Significance Tests page — t-tests")
-
-from statscore import t_test_mean, t_test_two_sample, t_test_paired
 
 bp_control = np.array([155, 162, 149, 158, 160, 153, 157, 151, 164, 156], dtype=float)
 bp_before  = np.array([158, 163, 151, 162, 155, 160, 157, 165, 153, 159], dtype=float)
@@ -185,8 +209,6 @@ print("  → Paired t-test distribution plot saved to /tmp/ui_paired_t.png")
 # =============================================================================
 sep("Significance Tests page — Chi² test for variance / F-test for variances")
 
-from statscore import chi2_test_variance, f_test_variances
-
 r_chi2 = chi2_test_variance(bp_treat, sigma0_sq=100.0, alpha=0.05,
                              alternative=AlternativeHypothesis.TWO_SIDED)
 print(f"  Chi²: χ²={r_chi2.chi2_statistic:.4f}, p={r_chi2.p_value:.6f}, reject={r_chi2.reject_H0}")
@@ -202,16 +224,6 @@ print(f"  F-var: F={r_f.f_statistic:.4f}, p={r_f.p_value:.6f}, reject={r_f.rejec
 #     Summary / Simultaneous CI / Diagnostic Plots / Prediction
 # =============================================================================
 sep("Regression page — OLS summary + diagnostics + prediction")
-
-from statscore import (
-    mult_lr_least_squares,
-    mult_norm_lr_simul_ci,
-    mult_norm_lr_pred_ci,
-    regression_summary,
-    regression_diagnostics,
-    PredictionMethod,
-)
-from statscore.plots import plot_regression, plot_residuals, plot_qq
 
 attend  = np.array([1, 0.5, 0.2, 0.4, 0.5, 0.7, 0.8, 0.9, 0.6, 0.1, 0, 0, 0.7, 0.8, 1])
 homework = np.array([0.25, 1, 0.5, 1, 1, 0.75, 1, 0.25, 0, 0, 1, 0.5, 0.25, 0.75, 1])
@@ -257,14 +269,6 @@ pred.summary()
 # =============================================================================
 sep("Bayesian Inference page")
 
-from statscore import (
-    bayes_normal_mean_known_var,
-    bayes_normal_mean_unknown_var,
-    bayes_beta_binomial,
-    bayes_gamma_poisson,
-)
-from statscore.plots import plot_posterior_normal
-
 sensor = np.array([9.8, 10.2, 10.1, 9.9, 10.3, 9.7, 10.0, 10.4, 9.6, 10.1], dtype=float)
 
 # Normal — known σ²
@@ -299,9 +303,6 @@ print("  → Bayesian plots saved to /tmp/ui_posterior_*.png, ui_beta_binomial.p
 # UI: enter groups, contrast matrix C, alpha, method (Scheffé / Tukey / …)
 # =============================================================================
 sep("Multiple Comparisons page — simultaneous CIs and tests")
-
-from statscore import anova1_ci_linear_combs, anova1_test_linear_combs, CorrectionMethod
-from statscore.plots import plot_simultaneous_ci
 
 toxin1  = np.array([28, 23, 14, 27, 31], dtype=float)
 toxin2  = np.array([33, 36, 34, 29, 24], dtype=float)

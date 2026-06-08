@@ -930,7 +930,7 @@ result_custom.summary()
 assert isinstance(result_custom, MCMCResult)
 
 lam_samples = np.exp(result_custom.posterior_samples[:, 0])
-print(f"\n  Back-transformed posterior (lambda = exp(log_lambda)):")
+print("\n  Back-transformed posterior (lambda = exp(log_lambda)):")
 print(f"    Posterior mean:  {lam_samples.mean():.4f}")
 print(f"    Posterior std:   {lam_samples.std(ddof=1):.4f}")
 print(f"    MLE lambda:      {1.0 / exp_data.mean():.4f}  (1 / x_bar)")

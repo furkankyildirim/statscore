@@ -4,15 +4,16 @@ import numpy as np
 import pytest
 
 from statscore.methods.regression import (
+    mult_lr_least_squares,
+    mult_lr_partition_tss,
     mult_norm_lr_cr,
     mult_norm_lr_is_in_cr,
+    mult_norm_lr_pred_ci,
     mult_norm_lr_simul_ci,
     mult_norm_lr_test_comp,
     mult_norm_lr_test_general,
     mult_norm_lr_test_linear_reg,
 )
-from statscore.methods.regression import mult_lr_least_squares, mult_lr_partition_tss
-from statscore.methods.regression import mult_norm_lr_pred_ci
 from statscore.utils.enums import PredictionMethod
 
 

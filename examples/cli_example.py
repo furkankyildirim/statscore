@@ -38,6 +38,9 @@ from statscore import (
     mult_norm_lr_pred_ci,
     mult_norm_lr_simul_ci,
     mult_norm_lr_test_general,
+    plot_qq,
+    plot_regression,
+    plot_residuals,
     regression_diagnostics,
     regression_summary,
     run_mcmc,
@@ -224,7 +227,6 @@ summary = regression_summary(X_simple, grade, alpha=0.05,
 summary.summary(feature_names=["Attend"])
 
 ols = mult_lr_least_squares(X_simple, grade)
-from statscore import plot_regression, plot_residuals, plot_qq
 fig = plot_regression(attend, grade, ols.beta_hat,
                       x_label="Attendance", y_label="Grade")
 fig.savefig("/tmp/cli_regression_plot.png", dpi=150)

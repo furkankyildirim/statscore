@@ -14,8 +14,8 @@ The script writes all temporary files to /tmp/statscore_io/ and cleans up
 at the end.  Set KEEP_FILES=True to inspect them after the run.
 """
 
+import contextlib
 import json
-import os
 import shutil
 from pathlib import Path
 
@@ -24,7 +24,6 @@ import pandas as pd
 
 from statscore import (
     AlternativeHypothesis,
-    CorrectionMethod,
     anova1_test_equality,
     bayes_normal_mean_known_var,
     load_data,
@@ -36,6 +35,7 @@ from statscore import (
     t_test_mean,
     t_test_two_sample,
 )
+from statscore.plots import plot_anova_groups, plot_qq, plot_residuals
 
 KEEP_FILES = False
 WORK_DIR = Path("/tmp/statscore_io")
@@ -145,7 +145,6 @@ groups = [
 result = anova1_test_equality(groups, alpha=0.05)
 result.summary()
 
-from statscore.plots import plot_anova_groups
 fig = plot_anova_groups(groups, group_labels=["Control", "Low dose", "High dose"],
                         y_label="Response", title="Treatment Effect (one-way ANOVA)")
 fig.savefig(str(WORK_DIR / "anova_groups.png"), dpi=150)
@@ -180,7 +179,6 @@ tss = mult_lr_partition_tss(X, y_arr)
 print(f"\n  R² = {tss.R_squared:.4f},  RegSS = {tss.RegSS:.4f},  RSS = {tss.RSS:.4f}")
 
 ols = mult_lr_least_squares(X, y_arr)
-from statscore.plots import plot_residuals, plot_qq
 fig_res = plot_residuals(ols.fitted_values, ols.residuals)
 fig_qq  = plot_qq(ols.residuals, title="Q-Q Residuals — JSON Regression")
 fig_res.savefig(str(WORK_DIR / "json_residuals.png"), dpi=150)
@@ -248,12 +246,9 @@ export_dir = WORK_DIR / "exports"
 export_dir.mkdir(exist_ok=True)
 
 # Redirect summary() output to a text file
-import contextlib
-
 txt_path = export_dir / "anova_summary.txt"
-with open(txt_path, "w") as fh:
-    with contextlib.redirect_stdout(fh):
-        result.summary()           # result from section 4 (ANOVA)
+with open(txt_path, "w") as fh, contextlib.redirect_stdout(fh):
+    result.summary()           # result from section 4 (ANOVA)
 print(f"  Summary text → {txt_path}")
 
 # Save figure as both PNG and PDF
@@ -289,11 +284,11 @@ print(f"  Reloaded: {loaded_preds.n_rows} rows, columns: {loaded_preds.column_na
 resid_check = df_preds["residual"].values.astype(float)
 sw_resid = shapiro_wilk_test(resid_check, alpha=0.05)
 ci_resid = mean_confidence_interval(resid_check, alpha=0.05)
-print(f"\n  Residuals after reload:")
+print("\n  Residuals after reload:")
 print(f"    Shapiro-Wilk: W={sw_resid.statistic:.4f}, p={sw_resid.p_value:.4f}, "
       f"normal={'Yes' if not sw_resid.reject_H0 else 'No'}")
 print(f"    95% CI for residual mean: [{ci_resid.lower:.4f}, {ci_resid.upper:.4f}]")
-print(f"    (should be ≈ 0 for an unbiased model)")
+print("    (should be ≈ 0 for an unbiased model)")
 
 
 # =============================================================================
