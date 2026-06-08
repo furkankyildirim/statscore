@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-06-08
 
+**PyPI:** https://pypi.org/project/stats-toolbox/1.0.0/
+
 ### Added
 - One-way ANOVA: `ANOVA1_partition_TSS`, `ANOVA1_test_equality`
 - Contrast utilities: `ANOVA1_is_contrast`, `ANOVA1_is_orthogonal`
