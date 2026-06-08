@@ -4,11 +4,6 @@ Demonstration script for stats_toolbox.
 Exercises all 20 public functions end-to-end with representative sample data.
 """
 
-import sys
-import os
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # noqa: E402
-
 import numpy as np
 
 from stats_toolbox import (

@@ -4,9 +4,6 @@ import numpy as np
 import pytest
 from scipy import stats
 
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from stats_toolbox.anova.one_way import ANOVA1_partition_TSS, ANOVA1_test_equality
 
 

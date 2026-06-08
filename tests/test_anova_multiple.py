@@ -3,9 +3,6 @@
 import numpy as np
 import pytest
 
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from stats_toolbox.anova.multiple_tests import (
     ANOVA1_is_contrast,
     ANOVA1_is_orthogonal,

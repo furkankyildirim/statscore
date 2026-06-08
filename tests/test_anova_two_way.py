@@ -3,9 +3,6 @@
 import numpy as np
 import pytest
 
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from stats_toolbox.anova.two_way import ANOVA2_partition_TSS, ANOVA2_MLE, ANOVA2_test_equality
 from stats_toolbox.utils.enums import TwoWayTestFactor
 

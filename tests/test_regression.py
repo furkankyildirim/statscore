@@ -3,9 +3,6 @@
 import numpy as np
 import pytest
 
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from stats_toolbox.regression.least_squares import Mult_LR_Least_squares, Mult_LR_partition_TSS
 from stats_toolbox.regression.inference import (
     Mult_norm_LR_simul_CI,
