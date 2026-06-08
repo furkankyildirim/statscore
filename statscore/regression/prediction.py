@@ -4,10 +4,10 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from stats_toolbox.regression.least_squares import LeastSquaresResult, Mult_LR_Least_squares
-from stats_toolbox.utils.distributions import f_critical, t_critical
-from stats_toolbox.utils.enums import PredictionMethod
-from stats_toolbox.utils.validation import validate_design_matrix
+from statscore.regression.least_squares import LeastSquaresResult, Mult_LR_Least_squares
+from statscore.utils.distributions import f_critical, t_critical
+from statscore.utils.enums import PredictionMethod
+from statscore.utils.validation import validate_design_matrix
 
 
 @dataclass

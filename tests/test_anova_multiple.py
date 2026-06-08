@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from stats_toolbox.anova.multiple_tests import (
+from statscore.anova.multiple_tests import (
     ANOVA1_CI_linear_combs,
     ANOVA1_is_contrast,
     ANOVA1_is_orthogonal,
@@ -11,7 +11,7 @@ from stats_toolbox.anova.multiple_tests import (
     Bonferroni_correction,
     Sidak_correction,
 )
-from stats_toolbox.utils.enums import CorrectionMethod
+from statscore.utils.enums import CorrectionMethod
 
 
 class TestIsContrast:

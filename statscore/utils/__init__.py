@@ -1,4 +1,4 @@
-from stats_toolbox.utils.distributions import (
+from statscore.utils.distributions import (
     chi2_critical,
     f_critical,
     f_pvalue,
@@ -6,12 +6,12 @@ from stats_toolbox.utils.distributions import (
     t_critical,
     t_pvalue,
 )
-from stats_toolbox.utils.enums import (
+from statscore.utils.enums import (
     CorrectionMethod,
     PredictionMethod,
     TwoWayTestFactor,
 )
-from stats_toolbox.utils.validation import (
+from statscore.utils.validation import (
     validate_C_matrix,
     validate_contrast_matrix,
     validate_data_groups,

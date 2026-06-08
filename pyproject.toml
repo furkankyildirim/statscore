@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "stats-toolbox"
+name = "statscore"
 version = "1.0.0"
 description = "A production-quality Python library for Analysis of Variance (ANOVA) and Multiple Linear Regression with structured output, simultaneous inference, and FWER control."
 readme = "README.md"
@@ -57,18 +57,18 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/furkankyildirim/stats-toolbox"
-Repository = "https://github.com/furkankyildirim/stats-toolbox"
-Documentation = "https://github.com/furkankyildirim/stats-toolbox#readme"
-Issues = "https://github.com/furkankyildirim/stats-toolbox/issues"
-Changelog = "https://github.com/furkankyildirim/stats-toolbox/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/furkankyildirim/statscore"
+Repository = "https://github.com/furkankyildirim/statscore"
+Documentation = "https://github.com/furkankyildirim/statscore#readme"
+Issues = "https://github.com/furkankyildirim/statscore/issues"
+Changelog = "https://github.com/furkankyildirim/statscore/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
-include = ["stats_toolbox*"]
+include = ["statscore*"]
 exclude = ["tests*", "examples*"]
 
 [tool.setuptools.package-data]
-stats_toolbox = ["py.typed"]
+statscore = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

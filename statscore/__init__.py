@@ -1,11 +1,11 @@
-"""stats_toolbox: A production-quality library for ANOVA and Multiple Linear Regression.
+"""statscore: A production-quality library for ANOVA and Multiple Linear Regression.
 
 Provides structured-output implementations of one-way and two-way ANOVA,
 multiple comparison procedures (Bonferroni, Sidak, Scheffe, Tukey), and
 OLS-based multiple linear regression with simultaneous inference and prediction.
 """
 
-from stats_toolbox.anova import (
+from statscore.anova import (
     ANOVA2_MLE,
     ANOVA1_CI_linear_combs,
     ANOVA1_is_contrast,
@@ -18,7 +18,7 @@ from stats_toolbox.anova import (
     Bonferroni_correction,
     Sidak_correction,
 )
-from stats_toolbox.regression import (
+from statscore.regression import (
     Mult_LR_Least_squares,
     Mult_LR_partition_TSS,
     Mult_norm_LR_CR,
@@ -29,7 +29,7 @@ from stats_toolbox.regression import (
     Mult_norm_LR_test_general,
     Mult_norm_LR_test_linear_reg,
 )
-from stats_toolbox.utils.enums import (
+from statscore.utils.enums import (
     CorrectionMethod,
     PredictionMethod,
     TwoWayTestFactor,

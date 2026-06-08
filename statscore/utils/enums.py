@@ -1,4 +1,4 @@
-"""Strongly-typed enumerations for categorical parameters in stats_toolbox.
+"""Strongly-typed enumerations for categorical parameters in statscore.
 
 All categorical parameters in public-facing functions use these enums
 instead of raw strings, enforcing compile-time type safety and enabling

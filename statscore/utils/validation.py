@@ -1,4 +1,4 @@
-"""Input validation helpers for stats_toolbox."""
+"""Input validation helpers for statscore."""
 
 from collections.abc import Sequence
 

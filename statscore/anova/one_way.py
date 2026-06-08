@@ -5,8 +5,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from stats_toolbox.utils.distributions import f_critical, f_pvalue
-from stats_toolbox.utils.validation import validate_data_groups
+from statscore.utils.distributions import f_critical, f_pvalue
+from statscore.utils.validation import validate_data_groups
 
 
 @dataclass

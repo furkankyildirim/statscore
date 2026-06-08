@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from stats_toolbox.utils.validation import validate_design_matrix
+from statscore.utils.validation import validate_design_matrix
 
 
 @dataclass

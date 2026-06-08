@@ -8,15 +8,15 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from stats_toolbox.anova.one_way import ANOVA1_partition_TSS
-from stats_toolbox.utils.distributions import (
+from statscore.anova.one_way import ANOVA1_partition_TSS
+from statscore.utils.distributions import (
     f_critical,
     studentized_range_critical,
     t_critical,
     t_pvalue,
 )
-from stats_toolbox.utils.enums import CorrectionMethod
-from stats_toolbox.utils.validation import validate_contrast_matrix, validate_data_groups
+from statscore.utils.enums import CorrectionMethod
+from statscore.utils.validation import validate_contrast_matrix, validate_data_groups
 
 
 @dataclass

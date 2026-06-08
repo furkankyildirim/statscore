@@ -4,9 +4,9 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from stats_toolbox.utils.distributions import f_critical, f_pvalue
-from stats_toolbox.utils.enums import TwoWayTestFactor
-from stats_toolbox.utils.validation import validate_two_way_data
+from statscore.utils.distributions import f_critical, f_pvalue
+from statscore.utils.enums import TwoWayTestFactor
+from statscore.utils.validation import validate_two_way_data
 
 
 @dataclass

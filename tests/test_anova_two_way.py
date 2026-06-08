@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from stats_toolbox.anova.two_way import ANOVA2_MLE, ANOVA2_partition_TSS, ANOVA2_test_equality
-from stats_toolbox.utils.enums import TwoWayTestFactor
+from statscore.anova.two_way import ANOVA2_MLE, ANOVA2_partition_TSS, ANOVA2_test_equality
+from statscore.utils.enums import TwoWayTestFactor
 
 
 class TestANOVA2PartitionTSS:

@@ -33,4 +33,4 @@ jobs:
         run: ruff check .
 
       - name: Type check
-        run: mypy stats_toolbox/
+        run: mypy statscore/

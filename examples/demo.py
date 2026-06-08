@@ -1,12 +1,12 @@
 """
-Demonstration script for stats_toolbox.
+Demonstration script for statscore.
 
 Exercises all 20 public functions end-to-end with representative sample data.
 """
 
 import numpy as np
 
-from stats_toolbox import (
+from statscore import (
     ANOVA2_MLE,
     ANOVA1_CI_linear_combs,
     ANOVA1_is_contrast,
@@ -392,5 +392,5 @@ for i, (lo, hi) in enumerate(result.intervals):
 
 # =============================================================================
 separator("DEMO COMPLETE")
-print("All 20 stats_toolbox functions demonstrated successfully.")
+print("All 20 statscore functions demonstrated successfully.")
 print()

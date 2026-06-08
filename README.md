@@ -1,4 +1,4 @@
-# stats-toolbox
+# statscore
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
@@ -20,11 +20,11 @@ A production-quality Python library for **Analysis of Variance (ANOVA)** and **M
 
 ```bash
 # From PyPI (once published):
-pip install stats-toolbox
+pip install statscore
 
 # From source (development):
-git clone https://github.com/furkankyildirim/stats-toolbox.git
-cd stats-toolbox
+git clone https://github.com/furkankyildirim/statscore.git
+cd statscore
 pip install -e ".[dev]"
 ```
 
@@ -36,7 +36,7 @@ pip install -e ".[dev]"
 
 ```python
 import numpy as np
-from stats_toolbox import ANOVA1_partition_TSS, ANOVA1_test_equality
+from statscore import ANOVA1_partition_TSS, ANOVA1_test_equality
 
 data = [
     np.array([28, 23, 14, 27, 31]),
@@ -57,7 +57,7 @@ print(f"Reject H0: {result.reject_H0}")
 ### Multiple Comparisons with FWER Control
 
 ```python
-from stats_toolbox import ANOVA1_CI_linear_combs, ANOVA1_test_linear_combs
+from statscore import ANOVA1_CI_linear_combs, ANOVA1_test_linear_combs
 
 C = np.array([[1, -1, 0], [0, 1, -1], [1, 0, -1]])
 d = np.zeros(3)
@@ -71,7 +71,7 @@ for i, (lo, hi) in enumerate(ci_result.intervals):
 ### Multiple Linear Regression
 
 ```python
-from stats_toolbox import (
+from statscore import (
     Mult_LR_Least_squares, Mult_norm_LR_test_general, Mult_norm_LR_pred_CI
 )
 
@@ -97,7 +97,7 @@ for i, (lo, hi) in enumerate(pred.intervals):
 ## Package Structure
 
 ```
-stats_toolbox/
+statscore/
 ├── __init__.py              # Top-level exports (20 public functions)
 ├── anova/
 │   ├── one_way.py           # ANOVA1_partition_TSS, ANOVA1_test_equality
@@ -190,7 +190,7 @@ pytest tests/ -v
 ruff check .
 
 # Type checking
-mypy stats_toolbox/
+mypy statscore/
 ```
 
 ## Running the Demo
