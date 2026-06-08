@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from statscore.anova.one_way import ANOVA1_partition_TSS
+from statscore.anova.one_way import anova1_partition_tss
 from statscore.utils.distributions import (
     f_critical,
     studentized_range_critical,
@@ -83,7 +83,7 @@ class SimultaneousTestResult:
         print("=" * w)
 
 
-def ANOVA1_is_contrast(c: np.ndarray) -> bool:
+def anova1_is_contrast(c: np.ndarray) -> bool:
     """Check whether coefficients c define a contrast (sum to zero).
 
     Parameters
@@ -99,7 +99,7 @@ def ANOVA1_is_contrast(c: np.ndarray) -> bool:
     return bool(np.abs(c.sum()) < 1e-10)
 
 
-def ANOVA1_is_orthogonal(n: np.ndarray, c1: np.ndarray, c2: np.ndarray) -> OrthogonalityResult:
+def anova1_is_orthogonal(n: np.ndarray, c1: np.ndarray, c2: np.ndarray) -> OrthogonalityResult:
     """Check whether two contrasts are orthogonal given group sizes.
 
     Orthogonality condition: sum(c1_i * c2_i / n_i) = 0.
@@ -121,8 +121,8 @@ def ANOVA1_is_orthogonal(n: np.ndarray, c1: np.ndarray, c2: np.ndarray) -> Ortho
     c1 = np.asarray(c1, dtype=float)
     c2 = np.asarray(c2, dtype=float)
 
-    c1_is_contrast: bool = ANOVA1_is_contrast(c1)
-    c2_is_contrast: bool = ANOVA1_is_contrast(c2)
+    c1_is_contrast: bool = anova1_is_contrast(c1)
+    c2_is_contrast: bool = anova1_is_contrast(c2)
 
     warning: str | None = None
     if not c1_is_contrast or not c2_is_contrast:
@@ -146,7 +146,7 @@ def ANOVA1_is_orthogonal(n: np.ndarray, c1: np.ndarray, c2: np.ndarray) -> Ortho
     )
 
 
-def Bonferroni_correction(alpha: float, m: int) -> float:
+def bonferroni_correction(alpha: float, m: int) -> float:
     """Compute Bonferroni-corrected significance level.
 
     Parameters
@@ -165,7 +165,7 @@ def Bonferroni_correction(alpha: float, m: int) -> float:
     return alpha / m
 
 
-def Sidak_correction(alpha: float, m: int) -> float:
+def sidak_correction(alpha: float, m: int) -> float:
     """Compute Sidak-corrected significance level.
 
     Parameters
@@ -239,7 +239,7 @@ def _compute_ci_half_width(
         t_crit: float = t_critical(alpha / (2 * m), df_w)
         return t_crit * se_term
     elif method == CorrectionMethod.SIDAK:
-        alpha_corr: float = Sidak_correction(alpha, m)
+        alpha_corr: float = sidak_correction(alpha, m)
         t_crit = t_critical(alpha_corr / 2, df_w)
         return t_crit * se_term
     elif method == CorrectionMethod.TUKEY:
@@ -302,7 +302,7 @@ def _choose_best_method(
     return candidates
 
 
-def ANOVA1_CI_linear_combs(
+def anova1_ci_linear_combs(
     data: Sequence[np.ndarray],
     alpha: float,
     C: np.ndarray,
@@ -337,7 +337,7 @@ def ANOVA1_CI_linear_combs(
     validate_contrast_matrix(C, I)
     m: int = C.shape[0]
 
-    partition = ANOVA1_partition_TSS(data)
+    partition = anova1_partition_tss(data)
     n: np.ndarray = partition.group_sizes
     group_means: np.ndarray = partition.group_means
     SS_w: float = partition.SS_within
@@ -391,7 +391,7 @@ def ANOVA1_CI_linear_combs(
     )
 
 
-def ANOVA1_test_linear_combs(
+def anova1_test_linear_combs(
     data: Sequence[np.ndarray],
     alpha: float,
     C: np.ndarray,
@@ -434,7 +434,7 @@ def ANOVA1_test_linear_combs(
     if len(d) != m:
         raise ValueError(f"d must have {m} elements, got {len(d)}.")
 
-    partition = ANOVA1_partition_TSS(data)
+    partition = anova1_partition_tss(data)
     n: np.ndarray = partition.group_sizes
     group_means: np.ndarray = partition.group_means
     SS_w: float = partition.SS_within
@@ -493,7 +493,7 @@ def ANOVA1_test_linear_combs(
             raw_p: float = t_pvalue(test_statistics[j], df_w)
             p_values[j] = min(raw_p * m, 1.0)
     elif final_method == CorrectionMethod.SIDAK:
-        alpha_corr: float = Sidak_correction(alpha, m)
+        alpha_corr: float = sidak_correction(alpha, m)
         t_crit = t_critical(alpha_corr / 2, df_w)
         critical_values[:] = t_crit
         for j in range(m):

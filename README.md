@@ -44,7 +44,7 @@ pip install -e ".[dev]"
 
 ```python
 import numpy as np
-from statscore import ANOVA1_partition_TSS, ANOVA1_test_equality
+from statscore import anova1_partition_tss, anova1_test_equality
 
 data = [
     np.array([28, 23, 14, 27, 31]),
@@ -52,25 +52,28 @@ data = [
     np.array([18, 21, 20, 22]),
 ]
 
-partition = ANOVA1_partition_TSS(data)
+partition = anova1_partition_tss(data)
 print(f"SS_total = {partition.SS_total}")
 print(f"SS_within = {partition.SS_within}")
 print(f"SS_between = {partition.SS_between}")
+# SS_total = 548.8571428571428
+# SS_within = 272.75
+# SS_between = 276.1071428571428
 
-result = ANOVA1_test_equality(data, alpha=0.05)
+result = anova1_test_equality(data, alpha=0.05)
 result.summary()
 # ==========================================================
 #   One-Way ANOVA Table
 # ==========================================================
 #   Source          df           SS           MS          F
 # ----------------------------------------------------------
-#   Between          2     584.4167     292.2083    12.6385
-#   Within          11     254.3333      23.1212
+#   Between          2     276.1071     138.0536     5.5677
+#   Within          11     272.7500      24.7955
 # ----------------------------------------------------------
-#   Total           13     838.7500
+#   Total           13     548.8571
 # ==========================================================
 #   F critical (α=0.05): 3.9823
-#   p-value:                  0.0014
+#   p-value:                  0.0214
 #   Decision:                 Reject H0
 # ==========================================================
 ```
@@ -79,7 +82,7 @@ result.summary()
 
 ```python
 import numpy as np
-from statscore import ANOVA2_test_equality, TwoWayTestFactor
+from statscore import anova2_test_equality, TwoWayTestFactor
 
 # data shape: (I, J, K) — I levels of A, J levels of B, K replicates
 data = np.array([
@@ -87,7 +90,7 @@ data = np.array([
     [[6, 6, 4, 4], [13, 15, 12, 12], [12, 13, 10, 13]],
 ], dtype=float)
 
-result = ANOVA2_test_equality(data, alpha=0.05, test=TwoWayTestFactor.B)
+result = anova2_test_equality(data, alpha=0.05, test=TwoWayTestFactor.B)
 result.summary()
 # ==================================================================
 #   Two-Way ANOVA Table
@@ -107,6 +110,7 @@ result.summary()
 #   p-value:          0.0000
 #   Decision:         Reject H0
 # ==================================================================
+
 ```
 
 ### Normal Distribution Significance Testing
@@ -118,36 +122,71 @@ from statscore import z_test_mean, t_test_mean, t_test_two_sample, AlternativeHy
 x = np.array([10.2, 9.8, 10.1, 10.3, 9.9, 10.0, 10.4, 9.7])
 
 # Z-test (sigma known)
-result = z_test_mean(x, mu0=10.0, sigma=0.3, alpha=0.05,
-                     alternative=AlternativeHypothesis.TWO_SIDED)
-print(f"Z = {result.z_statistic:.4f}, p = {result.p_value:.4f}")
+z_test_mean(x, mu0=10.0, sigma=0.3, alpha=0.05,
+            alternative=AlternativeHypothesis.TWO_SIDED).summary()
+# ============================================================
+#   One-Sample Z-Test
+# ============================================================
+#   n = 8    x̄ = 10.0500    σ = 0.3000
+#   H0: μ = 10.0    Alternative: two-sided
+# ------------------------------------------------------------
+#   Z-statistic: 0.4714    Z-critical: ±1.9600
+#   p-value:     0.6374    alpha: 0.05
+#   Decision:    Fail to reject H0
+# ============================================================
 
 # One-sample t-test (sigma unknown)
-result = t_test_mean(x, mu0=10.0, alpha=0.05,
-                     alternative=AlternativeHypothesis.TWO_SIDED)
-print(f"T = {result.t_statistic:.4f}, p = {result.p_value:.4f}")
+t_test_mean(x, mu0=10.0, alpha=0.05,
+            alternative=AlternativeHypothesis.TWO_SIDED).summary()
+# ============================================================
+#   One-Sample t-Test
+# ============================================================
+#   n = 8    x̄ = 10.0500    s = 0.2449    df = 7
+#   H0: μ = 10.0    Alternative: two-sided
+# ------------------------------------------------------------
+#   t-statistic: 0.5774    t-critical: ±2.3646
+#   p-value:     0.5818    alpha: 0.05
+#   Decision:    Fail to reject H0
+# ============================================================
 
 # Two-sample t-test (Welch)
 x2 = np.array([10.8, 11.2, 10.9, 11.1, 10.7])
-result = t_test_two_sample(x, x2, alpha=0.05, equal_var=False,
-                            alternative=AlternativeHypothesis.TWO_SIDED)
-print(f"T = {result.t_statistic:.4f}, p = {result.p_value:.4f}")
+t_test_two_sample(x, x2, alpha=0.05, equal_var=False,
+                  alternative=AlternativeHypothesis.TWO_SIDED).summary()
+# ============================================================
+#   Two-Sample t-Test  (Welch)
+# ============================================================
+#   n1 = 8    x̄1 = 10.0500    s1 = 0.2449
+#   n2 = 5    x̄2 = 10.9400    s2 = 0.2074
+#   df = 9    Alternative: two-sided
+# ------------------------------------------------------------
+#   t-statistic: -7.0142    t-critical: ±2.2622
+#   p-value:     0.0001    alpha: 0.05
+#   Decision:    Reject H0
+# ============================================================
 ```
 
 ### Multiple Comparisons with FWER Control
 
 ```python
 import numpy as np
-from statscore import ANOVA1_CI_linear_combs, CorrectionMethod
+from statscore import anova1_ci_linear_combs, CorrectionMethod
 
 C = np.array([[1, -1, 0], [0, 1, -1], [1, 0, -1]])
 
 # Automatic method selection (picks narrowest valid intervals)
-ci_result = ANOVA1_CI_linear_combs(data, alpha=0.05, C=C,
-                                    method=CorrectionMethod.BEST)
-print(f"Method: {ci_result.method_used.value}")
-for i, (lo, hi) in enumerate(ci_result.intervals):
-    print(f"CI_{i+1}: [{lo:.2f}, {hi:.2f}]")
+anova1_ci_linear_combs(data, alpha=0.05, C=C,
+                       method=CorrectionMethod.BEST).summary()
+# ============================================================
+#   Simultaneous Confidence Intervals
+#   Method: Bonferroni
+# ============================================================
+#   Interval    Point Est   Half-Width      Lower      Upper
+# ------------------------------------------------------------
+#   CI_1          -6.6000       8.8812   -15.4812     2.2812
+#   CI_2          10.9500       9.4199     1.5301    20.3699
+#   CI_3           4.3500       9.4199    -5.0699    13.7699
+# ============================================================
 ```
 
 ### Multiple Linear Regression
@@ -155,32 +194,55 @@ for i, (lo, hi) in enumerate(ci_result.intervals):
 ```python
 import numpy as np
 from statscore import (
-    Mult_LR_Least_squares, Mult_LR_partition_TSS,
-    Mult_norm_LR_test_general, Mult_norm_LR_pred_CI,
+    mult_lr_least_squares, mult_lr_partition_tss,
+    mult_norm_lr_test_general, mult_norm_lr_pred_ci,
     PredictionMethod,
 )
 
-X = np.column_stack([np.ones(n), x1, x2])
+attend = np.array([1, 0.5, 0.2, 0.4, 0.5, 0.7, 0.8, 0.9, 0.6, 0.1, 0, 0, 0.7, 0.8, 1])
+homework = np.array([0.25, 1, 0.5, 1, 1, 0.75, 1, 0.25, 0, 0, 1, 0.5, 0.25, 0.75, 1])
+y = np.array([60, 65, 40, 70, 65, 70, 85, 70, 44, 20, 40, 30, 50, 77, 90], dtype=float)
+n = len(y)
+X = np.column_stack([np.ones(n), attend, homework])
 
-ols = Mult_LR_Least_squares(X, y)
+ols = mult_lr_least_squares(X, y)
 print(f"beta_hat = {ols.beta_hat}")
 print(f"Se^2 = {ols.sigma2_unbiased:.4f}")
+# beta_hat = [14.3676 46.1957 30.4521]
+# Se^2 = 19.8400
 
 # R² and adjusted R²
-tss = Mult_LR_partition_TSS(X, y)
+tss = mult_lr_partition_tss(X, y)
 print(f"R² = {tss.R_squared:.4f},  adj R² = {tss.adj_R_squared:.4f}")
+# R² = 0.9588,  adj R² = 0.9520
 
 # General hypothesis test: H0: C*beta = c0
 C = np.array([[0, 1, -1]])
 c0 = np.array([0.0])
-result = Mult_norm_LR_test_general(X, y, C, c0, alpha=0.05)
-print(f"F = {result.test_statistic:.4f}, p = {result.p_value:.4f}")
+mult_norm_lr_test_general(X, y, C, c0, alpha=0.05).summary()
+# ============================================================
+#   Regression Hypothesis Test
+# ============================================================
+#   df_numerator = 1    df_denominator = 12
+#   alpha = 0.05
+# ------------------------------------------------------------
+#   F-statistic: 11.4796    F-critical: 4.7472
+#   p-value:     0.0054
+#   Decision:    Reject H0
+# ============================================================
 
 # Simultaneous prediction intervals
 D = np.array([[1, 0.5, 1.0], [1, 1.0, 0.0]])
-pred = Mult_norm_LR_pred_CI(X, y, D, alpha=0.05, method=PredictionMethod.BEST)
-for i, (lo, hi) in enumerate(pred.intervals):
-    print(f"Prediction {i+1}: {pred.point_estimates[i]:.2f} [{lo:.2f}, {hi:.2f}]")
+mult_norm_lr_pred_ci(X, y, D, alpha=0.05, method=PredictionMethod.BEST).summary()
+# ================================================================
+#   Simultaneous Prediction Intervals
+#   Method: Bonferroni
+# ================================================================
+#   #      Point Est   Half-Width      Lower      Upper
+# ----------------------------------------------------------------
+#   1        67.9175       4.2340    63.6835    72.1515
+#   2        60.5633       6.9735    53.5898    67.5368
+# ================================================================
 ```
 
 ### Bayesian Conjugate Inference
@@ -194,11 +256,83 @@ x = np.array([9.8, 10.2, 10.1, 9.9, 10.3, 9.7, 10.0, 10.4])
 # Known variance: Normal-Normal conjugate
 result = bayes_normal_mean_known_var(x, sigma_sq=0.04, mu0=10.0, kappa0=2.0)
 result.summary()
+# ============================================================
+#   Bayesian Normal Posterior  (Known Variance)
+# ============================================================
+#   n = 8    x̄ = 10.050000    sigma² known
+# ----------------------------------------------------------
+#   Posterior hyperparameters:
+#     mu_n    = 10.040000
+#     kappa_n = 10.000000
+# ----------------------------------------------------------
+#   Posterior: μ | x ~ N(10.040000, 0.004000)
+#     mean = 10.040000
+#     std  = 0.063246
+#   95% Credible interval: (9.916041, 10.163959)
+# ----------------------------------------------------------
+#   Posterior predictive:
+#     mean = 10.040000
+#     std  = 0.209762
+#   95% Predictive interval: (9.628874, 10.451126)
+# ============================================================
 
 # Unknown variance: Normal-Gamma conjugate
 result = bayes_normal_mean_unknown_var(x, mu0=10.0, kappa0=1.0, alpha0=2.0, beta0=0.1)
 result.summary()
+# ============================================================
+#   Bayesian Normal-Gamma Posterior Summary
+# ============================================================
+#   Observations (n):          8
+#   Sample mean (x_bar):       10.050000
+# ------------------------------------------------------------
+#   Posterior Hyperparameters:
+#     mu_n    = 10.044444
+#     kappa_n = 9.000000
+#     alpha_n = 6.000000
+#     beta_n  = 0.311111
+# ------------------------------------------------------------
+#   Posterior Summaries:
+#     E[mu]      = 10.044444
+#     E[tau]     = 19.285714
+#     E[sigma^2] = 0.062222
+# ------------------------------------------------------------
+#   95% Credible Intervals:
+#     mu:      (9.879065, 10.209824)
+#     sigma^2: (0.026663, 0.141292)
+# ============================================================
 ```
+
+### Data I/O
+
+```python
+from statscore import load_data
+
+# CSV (comma or semicolon — separator is detected automatically)
+result = load_data("data.csv")
+
+# TSV
+result = load_data("data.tsv")
+
+# Excel
+result = load_data("data.xlsx")
+
+# JSON (records or columns orientation)
+result = load_data("data.json")
+
+# Extra keyword arguments are forwarded to the underlying pandas reader
+result = load_data("data.csv", skiprows=2, usecols=["x", "y"])
+
+# LoadedData fields
+print(result.format)        # "csv" | "tsv" | "xlsx" | "json"
+print(result.n_rows)        # number of rows
+print(result.n_cols)        # number of columns
+print(result.column_names)  # list of column name strings
+print(result.path)          # resolved file path
+df = result.df              # pandas DataFrame — use for downstream analysis
+```
+
+Supported extensions: `.csv`, `.tsv`, `.xlsx`, `.xls`, `.json`.
+Any other extension raises `ValueError`. A missing file raises `FileNotFoundError`.
 
 ## Package Structure
 
@@ -211,15 +345,15 @@ statscore/
 ├── io.py                    # load_data (csv/tsv/xlsx/json → LoadedData)
 ├── plots.py                 # plot_regression, plot_residuals, plot_qq, plot_anova_groups, plot_posterior_normal
 ├── anova/
-│   ├── one_way.py           # ANOVA1_partition_TSS, ANOVA1_test_equality
-│   ├── two_way.py           # ANOVA2_partition_TSS, ANOVA2_MLE, ANOVA2_test_equality
+│   ├── one_way.py           # anova1_partition_tss, anova1_test_equality
+│   ├── two_way.py           # anova2_partition_tss, anova2_mle, anova2_test_equality
 │   └── multiple_tests.py    # Contrasts, orthogonality, corrections, CI, tests
 ├── bayes/
 │   └── conjugate.py         # bayes_normal_mean_known_var, bayes_normal_mean_unknown_var
 ├── regression/
-│   ├── least_squares.py     # Mult_LR_Least_squares, Mult_LR_partition_TSS (R², adj R²)
+│   ├── least_squares.py     # mult_lr_least_squares, mult_lr_partition_tss (R², adj R²)
 │   ├── inference.py         # Simultaneous CI, CR, general/component/linear tests
-│   ├── prediction.py        # Mult_norm_LR_pred_CI
+│   ├── prediction.py        # mult_norm_lr_pred_ci
 │   └── summary.py           # regression_summary (full OLS summary table)
 ├── testing/
 │   ├── one_sample.py        # z_test_mean, t_test_mean, chi2_test_variance
@@ -245,17 +379,17 @@ statscore/
 
 | Function | Description |
 |----------|-------------|
-| `ANOVA1_partition_TSS(data)` | Partition SS_total into SS_within and SS_between |
-| `ANOVA1_test_equality(data, alpha)` | F-test for equality of group means |
-| `ANOVA1_is_contrast(c)` | Check if coefficients form a contrast |
-| `ANOVA1_is_orthogonal(n, c1, c2)` | Check orthogonality of two contrasts |
-| `Bonferroni_correction(alpha, m)` | Bonferroni-corrected significance level |
-| `Sidak_correction(alpha, m)` | Šidák-corrected significance level |
-| `ANOVA1_CI_linear_combs(data, alpha, C, method)` | Simultaneous CIs for linear combinations |
-| `ANOVA1_test_linear_combs(data, alpha, C, d, method)` | Test multiple linear combinations (FWER) |
-| `ANOVA2_partition_TSS(data)` | Two-way ANOVA sum of squares partition |
-| `ANOVA2_MLE(data)` | MLE for μ, α_i, β_j, δ_{ij} |
-| `ANOVA2_test_equality(data, alpha, test)` | Two-way ANOVA F-tests (A, B, AB) |
+| `anova1_partition_tss(data)` | Partition SS_total into SS_within and SS_between |
+| `anova1_test_equality(data, alpha)` | F-test for equality of group means |
+| `anova1_is_contrast(c)` | Check if coefficients form a contrast |
+| `anova1_is_orthogonal(n, c1, c2)` | Check orthogonality of two contrasts |
+| `bonferroni_correction(alpha, m)` | Bonferroni-corrected significance level |
+| `sidak_correction(alpha, m)` | Šidák-corrected significance level |
+| `anova1_ci_linear_combs(data, alpha, C, method)` | Simultaneous CIs for linear combinations |
+| `anova1_test_linear_combs(data, alpha, C, d, method)` | Test multiple linear combinations (FWER) |
+| `anova2_partition_tss(data)` | Two-way ANOVA sum of squares partition |
+| `anova2_mle(data)` | MLE for μ, α_i, β_j, δ_{ij} |
+| `anova2_test_equality(data, alpha, test)` | Two-way ANOVA F-tests (A, B, AB) |
 
 ### Normal Distribution Testing Functions
 
@@ -272,15 +406,15 @@ statscore/
 
 | Function | Description |
 |----------|-------------|
-| `Mult_LR_Least_squares(X, y)` | OLS estimation: β̂, σ² MLE & unbiased |
-| `Mult_LR_partition_TSS(X, y)` | TSS = RegSS + RSS, R², adjusted R² |
-| `Mult_norm_LR_simul_CI(X, y, alpha)` | Simultaneous CIs for all β_i |
-| `Mult_norm_LR_CR(X, y, C, alpha)` | Confidence region (ellipsoid) for Cβ |
-| `Mult_norm_LR_is_in_CR(X, y, C, c0, alpha)` | Test if c₀ is inside the CR |
-| `Mult_norm_LR_test_general(X, y, C, c0, alpha)` | General test H₀: Cβ = c₀ |
-| `Mult_norm_LR_test_comp(X, y, alpha, components)` | Test H₀: β_{j₁}=...=β_{jᵣ}=0 |
-| `Mult_norm_LR_test_linear_reg(X, y, alpha)` | Test existence of linear regression |
-| `Mult_norm_LR_pred_CI(X, y, D, alpha, method)` | Simultaneous prediction CIs |
+| `mult_lr_least_squares(X, y)` | OLS estimation: β̂, σ² MLE & unbiased |
+| `mult_lr_partition_tss(X, y)` | TSS = RegSS + RSS, R², adjusted R² |
+| `mult_norm_lr_simul_ci(X, y, alpha)` | Simultaneous CIs for all β_i |
+| `mult_norm_lr_cr(X, y, C, alpha)` | Confidence region (ellipsoid) for Cβ |
+| `mult_norm_lr_is_in_cr(X, y, C, c0, alpha)` | Test if c₀ is inside the CR |
+| `mult_norm_lr_test_general(X, y, C, c0, alpha)` | General test H₀: Cβ = c₀ |
+| `mult_norm_lr_test_comp(X, y, alpha, components)` | Test H₀: β_{j₁}=...=β_{jᵣ}=0 |
+| `mult_norm_lr_test_linear_reg(X, y, alpha)` | Test existence of linear regression |
+| `mult_norm_lr_pred_ci(X, y, D, alpha, method)` | Simultaneous prediction CIs |
 
 ### Bayesian Functions
 

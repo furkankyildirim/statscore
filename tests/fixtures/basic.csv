@@ -1,0 +1,6 @@
+subject_id,treatment,score,passed
+1,A,72.5,True
+2,B,88.0,True
+3,A,65.3,False
+4,B,91.2,True
+5,A,78.9,True

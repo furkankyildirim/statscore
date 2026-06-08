@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from statscore.anova.two_way import ANOVA2_MLE, ANOVA2_partition_TSS, ANOVA2_test_equality
+from statscore.anova.two_way import anova2_mle, anova2_partition_tss, anova2_test_equality
 from statscore.utils.enums import TwoWayTestFactor
 
 
@@ -22,7 +22,7 @@ class TestANOVA2PartitionTSS:
         )
 
     def test_partition_identity(self):
-        result = ANOVA2_partition_TSS(self.data)
+        result = anova2_partition_tss(self.data)
         total = result.SS_A + result.SS_B + result.SS_AB + result.SS_E
         assert np.isclose(result.SS_total, total, rtol=1e-10)
 
@@ -35,7 +35,7 @@ class TestANOVA2PartitionTSS:
             ],
             dtype=float,
         )
-        result = ANOVA2_partition_TSS(data)
+        result = anova2_partition_tss(data)
         # grand mean = 4.5
         # X_bar_i: [2.5, 6.5], X_bar_j: [3.5, 5.5]
         I, J, K = 2, 2, 2
@@ -43,7 +43,7 @@ class TestANOVA2PartitionTSS:
         assert np.isclose(result.SS_B, I * K * ((3.5 - 4.5) ** 2 + (5.5 - 4.5) ** 2))
 
     def test_nonnegative(self):
-        result = ANOVA2_partition_TSS(self.data)
+        result = anova2_partition_tss(self.data)
         assert result.SS_A >= 0
         assert result.SS_B >= 0
         assert result.SS_AB >= 0
@@ -60,7 +60,7 @@ class TestANOVA2MLE:
             ],
             dtype=float,
         )
-        result = ANOVA2_MLE(data)
+        result = anova2_mle(data)
         I, J, K = data.shape
         # sum(a_i) = 0
         assert np.isclose(result.a.sum(), 0.0, atol=1e-10)
@@ -82,7 +82,7 @@ class TestANOVA2MLE:
             ],
             dtype=float,
         )
-        result = ANOVA2_MLE(data)
+        result = anova2_mle(data)
         X_bar_ij = data.mean(axis=2)
         I, J, _ = data.shape
         for i in range(I):
@@ -102,34 +102,34 @@ class TestANOVA2TestEquality:
         )
 
     def test_factor_A(self):
-        result = ANOVA2_test_equality(self.data, alpha=0.05, test=TwoWayTestFactor.A)
+        result = anova2_test_equality(self.data, alpha=0.05, test=TwoWayTestFactor.A)
         assert result.source == TwoWayTestFactor.A
         assert result.df == 1  # I-1 = 2-1
 
     def test_factor_B(self):
-        result = ANOVA2_test_equality(self.data, alpha=0.05, test=TwoWayTestFactor.B)
+        result = anova2_test_equality(self.data, alpha=0.05, test=TwoWayTestFactor.B)
         assert result.source == TwoWayTestFactor.B
         assert result.df == 2  # J-1 = 3-1
         # Temperature should have significant effect
         assert result.reject_H0
 
     def test_interaction(self):
-        result = ANOVA2_test_equality(self.data, alpha=0.05, test=TwoWayTestFactor.AB)
+        result = anova2_test_equality(self.data, alpha=0.05, test=TwoWayTestFactor.AB)
         assert result.source == TwoWayTestFactor.AB
         assert result.df == 2  # (I-1)(J-1) = 1*2
 
     def test_invalid_test(self):
         with pytest.raises(ValueError):
-            ANOVA2_test_equality(self.data, test=TwoWayTestFactor("C"))
+            anova2_test_equality(self.data, test=TwoWayTestFactor("C"))
 
     def test_k1_raises(self):
         # K=1 makes df_E=0; validation must reject this before division by zero.
         data_k1 = np.ones((2, 3, 1))
         with pytest.raises(ValueError, match="K >= 2"):
-            ANOVA2_test_equality(data_k1, alpha=0.05, test=TwoWayTestFactor.A)
+            anova2_test_equality(data_k1, alpha=0.05, test=TwoWayTestFactor.A)
 
     def test_full_table_structure(self):
-        result = ANOVA2_test_equality(self.data, alpha=0.1, test=TwoWayTestFactor.A)
+        result = anova2_test_equality(self.data, alpha=0.1, test=TwoWayTestFactor.A)
         table = result.full_table
         assert "A" in table
         assert "B" in table

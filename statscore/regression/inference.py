@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from statscore.regression.least_squares import LeastSquaresResult, Mult_LR_Least_squares
+from statscore.regression.least_squares import LeastSquaresResult, mult_lr_least_squares
 from statscore.utils.distributions import f_critical, f_pvalue, t_critical
 from statscore.utils.enums import PredictionMethod
 from statscore.utils.validation import validate_C_matrix, validate_design_matrix
@@ -78,7 +78,7 @@ class HypothesisTestResult:
         print("=" * w)
 
 
-def Mult_norm_LR_simul_CI(
+def mult_norm_lr_simul_ci(
     X: np.ndarray, y: np.ndarray, alpha: float = 0.05
 ) -> SimultaneousCIBetaResult:
     """Simultaneous confidence intervals for all beta_i's.
@@ -102,7 +102,7 @@ def Mult_norm_LR_simul_CI(
     n, p = X.shape
     df_resid: int = n - p
 
-    ols: LeastSquaresResult = Mult_LR_Least_squares(X, y)
+    ols: LeastSquaresResult = mult_lr_least_squares(X, y)
     Se: float = float(np.sqrt(ols.sigma2_unbiased))
     diag_XtX_inv: np.ndarray = np.diag(ols.XtX_inv)
     se_beta: np.ndarray = Se * np.sqrt(diag_XtX_inv)
@@ -131,7 +131,7 @@ def Mult_norm_LR_simul_CI(
     )
 
 
-def Mult_norm_LR_CR(
+def mult_norm_lr_cr(
     X: np.ndarray, y: np.ndarray, C: np.ndarray, alpha: float = 0.05
 ) -> ConfidenceRegionResult:
     """Compute the confidence region (ellipsoid) for C*beta.
@@ -160,7 +160,7 @@ def Mult_norm_LR_CR(
     r: int = C.shape[0]
     df_resid: int = n - p
 
-    ols: LeastSquaresResult = Mult_LR_Least_squares(X, y)
+    ols: LeastSquaresResult = mult_lr_least_squares(X, y)
     center: np.ndarray = C @ ols.beta_hat
     shape_matrix: np.ndarray = C @ ols.XtX_inv @ C.T
     F_crit: float = f_critical(alpha, r, df_resid)
@@ -177,7 +177,7 @@ def Mult_norm_LR_CR(
     )
 
 
-def Mult_norm_LR_is_in_CR(
+def mult_norm_lr_is_in_cr(
     X: np.ndarray,
     y: np.ndarray,
     C: np.ndarray,
@@ -209,7 +209,7 @@ def Mult_norm_LR_is_in_CR(
     r: int = C.shape[0]
     df_resid: int = n - p
 
-    ols: LeastSquaresResult = Mult_LR_Least_squares(X, y)
+    ols: LeastSquaresResult = mult_lr_least_squares(X, y)
     diff: np.ndarray = C @ ols.beta_hat - c0
     shape_inv: np.ndarray = np.linalg.inv(C @ ols.XtX_inv @ C.T)
     quadratic_form: float = float(diff @ shape_inv @ diff)
@@ -220,7 +220,7 @@ def Mult_norm_LR_is_in_CR(
     return bool(quadratic_form <= threshold)
 
 
-def Mult_norm_LR_test_general(
+def mult_norm_lr_test_general(
     X: np.ndarray,
     y: np.ndarray,
     C: np.ndarray,
@@ -258,7 +258,7 @@ def Mult_norm_LR_test_general(
     if len(c0) != r:
         raise ValueError(f"c0 must have {r} elements, got {len(c0)}.")
 
-    ols: LeastSquaresResult = Mult_LR_Least_squares(X, y)
+    ols: LeastSquaresResult = mult_lr_least_squares(X, y)
     diff: np.ndarray = C @ ols.beta_hat - c0
     shape_inv: np.ndarray = np.linalg.inv(C @ ols.XtX_inv @ C.T)
     quadratic_form: float = float(diff @ shape_inv @ diff)
@@ -278,7 +278,7 @@ def Mult_norm_LR_test_general(
     )
 
 
-def Mult_norm_LR_test_comp(
+def mult_norm_lr_test_comp(
     X: np.ndarray,
     y: np.ndarray,
     alpha: float,
@@ -315,10 +315,10 @@ def Mult_norm_LR_test_comp(
         C[i, j] = 1.0
 
     c0: np.ndarray = np.zeros(r)
-    return Mult_norm_LR_test_general(X, y, C, c0, alpha)
+    return mult_norm_lr_test_general(X, y, C, c0, alpha)
 
 
-def Mult_norm_LR_test_linear_reg(
+def mult_norm_lr_test_linear_reg(
     X: np.ndarray, y: np.ndarray, alpha: float = 0.05
 ) -> HypothesisTestResult:
     """Test existence of linear regression: H0: beta_1=...=beta_k=0.
@@ -338,4 +338,4 @@ def Mult_norm_LR_test_linear_reg(
     _, p = X.shape
 
     components: list[int] = list(range(1, p))
-    return Mult_norm_LR_test_comp(X, y, alpha, components)
+    return mult_norm_lr_test_comp(X, y, alpha, components)

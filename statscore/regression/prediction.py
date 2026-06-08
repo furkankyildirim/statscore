@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from statscore.regression.least_squares import LeastSquaresResult, Mult_LR_Least_squares
+from statscore.regression.least_squares import LeastSquaresResult, mult_lr_least_squares
 from statscore.utils.distributions import f_critical, t_critical
 from statscore.utils.enums import PredictionMethod
 from statscore.utils.validation import validate_design_matrix
@@ -34,7 +34,7 @@ class PredictionCIResult:
         print("=" * w)
 
 
-def Mult_norm_LR_pred_CI(
+def mult_norm_lr_pred_ci(
     X: np.ndarray,
     y: np.ndarray,
     D: np.ndarray,
@@ -78,7 +78,7 @@ def Mult_norm_LR_pred_CI(
     if D.shape[1] != p:
         raise ValueError(f"D must have {p} columns matching design matrix, got {D.shape[1]}.")
 
-    ols: LeastSquaresResult = Mult_LR_Least_squares(X, y)
+    ols: LeastSquaresResult = mult_lr_least_squares(X, y)
     Se: float = float(np.sqrt(ols.sigma2_unbiased))
 
     point_estimates: np.ndarray = D @ ols.beta_hat

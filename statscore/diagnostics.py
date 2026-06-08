@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 from scipy import stats
 
-from statscore.regression.least_squares import Mult_LR_Least_squares
+from statscore.regression.least_squares import mult_lr_least_squares
 from statscore.utils.distributions import norm_ppf, t_critical
 from statscore.utils.validation import validate_1d_sample, validate_data_groups
 
@@ -216,7 +216,7 @@ def regression_diagnostics(X: np.ndarray, y: np.ndarray) -> RegressionDiagnostic
     X = np.asarray(X, dtype=float)
     y = np.asarray(y, dtype=float).ravel()
 
-    ols = Mult_LR_Least_squares(X, y)
+    ols = mult_lr_least_squares(X, y)
     n, p = X.shape
 
     h: np.ndarray = np.diag(ols.hat_matrix)

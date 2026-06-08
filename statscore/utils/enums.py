@@ -11,7 +11,7 @@ from enum import Enum
 class CorrectionMethod(Enum):
     """Multiple comparison correction methods for simultaneous inference.
 
-    Used by ANOVA1_CI_linear_combs, ANOVA1_test_linear_combs.
+    Used by anova1_ci_linear_combs, anova1_test_linear_combs.
     """
 
     SCHEFFE = "Scheffe"
@@ -24,7 +24,7 @@ class CorrectionMethod(Enum):
 class PredictionMethod(Enum):
     """Prediction interval construction methods.
 
-    Used by Mult_norm_LR_pred_CI.
+    Used by mult_norm_lr_pred_ci.
     """
 
     SCHEFFE = "Scheffe"
@@ -35,7 +35,7 @@ class PredictionMethod(Enum):
 class TwoWayTestFactor(Enum):
     """Factor to test in two-way ANOVA.
 
-    Used by ANOVA2_test_equality.
+    Used by anova2_test_equality.
     """
 
     A = "A"

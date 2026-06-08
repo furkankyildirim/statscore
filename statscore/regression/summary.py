@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from statscore.regression.least_squares import Mult_LR_Least_squares, Mult_LR_partition_TSS
+from statscore.regression.least_squares import mult_lr_least_squares, mult_lr_partition_tss
 from statscore.utils.distributions import f_pvalue, t_critical, t_pvalue
 
 
@@ -110,8 +110,8 @@ def regression_summary(
     X = np.asarray(X, dtype=float)
     y = np.asarray(y, dtype=float).ravel()
 
-    ols = Mult_LR_Least_squares(X, y)
-    partition = Mult_LR_partition_TSS(X, y)
+    ols = mult_lr_least_squares(X, y)
+    partition = mult_lr_partition_tss(X, y)
 
     n, p = X.shape
     df_resid: int = n - p

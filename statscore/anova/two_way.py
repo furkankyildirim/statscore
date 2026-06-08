@@ -80,7 +80,7 @@ class ANOVA2TestResult:
         print("=" * w)
 
 
-def ANOVA2_partition_TSS(data: np.ndarray) -> ANOVA2PartitionResult:
+def anova2_partition_tss(data: np.ndarray) -> ANOVA2PartitionResult:
     """Partition total sum of squares in a two-way ANOVA layout.
 
     Parameters
@@ -116,7 +116,7 @@ def ANOVA2_partition_TSS(data: np.ndarray) -> ANOVA2PartitionResult:
     )
 
 
-def ANOVA2_MLE(data: np.ndarray) -> ANOVA2MLEResult:
+def anova2_mle(data: np.ndarray) -> ANOVA2MLEResult:
     """Compute MLE for two-way ANOVA parameters mu, a_i, b_j, delta_ij.
 
     Parameters
@@ -143,7 +143,7 @@ def ANOVA2_MLE(data: np.ndarray) -> ANOVA2MLEResult:
     return ANOVA2MLEResult(mu=mu_hat, a=a_hat, b=b_hat, delta=delta_hat)
 
 
-def ANOVA2_test_equality(
+def anova2_test_equality(
     data: np.ndarray, alpha: float = 0.05, test: TwoWayTestFactor = TwoWayTestFactor.A
 ) -> ANOVA2TestResult:
     """Perform one of the three basic tests in two-way ANOVA.
@@ -169,7 +169,7 @@ def ANOVA2_test_equality(
     validate_two_way_data(data)
     I, J, K = data.shape
 
-    partition: ANOVA2PartitionResult = ANOVA2_partition_TSS(data)
+    partition: ANOVA2PartitionResult = anova2_partition_tss(data)
 
     df_A: int = I - 1
     df_B: int = J - 1

@@ -62,7 +62,7 @@ class ANOVA1TestResult:
         print("=" * w)
 
 
-def ANOVA1_partition_TSS(data: Sequence[np.ndarray]) -> ANOVA1PartitionResult:
+def anova1_partition_tss(data: Sequence[np.ndarray]) -> ANOVA1PartitionResult:
     """Partition total sum of squares in a one-way ANOVA layout.
 
     Parameters
@@ -99,7 +99,7 @@ def ANOVA1_partition_TSS(data: Sequence[np.ndarray]) -> ANOVA1PartitionResult:
     )
 
 
-def ANOVA1_test_equality(data: Sequence[np.ndarray], alpha: float = 0.05) -> ANOVA1TestResult:
+def anova1_test_equality(data: Sequence[np.ndarray], alpha: float = 0.05) -> ANOVA1TestResult:
     """Test equality of means in a one-way ANOVA layout.
 
     H0: mu_1 = mu_2 = ... = mu_I
@@ -117,7 +117,7 @@ def ANOVA1_test_equality(data: Sequence[np.ndarray], alpha: float = 0.05) -> ANO
     ANOVA1TestResult with full ANOVA table quantities, critical value,
     p-value, and decision.
     """
-    partition: ANOVA1PartitionResult = ANOVA1_partition_TSS(data)
+    partition: ANOVA1PartitionResult = anova1_partition_tss(data)
 
     I: int = len(data)
     n: int = int(partition.group_sizes.sum())

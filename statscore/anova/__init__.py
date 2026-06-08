@@ -1,24 +1,24 @@
 from statscore.anova.multiple_tests import (
-    ANOVA1_CI_linear_combs,
-    ANOVA1_is_contrast,
-    ANOVA1_is_orthogonal,
-    ANOVA1_test_linear_combs,
-    Bonferroni_correction,
-    Sidak_correction,
+    anova1_ci_linear_combs,
+    anova1_is_contrast,
+    anova1_is_orthogonal,
+    anova1_test_linear_combs,
+    bonferroni_correction,
+    sidak_correction,
 )
-from statscore.anova.one_way import ANOVA1_partition_TSS, ANOVA1_test_equality
-from statscore.anova.two_way import ANOVA2_MLE, ANOVA2_partition_TSS, ANOVA2_test_equality
+from statscore.anova.one_way import anova1_partition_tss, anova1_test_equality
+from statscore.anova.two_way import anova2_mle, anova2_partition_tss, anova2_test_equality
 
 __all__ = [
-    "ANOVA1_partition_TSS",
-    "ANOVA1_test_equality",
-    "ANOVA1_is_contrast",
-    "ANOVA1_is_orthogonal",
-    "Bonferroni_correction",
-    "Sidak_correction",
-    "ANOVA1_CI_linear_combs",
-    "ANOVA1_test_linear_combs",
-    "ANOVA2_partition_TSS",
-    "ANOVA2_MLE",
-    "ANOVA2_test_equality",
+    "anova1_partition_tss",
+    "anova1_test_equality",
+    "anova1_is_contrast",
+    "anova1_is_orthogonal",
+    "bonferroni_correction",
+    "sidak_correction",
+    "anova1_ci_linear_combs",
+    "anova1_test_linear_combs",
+    "anova2_partition_tss",
+    "anova2_mle",
+    "anova2_test_equality",
 ]

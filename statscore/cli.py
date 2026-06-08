@@ -53,12 +53,12 @@ def _parse_groups_input(prompt: str) -> list[np.ndarray]:
 
 
 def _run_one_way_anova() -> None:
-    from statscore.anova import ANOVA1_test_equality
+    from statscore.anova import anova1_test_equality
 
     groups = _parse_groups_input("Enter group data (numbers or file path per group):")
     alpha = float(input("  Alpha [0.05]: ").strip() or "0.05")
 
-    result = ANOVA1_test_equality(groups, alpha=alpha)
+    result = anova1_test_equality(groups, alpha=alpha)
     result.summary()
 
     show_plot = input("  Show box plot? (y/n) [n]: ").strip().lower()
@@ -71,7 +71,7 @@ def _run_one_way_anova() -> None:
 
 
 def _run_two_way_anova() -> None:
-    from statscore.anova import ANOVA2_test_equality
+    from statscore.anova import anova2_test_equality
     from statscore.utils.enums import TwoWayTestFactor
 
     print("  Enter data as a 3-D array (I levels x J levels x K replicates).")
@@ -93,7 +93,7 @@ def _run_two_way_anova() -> None:
     factor_str = input("  Test factor (A/B/AB) [A]: ").strip().upper() or "A"
     factor = TwoWayTestFactor(factor_str)
 
-    result = ANOVA2_test_equality(data, alpha=alpha, test=factor)
+    result = anova2_test_equality(data, alpha=alpha, test=factor)
     result.summary()
 
 
@@ -185,7 +185,7 @@ def _run_f_test() -> None:
 
 
 def _run_simple_regression() -> None:
-    from statscore.regression.least_squares import Mult_LR_Least_squares
+    from statscore.regression.least_squares import mult_lr_least_squares
     from statscore.regression.summary import regression_summary
 
     x = _parse_data_input("  Enter predictor (x) data: ")
@@ -211,7 +211,7 @@ def _run_simple_regression() -> None:
     if show_resid == "y":
         from statscore.plots import plot_residuals
 
-        ols = Mult_LR_Least_squares(X, y)
+        ols = mult_lr_least_squares(X, y)
         fig = plot_residuals(ols.fitted_values, ols.residuals)
         fig.savefig("residual_plot.png", dpi=150)
         print("  Plot saved to residual_plot.png")
@@ -220,7 +220,7 @@ def _run_simple_regression() -> None:
     if show_qq == "y":
         from statscore.plots import plot_qq
 
-        ols = Mult_LR_Least_squares(X, y)
+        ols = mult_lr_least_squares(X, y)
         fig = plot_qq(ols.residuals)
         fig.savefig("qq_plot.png", dpi=150)
         print("  Plot saved to qq_plot.png")

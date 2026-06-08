@@ -31,7 +31,7 @@ class PartitionTSSResult:
     adj_R_squared: float
 
 
-def Mult_LR_Least_squares(X: np.ndarray, y: np.ndarray) -> LeastSquaresResult:
+def mult_lr_least_squares(X: np.ndarray, y: np.ndarray) -> LeastSquaresResult:
     """Find the least squares solution for multiple linear regression.
 
     Y = X*beta + e
@@ -81,7 +81,7 @@ def Mult_LR_Least_squares(X: np.ndarray, y: np.ndarray) -> LeastSquaresResult:
     )
 
 
-def Mult_LR_partition_TSS(X: np.ndarray, y: np.ndarray) -> PartitionTSSResult:
+def mult_lr_partition_tss(X: np.ndarray, y: np.ndarray) -> PartitionTSSResult:
     """Partition total sum of squares into regression SS and residual SS.
 
     TSS = RegSS + RSS
@@ -100,7 +100,7 @@ def Mult_LR_partition_TSS(X: np.ndarray, y: np.ndarray) -> PartitionTSSResult:
     X = np.asarray(X, dtype=float)
     y = np.asarray(y, dtype=float).ravel()
 
-    result: LeastSquaresResult = Mult_LR_Least_squares(X, y)
+    result: LeastSquaresResult = mult_lr_least_squares(X, y)
 
     n, p = X.shape
     y_bar: float = float(y.mean())

@@ -34,9 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `f_critical_lower`, `f_pvalue_lower`
 - `norm_ppf`, `t_ppf`, `chi2_ppf`
 
-**New table printing functions**:
-- `ANOVA1_print_table(result)` — prints a formatted one-way ANOVA table (Source / df / SS / MS / F) with F critical, p-value, and decision.
-- `ANOVA2_print_table(result)` — prints a formatted two-way ANOVA table (Factor A, Factor B, Interaction AB, Within, Total rows) with the tested source, F statistic, F critical, p-value, and decision.
+**Formatted table printing**:
+- `result.summary()` method on `ANOVA1TestResult` — prints a formatted one-way ANOVA table (Source / df / SS / MS / F) with F critical, p-value, and decision.
+- `result.summary()` method on `ANOVA2TestResult` — prints a formatted two-way ANOVA table (Factor A, Factor B, Interaction AB, Within, Total rows) with the tested source, F statistic, F critical, p-value, and decision.
 
 **Visualization** (`statscore.plots`):
 - `plot_regression` — scatter plot with fitted regression line (simple regression)
@@ -66,16 +66,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `validate_two_way_data`: K=1 now raises `ValueError` (K ≥ 2 required). With K=1, `df_E = I·J·(K-1) = 0`, making MS_E undefined; previously caused a silent division-by-zero.
-- `Mult_LR_partition_TSS`: added `adj_R_squared` field to `PartitionTSSResult`. Formula: `1 - (1 - R²)(n-1)/(n-p)`.
+- `mult_lr_partition_tss`: added `adj_R_squared` field to `PartitionTSSResult`. Formula: `1 - (1 - R²)(n-1)/(n-p)`.
 
 ### Changed
 
+- **API rename — all public functions now use `snake_case` (PEP 8):** `ANOVA1_partition_TSS` → `anova1_partition_tss`, `ANOVA1_test_equality` → `anova1_test_equality`, `ANOVA1_is_contrast` → `anova1_is_contrast`, `ANOVA1_is_orthogonal` → `anova1_is_orthogonal`, `ANOVA1_CI_linear_combs` → `anova1_ci_linear_combs`, `ANOVA1_test_linear_combs` → `anova1_test_linear_combs`, `ANOVA2_partition_TSS` → `anova2_partition_tss`, `ANOVA2_MLE` → `anova2_mle`, `ANOVA2_test_equality` → `anova2_test_equality`, `Bonferroni_correction` → `bonferroni_correction`, `Sidak_correction` → `sidak_correction`, `Mult_LR_Least_squares` → `mult_lr_least_squares`, `Mult_LR_partition_TSS` → `mult_lr_partition_tss`, `Mult_norm_LR_simul_CI` → `mult_norm_lr_simul_ci`, `Mult_norm_LR_CR` → `mult_norm_lr_cr`, `Mult_norm_LR_is_in_CR` → `mult_norm_lr_is_in_cr`, `Mult_norm_LR_test_general` → `mult_norm_lr_test_general`, `Mult_norm_LR_test_comp` → `mult_norm_lr_test_comp`, `Mult_norm_LR_test_linear_reg` → `mult_norm_lr_test_linear_reg`, `Mult_norm_LR_pred_CI` → `mult_norm_lr_pred_ci`
+- `pyproject.toml`: added `openpyxl>=3.0` to dependencies (required by pandas for `.xlsx` read/write)
 - `utils.validation`: shared helpers centralised here; `one_sample.py`, `two_sample.py`, and `conjugate.py` now import from `utils` instead of defining local copies
 - `statscore.__all__`: version bumped to `0.0.2`; added 9 testing functions, 3 Bayesian functions, `AlternativeHypothesis` enum, `LoadedData`, `load_data`, `ShapiroWilkResult`, `LeveneResult`, `RegressionDiagnosticsResult`, `MeanConfidenceIntervalResult`, `shapiro_wilk_test`, `levene_test`, `regression_diagnostics`, `mean_confidence_interval`, `plot_regression`, `plot_residuals`, `plot_qq`, `plot_anova_groups`, `plot_posterior_normal`, `RegressionSummaryResult`, `regression_summary`
 - `statscore.regression.__all__`: added `RegressionSummaryResult`, `regression_summary`
 - `pyproject.toml`: added `pandas>=1.3` and `matplotlib>=3.5` to dependencies; registered `statscore = "statscore.cli:main"` console script entry point; description updated to reflect new modules
-- Test suite expanded from 58 to 172 tests; new files `test_testing_one_sample.py`, `test_testing_two_sample.py`, `test_bayes_conjugate.py`, `test_plots.py`, `test_diagnostics.py`, `test_io.py`, `test_cli.py`, `test_regression_summary.py`; new cases `test_k1_raises`, `test_adj_r_squared`
-- `examples/demo.py` extended from 20 to 29 demos and then to 587 lines covering all new functions
+- Test suite expanded from 58 to 205 tests; new files `test_testing_one_sample.py`, `test_testing_two_sample.py`, `test_bayes_conjugate.py`, `test_plots.py`, `test_diagnostics.py`, `test_io.py`, `test_io_fixtures.py`, `test_cli.py`, `test_regression_summary.py`; new cases `test_k1_raises`, `test_adj_r_squared`
+- `examples/demo.py` extended from 20 to 29 demos covering all new functions; `examples/fixture_analysis.py` added with 7 end-to-end analyses using static fixture files
+- `tests/fixtures/` added: `basic.csv`, `semicolon.csv`, `groups.tsv`, `records.json`, `measurements.xlsx` — static fixture files for I/O tests
 
 ## [0.0.1] - 2026-06-08
 
