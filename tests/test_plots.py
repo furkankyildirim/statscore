@@ -5,9 +5,8 @@ import pytest
 from matplotlib.figure import Figure
 
 from statscore.bayes.conjugate import bayes_normal_mean_known_var
-from statscore.plots import (
+from statscore.utils.plots import (
     plot_anova_groups,
-    plot_posterior_normal,
     plot_qq,
     plot_regression,
     plot_residuals,
@@ -117,13 +116,13 @@ class TestPlotPosteriorNormal:
     def test_returns_figure(self):
         x = np.array([5.0, 6.0, 7.0, 8.0, 9.0])
         result = bayes_normal_mean_known_var(x, sigma_sq=4.0, mu0=5.0, kappa0=2.0)
-        fig = plot_posterior_normal(result)
+        fig = result.plot()
         assert isinstance(fig, Figure)
 
     def test_has_legend(self):
         x = np.array([3.0, 4.0, 5.0, 6.0, 7.0])
         result = bayes_normal_mean_known_var(x, sigma_sq=1.0, mu0=5.0, kappa0=1.0)
-        fig = plot_posterior_normal(result)
+        fig = result.plot()
         ax = fig.axes[0]
         legend = ax.get_legend()
         assert legend is not None
@@ -131,12 +130,12 @@ class TestPlotPosteriorNormal:
         assert "Prior" in labels
         assert "Posterior" in labels
 
-    def test_custom_title(self):
+    def test_returns_figure_title(self):
         x = np.array([1.0, 2.0, 3.0])
         result = bayes_normal_mean_known_var(x, sigma_sq=1.0, mu0=2.0, kappa0=1.0)
-        fig = plot_posterior_normal(result, title="Custom Posterior")
+        fig = result.plot()
         ax = fig.axes[0]
-        assert ax.get_title() == "Custom Posterior"
+        assert ax.get_title() == "Posterior Distribution"
 
 
 if __name__ == "__main__":

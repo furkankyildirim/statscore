@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+from matplotlib.figure import Figure
 
 from statscore.regression.least_squares import mult_lr_least_squares, mult_lr_partition_tss
 from statscore.utils.distributions import f_pvalue, t_critical, t_pvalue
@@ -85,6 +86,34 @@ class RegressionSummaryResult:
         print("=" * w)
         print("  Significance: *** p<0.001  ** p<0.01  * p<0.05  . p<0.1")
 
+    def plot(self, feature_names: list[str] | None = None) -> Figure:
+        from matplotlib import pyplot as plt
+
+        p = self.p
+        names = feature_names
+        if names is None:
+            names = ["(Intercept)"] + [f"x{i}" for i in range(1, p)]
+
+        fig, ax = plt.subplots(figsize=(8, max(4, p * 0.6)))
+        y_pos = np.arange(p)
+        errors_lower = [float(self.beta_hat[i]) - self.conf_intervals[i][0] for i in range(p)]
+        errors_upper = [self.conf_intervals[i][1] - float(self.beta_hat[i]) for i in range(p)]
+
+        ax.errorbar(
+            [float(b) for b in self.beta_hat], y_pos,
+            xerr=[errors_lower, errors_upper],
+            fmt="o", color="steelblue", ecolor="steelblue",
+            capsize=5, capthick=1.5, markersize=8,
+        )
+        ax.axvline(0, color="crimson", linestyle="--", linewidth=1.2, alpha=0.7)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(names)
+        ax.set_xlabel("Coefficient Value")
+        ax.set_title("Regression Coefficients")
+        ax.grid(True, alpha=0.3, axis="x")
+        fig.tight_layout()
+        return fig
+
 
 def regression_summary(
     X: np.ndarray,
@@ -158,3 +187,5 @@ def regression_summary(
         Se=Se,
         alpha=alpha,
     )
+
+

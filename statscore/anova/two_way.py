@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+from matplotlib.figure import Figure
 
 from statscore.utils.distributions import f_critical, f_pvalue
 from statscore.utils.enums import TwoWayTestFactor
@@ -80,6 +81,45 @@ class ANOVA2TestResult:
         print(f"  p-value:          {self.p_value:.4f}")
         print(f"  Decision:         {decision}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from matplotlib import pyplot as plt
+        from scipy import stats
+
+        df_den = int(self.full_table["within"]["df"])
+
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+        ax1 = axes[0]
+        ss_labels = ["SS_A", "SS_B", "SS_AB", "SS_E"]
+        ss_values = [self.full_table["A"]["SS"], self.full_table["B"]["SS"],
+                     self.full_table["AB"]["SS"], self.full_table["within"]["SS"]]
+        colors = ["steelblue", "coral", "mediumpurple", "gray"]
+        bars = ax1.bar(ss_labels, ss_values, color=colors, edgecolor="k", linewidth=0.5)
+        ax1.set_ylabel("Sum of Squares")
+        ax1.set_title("Sum of Squares Decomposition")
+        ax1.grid(True, alpha=0.3, axis="y")
+        for bar, val in zip(bars, ss_values):
+            ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height(),
+                     f"{val:.2f}", ha="center", va="bottom", fontsize=9)
+
+        ax2 = axes[1]
+        x_max = max(self.F_statistic * 1.5, self.F_critical * 2, stats.f.ppf(0.999, self.df, df_den))
+        x = np.linspace(0.01, x_max, 500)
+        pdf = stats.f.pdf(x, self.df, df_den)
+        ax2.plot(x, pdf, color="steelblue", linewidth=2, label=f"F({self.df},{df_den})")
+        ax2.fill_between(x, pdf, where=x >= self.F_critical, alpha=0.3, color="crimson", label="Rejection region")
+        ax2.axvline(self.F_critical, color="crimson", linestyle="--", linewidth=1.2)
+        ax2.axvline(self.F_statistic, color="darkgreen", linestyle="-", linewidth=2, label=f"F = {self.F_statistic:.4f}")
+        ax2.set_xlabel("F")
+        ax2.set_ylabel("Density")
+        ax2.set_title(f"F-Test (Source: {self.source.value})")
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+
+        fig.suptitle("Two-Way ANOVA", fontsize=13, fontweight="bold")
+        fig.tight_layout()
+        return fig
 
 
 def anova2_partition_tss(data: np.ndarray) -> ANOVA2PartitionResult:
@@ -218,3 +258,5 @@ def anova2_test_equality(
         reject_H0=(F_stat > F_crit),
         full_table=full_table,
     )
+
+

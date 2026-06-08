@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.3] - 2026-06-08
+
+### Changed
+
+- **Plot logic inlined into `result.plot()` methods** — all single-use standalone plot functions (`plot_z_test`, `plot_chi2_test`, `plot_anova1_test`, `plot_anova2_test`, `plot_posterior_normal`, `plot_posterior_normal_gamma`, `plot_regression_summary`, `plot_regression_diagnostics`, `plot_confidence_interval`, `plot_simultaneous_tests`) have been removed from the public API. Their logic now lives directly inside the corresponding `plot()` method on each result dataclass, eliminating the indirection layer.
+- **`plot()` methods use enum identity checks** — internal alternative-hypothesis branches inside `plot()` methods now compare `self.alternative is AlternativeHypothesis.TWO_SIDED` / `.GREATER` instead of string comparisons against `.value`.
+- **Removed from `statscore.__all__`**: `plot_z_test`, `plot_chi2_test`, `plot_anova1_test`, `plot_anova2_test`, `plot_posterior_normal`, `plot_posterior_normal_gamma`, `plot_regression_summary`, `plot_regression_diagnostics`, `plot_confidence_interval`, `plot_simultaneous_tests`. The 7 shared/multi-use plot utilities (`plot_regression`, `plot_residuals`, `plot_qq`, `plot_anova_groups`, `plot_t_test`, `plot_f_test`, `plot_simultaneous_ci`) remain in the public API.
+- **`utils/plots.py` trimmed** — now contains only shared plot utilities used by multiple result classes or directly by users.
+
 ## [0.0.2] - 2026-06-08
 
 ### Added

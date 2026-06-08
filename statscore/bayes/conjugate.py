@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+from matplotlib.figure import Figure
 
 from statscore.utils.distributions import chi2_ppf, norm_ppf, t_ppf
 from statscore.utils.validation import validate_1d_sample, validate_positive
@@ -52,6 +53,42 @@ class NormalMeanKnownVarResult:
         print(f"    std  = {self.predictive_std:.6f}")
         print(f"  {pct}% Predictive interval: ({pi_lo:.6f}, {pi_hi:.6f})")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from matplotlib import pyplot as plt
+        from scipy import stats
+
+        kappa0 = self.kappa_n - self.n
+        post_var = self.posterior_variance
+        post_std = self.posterior_std
+        post_mean = self.mu_n
+        prior_var = post_var * self.kappa_n / kappa0 if kappa0 > 0 else post_var * 10
+        prior_std = float(np.sqrt(prior_var))
+        prior_mean = (post_mean * self.kappa_n - self.n * self.x_bar) / kappa0 if kappa0 > 0 else post_mean
+
+        x_range_sigma = 4.0
+        x_min = post_mean - x_range_sigma * max(post_std, prior_std)
+        x_max = post_mean + x_range_sigma * max(post_std, prior_std)
+        x = np.linspace(x_min, x_max, 500)
+
+        prior_pdf = stats.norm.pdf(x, loc=prior_mean, scale=prior_std)
+        post_pdf = stats.norm.pdf(x, loc=post_mean, scale=post_std)
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(x, prior_pdf, color="gray", linestyle="--", linewidth=1.5, label="Prior")
+        ax.plot(x, post_pdf, color="steelblue", linewidth=2, label="Posterior")
+
+        ci_lower, ci_upper = self.credible_interval
+        ci_mask: list[bool] = ((x >= ci_lower) & (x <= ci_upper)).tolist()
+        ax.fill_between(x, post_pdf, where=ci_mask, alpha=0.3, color="steelblue", label="Credible interval")
+        ax.axvline(post_mean, color="crimson", linestyle="-", linewidth=1.2, alpha=0.8)
+        ax.set_xlabel("μ")
+        ax.set_ylabel("Density")
+        ax.set_title("Posterior Distribution")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        fig.tight_layout()
+        return fig
 
 
 @dataclass
@@ -101,6 +138,37 @@ class NormalMeanUnknownVarResult:
             f"    sigma^2: ({self.variance_credible_interval[0]:.6f}, {self.variance_credible_interval[1]:.6f})"
         )
         print("=" * 60)
+
+    def plot(self) -> Figure:
+        from matplotlib import pyplot as plt
+        from scipy import stats
+
+        df_mu = 2.0 * self.alpha_n
+        scale_mu = float(np.sqrt(self.beta_n / (self.alpha_n * self.kappa_n)))
+        post_mean = self.mu_n
+        post_std = scale_mu * float(np.sqrt(df_mu / (df_mu - 2))) if df_mu > 2 else scale_mu * 3
+
+        x_range_sigma = 4.0
+        x_min = post_mean - x_range_sigma * post_std
+        x_max = post_mean + x_range_sigma * post_std
+        x = np.linspace(x_min, x_max, 500)
+
+        post_pdf = stats.t.pdf(x, df=df_mu, loc=post_mean, scale=scale_mu)
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(x, post_pdf, color="steelblue", linewidth=2, label="Posterior (μ)")
+
+        ci_lower, ci_upper = self.mu_credible_interval
+        ci_mask: list[bool] = ((x >= ci_lower) & (x <= ci_upper)).tolist()
+        ax.fill_between(x, post_pdf, where=ci_mask, alpha=0.3, color="steelblue", label="Credible interval")
+        ax.axvline(post_mean, color="crimson", linestyle="-", linewidth=1.2, alpha=0.8)
+        ax.set_xlabel("μ")
+        ax.set_ylabel("Density")
+        ax.set_title("Posterior Distribution (Normal-Gamma)")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        fig.tight_layout()
+        return fig
 
 
 def bayes_normal_mean_known_var(

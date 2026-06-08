@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
+from matplotlib.figure import Figure
 
 from statscore.utils.distributions import f_critical, f_pvalue
 from statscore.utils.validation import validate_data_groups
@@ -62,6 +63,40 @@ class ANOVA1TestResult:
         print(f"  p-value:                  {self.p_value:.4f}")
         print(f"  Decision:                 {decision}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from matplotlib import pyplot as plt
+        from scipy import stats
+
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+        ax1 = axes[0]
+        bars = ax1.bar(["SS Between", "SS Within"], [self.SS_between, self.SS_within],
+                       color=["steelblue", "coral"], edgecolor="k", linewidth=0.5)
+        ax1.set_ylabel("Sum of Squares")
+        ax1.set_title("Sum of Squares Decomposition")
+        ax1.grid(True, alpha=0.3, axis="y")
+        for bar, val in zip(bars, [self.SS_between, self.SS_within]):
+            ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height(),
+                     f"{val:.2f}", ha="center", va="bottom", fontsize=10)
+
+        ax2 = axes[1]
+        x_max = max(self.F_statistic * 1.5, self.F_critical * 2, stats.f.ppf(0.999, self.df_between, self.df_within))
+        x = np.linspace(0.01, x_max, 500)
+        pdf = stats.f.pdf(x, self.df_between, self.df_within)
+        ax2.plot(x, pdf, color="steelblue", linewidth=2, label=f"F({self.df_between},{self.df_within})")
+        ax2.fill_between(x, pdf, where=x >= self.F_critical, alpha=0.3, color="crimson", label="Rejection region")
+        ax2.axvline(self.F_critical, color="crimson", linestyle="--", linewidth=1.2)
+        ax2.axvline(self.F_statistic, color="darkgreen", linestyle="-", linewidth=2, label=f"F = {self.F_statistic:.4f}")
+        ax2.set_xlabel("F")
+        ax2.set_ylabel("Density")
+        ax2.set_title("F-Test")
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+
+        fig.suptitle("One-Way ANOVA", fontsize=13, fontweight="bold")
+        fig.tight_layout()
+        return fig
 
 
 def anova1_partition_tss(data: Sequence[np.ndarray]) -> ANOVA1PartitionResult:
@@ -149,3 +184,5 @@ def anova1_test_equality(data: Sequence[np.ndarray], alpha: float = 0.05) -> ANO
         reject_H0=(F_stat > F_crit),
         alpha=alpha,
     )
+
+

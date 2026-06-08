@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+from matplotlib.figure import Figure
 
 from statscore.regression.least_squares import LeastSquaresResult, mult_lr_least_squares
 from statscore.utils.distributions import f_critical, t_critical
@@ -34,6 +35,18 @@ class PredictionCIResult:
             hw = float(self.half_widths[i])
             print(f"  {i + 1:<5} {pe:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from statscore.utils.plots import plot_simultaneous_ci
+
+        labels = [f"Pred {i+1}" for i in range(len(self.point_estimates))]
+        return plot_simultaneous_ci(
+            point_estimates=self.point_estimates,
+            intervals=self.intervals,
+            method=self.method_used.value,
+            labels=labels,
+            title="Simultaneous Prediction Intervals",
+        )
 
 
 def mult_norm_lr_pred_ci(

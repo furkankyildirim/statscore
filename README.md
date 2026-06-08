@@ -2,7 +2,7 @@
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-98%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-205%20passing-brightgreen.svg)]()
 
 A production-quality Python library for **ANOVA**, **normal distribution significance testing**, **multiple linear regression**, and **Bayesian conjugate inference** with structured output and family-wise error rate (FWER) control.
 
@@ -309,9 +309,9 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")  # non-interactive backend for scripts/CI
 from statscore import (
-    plot_regression, plot_residuals, plot_qq,
-    plot_anova_groups, plot_posterior_normal,
+    plot_regression, plot_residuals, plot_qq, plot_anova_groups,
     mult_lr_least_squares, bayes_normal_mean_known_var,
+    anova1_test_equality, z_test_mean, AlternativeHypothesis,
 )
 
 attend = np.array([1, 0.5, 0.2, 0.4, 0.5, 0.7, 0.8, 0.9, 0.6, 0.1, 0, 0, 0.7, 0.8, 1])
@@ -350,12 +350,20 @@ fig = plot_anova_groups(groups,
 fig.savefig("plot_anova_groups.png", dpi=100)
 # → saves plot_anova_groups.png
 
-# Prior / posterior density with credible interval shading
+# Result-level plot() — every result dataclass has a .plot() method
 x_meas = np.array([9.8, 10.2, 10.1, 9.9, 10.3, 9.7, 10.0, 10.4])
-bayes_result = bayes_normal_mean_known_var(x_meas, sigma_sq=0.04, mu0=10.0, kappa0=2.0)
-fig = plot_posterior_normal(bayes_result, title="Posterior: sensor mean")
+fig = bayes_normal_mean_known_var(x_meas, sigma_sq=0.04, mu0=10.0, kappa0=2.0).plot()
 fig.savefig("plot_posterior_normal.png", dpi=100)
 # → saves plot_posterior_normal.png
+
+fig = anova1_test_equality(groups, alpha=0.05).plot()
+fig.savefig("plot_anova1.png", dpi=100)
+# → saves plot_anova1.png
+
+fig = z_test_mean(x_meas, mu0=10.0, sigma=0.2,
+                  alternative=AlternativeHypothesis.TWO_SIDED).plot()
+fig.savefig("plot_z_test.png", dpi=100)
+# → saves plot_z_test.png
 ```
 
 All plot functions return a `matplotlib.figure.Figure` — use `.savefig()` to write to disk
@@ -400,10 +408,9 @@ Any other extension raises `ValueError`. A missing file raises `FileNotFoundErro
 statscore/
 ├── __init__.py              # Top-level exports
 ├── __main__.py              # python -m statscore entry point
-├── cli.py                   # Interactive CLI (11-item menu)
+├── cli.py                   # Interactive CLI (15-item menu)
 ├── diagnostics.py           # shapiro_wilk_test, levene_test, regression_diagnostics, mean_confidence_interval
 ├── io.py                    # load_data (csv/tsv/xlsx/json → LoadedData)
-├── plots.py                 # plot_regression, plot_residuals, plot_qq, plot_anova_groups, plot_posterior_normal
 ├── anova/
 │   ├── one_way.py           # anova1_partition_tss, anova1_test_equality
 │   ├── two_way.py           # anova2_partition_tss, anova2_mle, anova2_test_equality
@@ -421,6 +428,7 @@ statscore/
 └── utils/
     ├── enums.py             # AlternativeHypothesis, CorrectionMethod, PredictionMethod, TwoWayTestFactor
     ├── distributions.py     # Critical values and p-values (F, t, chi2, z, q)
+    ├── plots.py             # Shared plot utilities (plot_regression, plot_qq, plot_t_test, …)
     └── validation.py        # Shared input validation helpers
 ```
 
@@ -500,13 +508,36 @@ statscore/
 
 ### Visualization Functions
 
+Shared plot utilities (available at top-level):
+
 | Function | Description |
 |----------|-------------|
 | `plot_regression(x, y, beta_hat, ...)` | Scatter plot with fitted regression line |
 | `plot_residuals(fitted, residuals, ...)` | Residuals vs. fitted values |
 | `plot_qq(x, ...)` | Normal Q-Q plot |
 | `plot_anova_groups(data, group_labels, ...)` | Box plots with jittered points for ANOVA groups |
-| `plot_posterior_normal(result, ...)` | Prior/posterior densities with credible interval shading |
+| `plot_t_test(t_statistic, t_critical, df, alternative, ...)` | t-distribution with rejection region |
+| `plot_f_test(f_statistic, f_critical_low, f_critical_up, ...)` | F-distribution with rejection region |
+| `plot_simultaneous_ci(point_estimates, intervals, ...)` | Simultaneous confidence intervals |
+
+Result-level plots (call `.plot()` on any result object):
+
+| Result class | `.plot()` output |
+|---|---|
+| `ZTestResult` | Standard normal with rejection region |
+| `TTestOneSampleResult` | t-distribution with rejection region |
+| `Chi2VarianceTestResult` | Chi-squared distribution with rejection region |
+| `FTestVariancesResult` | F-distribution with rejection region |
+| `ANOVA1TestResult` | SS bar chart + F-distribution |
+| `ANOVA2TestResult` | SS bar chart + F-distribution |
+| `SimultaneousCIResult` | Simultaneous CI forest plot |
+| `SimultaneousTestResult` | Horizontal bar chart of test statistics |
+| `RegressionSummaryResult` | Coefficient plot with CIs |
+| `RegressionDiagnosticsResult` | Four-panel diagnostics (leverage, std residuals, Cook's D, residuals vs leverage) |
+| `MeanConfidenceIntervalResult` | Single CI interval plot |
+| `NormalMeanKnownVarResult` | Prior/posterior density with credible interval |
+| `NormalMeanUnknownVarResult` | Marginal posterior (Student-t) with credible interval |
+| `ShapiroWilkResult` | Normal Q-Q plot |
 
 ### I/O Functions
 

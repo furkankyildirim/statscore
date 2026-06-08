@@ -65,7 +65,7 @@ def _run_one_way_anova() -> None:
 
     show_plot = input("  Show box plot? (y/n) [n]: ").strip().lower()
     if show_plot == "y":
-        from statscore.plots import plot_anova_groups
+        from statscore.utils.plots import plot_anova_groups
 
         fig = plot_anova_groups(groups)
         fig.savefig("anova_plot.png", dpi=150)
@@ -203,7 +203,7 @@ def _run_simple_regression() -> None:
 
     show_reg = input("  Show regression plot? (y/n) [n]: ").strip().lower()
     if show_reg == "y":
-        from statscore.plots import plot_regression
+        from statscore.utils.plots import plot_regression
 
         fig = plot_regression(x, y, result.beta_hat)
         fig.savefig("regression_plot.png", dpi=150)
@@ -211,7 +211,7 @@ def _run_simple_regression() -> None:
 
     show_resid = input("  Show residual plot? (y/n) [n]: ").strip().lower()
     if show_resid == "y":
-        from statscore.plots import plot_residuals
+        from statscore.utils.plots import plot_residuals
 
         ols = mult_lr_least_squares(X, y)
         fig = plot_residuals(ols.fitted_values, ols.residuals)
@@ -220,7 +220,7 @@ def _run_simple_regression() -> None:
 
     show_qq = input("  Show Q-Q plot of residuals? (y/n) [n]: ").strip().lower()
     if show_qq == "y":
-        from statscore.plots import plot_qq
+        from statscore.utils.plots import plot_qq
 
         ols = mult_lr_least_squares(X, y)
         fig = plot_qq(ols.residuals)
@@ -324,7 +324,7 @@ def _run_bayes_known_var() -> None:
 
     show_plot = input("  Show posterior plot? (y/n) [n]: ").strip().lower()
     if show_plot == "y":
-        from statscore.plots import plot_posterior_normal
+        from statscore.utils.plots import plot_posterior_normal
 
         fig = plot_posterior_normal(result)
         fig.savefig("posterior_plot.png", dpi=150)

@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
+from matplotlib.figure import Figure
 
 from statscore.anova.one_way import anova1_partition_tss
 from statscore.utils.distributions import (
@@ -54,6 +55,16 @@ class SimultaneousCIResult:
             print(f"  CI_{i + 1:<7} {pe:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
         print("=" * w)
 
+    def plot(self) -> Figure:
+        from statscore.utils.plots import plot_simultaneous_ci
+
+        return plot_simultaneous_ci(
+            point_estimates=self.point_estimates,
+            intervals=self.intervals,
+            method=self.method_used.value,
+            title="Simultaneous Confidence Intervals (ANOVA)",
+        )
+
 
 @dataclass
 class SimultaneousTestResult:
@@ -81,6 +92,37 @@ class SimultaneousTestResult:
             rej = "Yes" if bool(self.reject[i]) else "No"
             print(f"  {i + 1:<5} {ts:>10.4f} {cv:>10.4f} {pv:>10.4f} {rej:>10}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from matplotlib import pyplot as plt
+
+        m = len(self.test_statistics)
+        fig, ax = plt.subplots(figsize=(8, max(4, m * 0.7)))
+        y_pos = np.arange(m)
+        labels = [f"Test {i+1}" for i in range(m)]
+
+        colors = ["crimson" if bool(self.reject[i]) else "steelblue" for i in range(m)]
+        ax.barh(y_pos, self.test_statistics, color=colors, edgecolor="k", linewidth=0.5, alpha=0.7)
+
+        for i in range(m):
+            ax.plot(float(self.critical_values[i]), i, marker="|", color="black", markersize=20, markeredgewidth=2)
+
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(labels)
+        ax.set_xlabel("|T|")
+        method = self.method_used.value
+        subtitle = f"Method: {method}" if method else ""
+        ax.set_title(f"Simultaneous Hypothesis Tests\n{subtitle}" if subtitle else "Simultaneous Hypothesis Tests")
+        ax.legend(
+            handles=[
+                plt.Line2D([0], [0], color="crimson", lw=6, alpha=0.7, label="Reject H0"),
+                plt.Line2D([0], [0], color="steelblue", lw=6, alpha=0.7, label="Fail to reject"),
+                plt.Line2D([0], [0], marker="|", color="black", linestyle="None", markersize=12, markeredgewidth=2, label="Critical value"),
+            ],
+        )
+        ax.grid(True, alpha=0.3, axis="x")
+        fig.tight_layout()
+        return fig
 
 
 def anova1_is_contrast(c: np.ndarray) -> bool:
@@ -518,3 +560,5 @@ def anova1_test_linear_combs(
         method_used=final_method,
         FWER=alpha,
     )
+
+

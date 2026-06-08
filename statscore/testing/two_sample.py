@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+from matplotlib.figure import Figure
 
 from statscore.utils.distributions import (
     f_critical,
@@ -61,6 +62,18 @@ class TTestTwoSampleResult:
         print(f"  Decision:    {decision}")
         print("=" * w)
 
+    def plot(self) -> Figure:
+        from statscore.utils.plots import plot_t_test
+
+        variance_label = "pooled" if self.equal_var else "Welch"
+        return plot_t_test(
+            t_statistic=self.t_statistic,
+            t_critical=self.t_critical,
+            df=self.df,
+            alternative=self.alternative.value,
+            title=f"Two-Sample t-Test ({variance_label})",
+        )
+
 
 @dataclass
 class TTestPairedResult:
@@ -92,6 +105,17 @@ class TTestPairedResult:
         print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
         print(f"  Decision:    {decision}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from statscore.utils.plots import plot_t_test
+
+        return plot_t_test(
+            t_statistic=self.t_statistic,
+            t_critical=self.t_critical,
+            df=self.df,
+            alternative=self.alternative.value,
+            title="Paired t-Test",
+        )
 
 
 @dataclass
@@ -129,6 +153,19 @@ class FTestVariancesResult:
         print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
         print(f"  Decision:    {decision}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from statscore.utils.plots import plot_f_test
+
+        return plot_f_test(
+            f_statistic=self.f_statistic,
+            f_critical_low=self.f_critical_lower,
+            f_critical_up=self.f_critical_upper,
+            df1=self.df1,
+            df2=self.df2,
+            alternative=self.alternative.value,
+            title="F-Test for Equality of Variances",
+        )
 
 
 def t_test_two_sample(

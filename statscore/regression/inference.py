@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
+from matplotlib.figure import Figure
 
 from statscore.regression.least_squares import LeastSquaresResult, mult_lr_least_squares
 from statscore.utils.distributions import f_critical, f_pvalue, t_critical
@@ -38,6 +39,18 @@ class SimultaneousCIBetaResult:
             hw = float(self.half_widths[i])
             print(f"  {'beta_' + str(i):<14} {b:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from statscore.utils.plots import plot_simultaneous_ci
+
+        labels = [f"beta_{i}" for i in range(len(self.beta_hat))]
+        return plot_simultaneous_ci(
+            point_estimates=self.beta_hat,
+            intervals=self.intervals,
+            method=self.method.value,
+            labels=labels,
+            title="Simultaneous CIs for Regression Coefficients",
+        )
 
 
 @dataclass
@@ -78,6 +91,19 @@ class HypothesisTestResult:
         print(f"  p-value:     {self.p_value:.4f}")
         print(f"  Decision:    {decision}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from statscore.utils.plots import plot_f_test
+
+        return plot_f_test(
+            f_statistic=self.test_statistic,
+            f_critical_low=0.0,
+            f_critical_up=self.F_critical,
+            df1=self.df_numerator,
+            df2=self.df_denominator,
+            alternative="greater",
+            title="Regression Hypothesis Test",
+        )
 
 
 def mult_norm_lr_simul_ci(

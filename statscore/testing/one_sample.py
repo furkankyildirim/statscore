@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+from matplotlib.figure import Figure
 
 from statscore.utils.distributions import (
     chi2_critical,
@@ -54,6 +55,38 @@ class ZTestResult:
         print(f"  Decision:    {decision}")
         print("=" * w)
 
+    def plot(self) -> Figure:
+        from matplotlib import pyplot as plt
+        from scipy import stats
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        x = np.linspace(-4, 4, 500)
+        pdf = stats.norm.pdf(x)
+        ax.plot(x, pdf, color="steelblue", linewidth=2)
+
+        z_crit = self.z_critical
+        if self.alternative is AlternativeHypothesis.TWO_SIDED:
+            crit_abs = abs(z_crit)
+            ax.fill_between(x, pdf, where=x <= -crit_abs, alpha=0.3, color="crimson", label="Rejection region")
+            ax.fill_between(x, pdf, where=x >= crit_abs, alpha=0.3, color="crimson")
+            ax.axvline(-crit_abs, color="crimson", linestyle="--", linewidth=1.2)
+            ax.axvline(crit_abs, color="crimson", linestyle="--", linewidth=1.2)
+        elif self.alternative is AlternativeHypothesis.GREATER:
+            ax.fill_between(x, pdf, where=x >= z_crit, alpha=0.3, color="crimson", label="Rejection region")
+            ax.axvline(z_crit, color="crimson", linestyle="--", linewidth=1.2)
+        else:
+            ax.fill_between(x, pdf, where=x <= z_crit, alpha=0.3, color="crimson", label="Rejection region")
+            ax.axvline(z_crit, color="crimson", linestyle="--", linewidth=1.2)
+
+        ax.axvline(self.z_statistic, color="darkgreen", linestyle="-", linewidth=2, label=f"Z = {self.z_statistic:.4f}")
+        ax.set_xlabel("Z")
+        ax.set_ylabel("Density")
+        ax.set_title("One-Sample Z-Test")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        fig.tight_layout()
+        return fig
+
 
 @dataclass
 class TTestOneSampleResult:
@@ -86,6 +119,17 @@ class TTestOneSampleResult:
         print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
         print(f"  Decision:    {decision}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from statscore.utils.plots import plot_t_test
+
+        return plot_t_test(
+            t_statistic=self.t_statistic,
+            t_critical=self.t_critical,
+            df=self.df,
+            alternative=self.alternative.value,
+            title="One-Sample t-Test",
+        )
 
 
 @dataclass
@@ -120,6 +164,41 @@ class Chi2VarianceTestResult:
         print(f"  p-value:      {self.p_value:.4f}    alpha: {self.alpha}")
         print(f"  Decision:     {decision}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from matplotlib import pyplot as plt
+        from scipy import stats
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        x_max = max(self.chi2_statistic * 1.5, stats.chi2.ppf(0.999, self.df))
+        x = np.linspace(0.01, x_max, 500)
+        pdf = stats.chi2.pdf(x, self.df)
+        ax.plot(x, pdf, color="steelblue", linewidth=2, label=f"χ²(df={self.df})")
+
+        if self.alternative is AlternativeHypothesis.TWO_SIDED:
+            if self.chi2_critical_lower > 0:
+                ax.fill_between(x, pdf, where=x <= self.chi2_critical_lower, alpha=0.3, color="crimson", label="Rejection region")
+                ax.axvline(self.chi2_critical_lower, color="crimson", linestyle="--", linewidth=1.2)
+            if np.isfinite(self.chi2_critical_upper):
+                ax.fill_between(x, pdf, where=x >= self.chi2_critical_upper, alpha=0.3, color="crimson")
+                ax.axvline(self.chi2_critical_upper, color="crimson", linestyle="--", linewidth=1.2)
+        elif self.alternative is AlternativeHypothesis.GREATER:
+            if np.isfinite(self.chi2_critical_upper):
+                ax.fill_between(x, pdf, where=x >= self.chi2_critical_upper, alpha=0.3, color="crimson", label="Rejection region")
+                ax.axvline(self.chi2_critical_upper, color="crimson", linestyle="--", linewidth=1.2)
+        else:
+            if self.chi2_critical_lower > 0:
+                ax.fill_between(x, pdf, where=x <= self.chi2_critical_lower, alpha=0.3, color="crimson", label="Rejection region")
+                ax.axvline(self.chi2_critical_lower, color="crimson", linestyle="--", linewidth=1.2)
+
+        ax.axvline(self.chi2_statistic, color="darkgreen", linestyle="-", linewidth=2, label=f"χ² = {self.chi2_statistic:.4f}")
+        ax.set_xlabel("χ²")
+        ax.set_ylabel("Density")
+        ax.set_title("Chi-Squared Variance Test")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        fig.tight_layout()
+        return fig
 
 
 def z_test_mean(
@@ -308,3 +387,5 @@ def chi2_test_variance(
         sigma0_sq=sigma0_sq,
         df=df,
     )
+
+

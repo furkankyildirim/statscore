@@ -27,7 +27,7 @@
 | `testing` | `statscore.utils` | `anova`, `regression`, `bayes`, `diagnostics`, `plots`, `io` |
 | `bayes` | `statscore.utils` | `anova`, `regression`, `testing`, `diagnostics`, `plots`, `io` |
 | `diagnostics` | `statscore.utils`, `statscore.regression.least_squares` | `anova`, `testing`, `bayes`, `plots`, `io` |
-| `plots` | External packages only (numpy, scipy, matplotlib) | all statscore domain modules (accepts result dataclasses duck-typed) |
+| `utils.plots` | External packages only (numpy, scipy, matplotlib) | all statscore domain modules |
 | `io` | External packages only (pandas) | all statscore domain modules |
 | top-level `__init__` | all domain modules, `statscore.utils.enums` | — |
 
@@ -136,7 +136,7 @@ Domain-specific validators (`validate_design_matrix`, `validate_data_groups`, et
 
 The public API is defined exclusively through `__all__` in each `__init__.py`:
 
-- `statscore.__all__` — 4 enums + 29 statistical functions + 2 regression summary + 4 diagnostics + 5 plots + 2 I/O (46 total symbols)
+- `statscore.__all__` — 4 enums + 29 statistical functions + 2 regression summary + 4 diagnostics + 7 shared plot utilities + 2 I/O (48 total symbols)
 - `statscore.anova.__all__` — 11 ANOVA functions
 - `statscore.regression.__all__` — 9 regression functions + `RegressionSummaryResult`, `regression_summary` (11 total)
 - `statscore.testing.__all__` — 6 testing functions

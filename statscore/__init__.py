@@ -36,12 +36,14 @@ from statscore.diagnostics import (
     shapiro_wilk_test,
 )
 from statscore.io import LoadedData, load_data
-from statscore.plots import (
+from statscore.utils.plots import (
     plot_anova_groups,
-    plot_posterior_normal,
+    plot_f_test,
     plot_qq,
     plot_regression,
     plot_residuals,
+    plot_simultaneous_ci,
+    plot_t_test,
 )
 from statscore.regression import (
     RegressionSummaryResult,
@@ -71,7 +73,7 @@ from statscore.utils.enums import (
     TwoWayTestFactor,
 )
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 __all__ = [
     # Enums (type-safe categorical parameters)
@@ -130,5 +132,7 @@ __all__ = [
     "plot_residuals",
     "plot_qq",
     "plot_anova_groups",
-    "plot_posterior_normal",
+    "plot_t_test",
+    "plot_f_test",
+    "plot_simultaneous_ci",
 ]

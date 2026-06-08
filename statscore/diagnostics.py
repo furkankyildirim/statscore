@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
+from matplotlib.figure import Figure
 from scipy import stats
 
 from statscore.regression.least_squares import mult_lr_least_squares
@@ -39,6 +40,11 @@ class ShapiroWilkResult:
         print(f"  W-statistic: {self.statistic:.4f}    p-value: {self.p_value:.4f}")
         print(f"  Decision:    {decision_text}")
         print("=" * w)
+
+    def plot(self, x: np.ndarray) -> Figure:
+        from statscore.utils.plots import plot_qq
+
+        return plot_qq(x, title="Normal Q-Q Plot (Shapiro-Wilk)")
 
 
 @dataclass
@@ -108,6 +114,55 @@ class RegressionDiagnosticsResult:
             )
         print("=" * w)
 
+    def plot(self) -> Figure:
+        from matplotlib import pyplot as plt
+
+        fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+        threshold_lev = 2 * self.p / self.n
+        threshold_cook = 4 / self.n
+        obs = np.arange(1, self.n + 1)
+
+        ax1 = axes[0, 0]
+        ax1.bar(obs, self.leverage, color="steelblue", edgecolor="k", linewidth=0.3)
+        ax1.axhline(threshold_lev, color="crimson", linestyle="--", linewidth=1.2, label=f"2p/n = {threshold_lev:.4f}")
+        ax1.set_xlabel("Observation")
+        ax1.set_ylabel("Leverage")
+        ax1.set_title("Leverage (h_ii)")
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+
+        ax2 = axes[0, 1]
+        ax2.scatter(obs, self.standardized_residuals, color="steelblue", edgecolors="k", linewidths=0.5)
+        ax2.axhline(0, color="gray", linestyle="-", linewidth=0.8)
+        ax2.axhline(2, color="crimson", linestyle="--", linewidth=1)
+        ax2.axhline(-2, color="crimson", linestyle="--", linewidth=1)
+        ax2.set_xlabel("Observation")
+        ax2.set_ylabel("Std. Residual")
+        ax2.set_title("Standardized Residuals")
+        ax2.grid(True, alpha=0.3)
+
+        ax3 = axes[1, 0]
+        ax3.bar(obs, self.cooks_distance, color="coral", edgecolor="k", linewidth=0.3)
+        ax3.axhline(threshold_cook, color="crimson", linestyle="--", linewidth=1.2, label=f"4/n = {threshold_cook:.4f}")
+        ax3.set_xlabel("Observation")
+        ax3.set_ylabel("Cook's D")
+        ax3.set_title("Cook's Distance")
+        ax3.legend()
+        ax3.grid(True, alpha=0.3)
+
+        ax4 = axes[1, 1]
+        ax4.scatter(self.leverage, self.standardized_residuals, color="steelblue", edgecolors="k", linewidths=0.5)
+        ax4.axhline(0, color="gray", linestyle="-", linewidth=0.8)
+        ax4.axvline(threshold_lev, color="crimson", linestyle="--", linewidth=1)
+        ax4.set_xlabel("Leverage")
+        ax4.set_ylabel("Std. Residual")
+        ax4.set_title("Residuals vs Leverage")
+        ax4.grid(True, alpha=0.3)
+
+        fig.suptitle("Regression Diagnostics", fontsize=13, fontweight="bold")
+        fig.tight_layout()
+        return fig
+
 
 @dataclass
 class MeanConfidenceIntervalResult:
@@ -132,6 +187,29 @@ class MeanConfidenceIntervalResult:
         print(f"  {pct}% CI: ({self.lower:.4f},  {self.upper:.4f})")
         print(f"  Margin of error: {self.margin_of_error:.4f}    alpha = {self.alpha}")
         print("=" * w)
+
+    def plot(self) -> Figure:
+        from matplotlib import pyplot as plt
+
+        method_label = "z-interval" if self.method == "z" else "t-interval"
+        pct = int((1 - self.alpha) * 100)
+
+        fig, ax = plt.subplots(figsize=(8, 3))
+        ax.errorbar(
+            self.point_estimate, 0,
+            xerr=[[self.point_estimate - self.lower], [self.upper - self.point_estimate]],
+            fmt="o", color="steelblue", ecolor="steelblue",
+            capsize=8, capthick=2, markersize=10, linewidth=2,
+        )
+        ax.axvline(self.point_estimate, color="steelblue", linestyle="-", linewidth=0.8, alpha=0.5)
+        label = f"{method_label} — {pct}% CI: ({self.lower:.4f}, {self.upper:.4f})"
+        ax.set_title(f"Confidence Interval for the Mean\n{label}")
+        ax.set_yticks([])
+        ax.set_xlabel("Value")
+        ax.grid(True, alpha=0.3, axis="x")
+        ax.set_ylim(-1, 1)
+        fig.tight_layout()
+        return fig
 
 
 def shapiro_wilk_test(x: np.ndarray, alpha: float = 0.05) -> ShapiroWilkResult:
@@ -293,3 +371,5 @@ def mean_confidence_interval(
         n=n,
         method=method,
     )
+
+
