@@ -314,10 +314,10 @@ def mcmc_linear_regression(
     if X.ndim != 2 or X.shape[0] != len(y):
         raise ValueError("X must be 2-D with X.shape[0] == len(y).")
     n, p = X.shape
-    if beta_prior_mean is None:
-        beta_prior_mean_arr = np.zeros(p)
-    else:
-        beta_prior_mean_arr = np.asarray(beta_prior_mean, dtype=float)
+    beta_prior_mean_arr: np.ndarray = (
+        np.zeros(p) if beta_prior_mean is None
+        else np.asarray(beta_prior_mean, dtype=float)
+    )
 
     validate_positive(beta_prior_std, "beta_prior_std")
     validate_positive(sigma_prior_alpha, "sigma_prior_alpha")
