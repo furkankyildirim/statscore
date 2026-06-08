@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "statscore"
-version = "1.0.0"
+version = "0.0.1"
 description = "A production-quality Python library for Analysis of Variance (ANOVA) and Multiple Linear Regression with structured output, simultaneous inference, and FWER control."
 readme = "README.md"
 license = "MIT"
