@@ -1,6 +1,8 @@
 """Inference for multiple normal linear regression:
 simultaneous CIs, confidence regions, and hypothesis tests."""
 
+from __future__ import annotations
+
 from collections.abc import Sequence
 from dataclasses import dataclass
 

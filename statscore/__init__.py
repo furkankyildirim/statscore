@@ -6,6 +6,8 @@ OLS-based multiple linear regression with simultaneous inference and prediction,
 normal distribution significance tests, and Bayesian conjugate prior inference.
 """
 
+from __future__ import annotations
+
 from statscore.anova import (
     anova1_ci_linear_combs,
     anova1_is_contrast,

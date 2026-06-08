@@ -1,5 +1,7 @@
 """Interactive CLI for the statscore statistical toolbox."""
 
+from __future__ import annotations
+
 import argparse
 import sys
 

@@ -1,5 +1,7 @@
 """Regression summary table: coefficient estimates, standard errors, t-stats, p-values."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 import numpy as np

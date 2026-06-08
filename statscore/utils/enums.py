@@ -5,6 +5,8 @@ instead of raw strings, enforcing compile-time type safety and enabling
 IDE autocompletion.
 """
 
+from __future__ import annotations
+
 from enum import Enum
 
 

@@ -1,5 +1,7 @@
 """Assumption checks and diagnostic tools for statistical inference."""
 
+from __future__ import annotations
+
 import warnings
 from collections.abc import Sequence
 from dataclasses import dataclass

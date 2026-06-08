@@ -1,5 +1,7 @@
 """Statistical distribution utilities: critical values and p-values."""
 
+from __future__ import annotations
+
 from scipy import stats
 
 from statscore.utils.enums import AlternativeHypothesis

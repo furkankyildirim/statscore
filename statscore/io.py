@@ -1,5 +1,7 @@
 """Data I/O: load tabular data from various file formats."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any

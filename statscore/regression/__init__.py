@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from statscore.regression.inference import (
     mult_norm_lr_cr,
     mult_norm_lr_is_in_cr,

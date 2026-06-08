@@ -302,6 +302,66 @@ result.summary()
 # ============================================================
 ```
 
+### Visualization
+
+```python
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")  # non-interactive backend for scripts/CI
+from statscore import (
+    plot_regression, plot_residuals, plot_qq,
+    plot_anova_groups, plot_posterior_normal,
+    mult_lr_least_squares, bayes_normal_mean_known_var,
+)
+
+attend = np.array([1, 0.5, 0.2, 0.4, 0.5, 0.7, 0.8, 0.9, 0.6, 0.1, 0, 0, 0.7, 0.8, 1])
+y = np.array([60, 65, 40, 70, 65, 70, 85, 70, 44, 20, 40, 30, 50, 77, 90], dtype=float)
+X2 = np.column_stack([np.ones(len(y)), attend])
+beta_hat = mult_lr_least_squares(X2, y).beta_hat
+fitted = X2 @ beta_hat
+residuals = y - fitted
+
+# Scatter plot with regression line (simple regression)
+fig = plot_regression(attend, y, beta_hat,
+                      x_label="Attendance rate", y_label="Grade",
+                      title="Grade vs Attendance")
+fig.savefig("plot_regression.png", dpi=100)
+# → saves plot_regression.png  (matplotlib Figure object returned)
+
+# Residuals vs fitted values
+fig = plot_residuals(fitted, residuals)
+fig.savefig("plot_residuals.png", dpi=100)
+# → saves plot_residuals.png
+
+# Normal Q-Q plot
+fig = plot_qq(residuals)
+fig.savefig("plot_qq.png", dpi=100)
+# → saves plot_qq.png
+
+# ANOVA group box plots
+groups = [
+    np.array([28, 23, 14, 27, 31]),
+    np.array([33, 36, 34, 29, 24]),
+    np.array([18, 21, 20, 22]),
+]
+fig = plot_anova_groups(groups,
+                        group_labels=["Toxin 1", "Toxin 2", "Control"],
+                        y_label="Response", title="Toxin Experiment")
+fig.savefig("plot_anova_groups.png", dpi=100)
+# → saves plot_anova_groups.png
+
+# Prior / posterior density with credible interval shading
+x_meas = np.array([9.8, 10.2, 10.1, 9.9, 10.3, 9.7, 10.0, 10.4])
+bayes_result = bayes_normal_mean_known_var(x_meas, sigma_sq=0.04, mu0=10.0, kappa0=2.0)
+fig = plot_posterior_normal(bayes_result, title="Posterior: sensor mean")
+fig.savefig("plot_posterior_normal.png", dpi=100)
+# → saves plot_posterior_normal.png
+```
+
+All plot functions return a `matplotlib.figure.Figure` — use `.savefig()` to write to disk
+or `.show()` in interactive sessions. Pass `matplotlib.use("Agg")` before importing
+statscore for headless / CI environments.
+
 ### Data I/O
 
 ```python

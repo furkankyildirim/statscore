@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from statscore.anova.multiple_tests import (
     anova1_ci_linear_combs,
     anova1_is_contrast,

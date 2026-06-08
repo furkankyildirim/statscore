@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from statscore.utils.distributions import (
     chi2_critical,
     f_critical,
