@@ -8,7 +8,7 @@ normal distribution significance tests, and Bayesian conjugate prior inference.
 
 from __future__ import annotations
 
-from statscore.anova import (
+from statscore.methods.anova import (
     anova1_ci_linear_combs,
     anova1_is_contrast,
     anova1_is_orthogonal,
@@ -21,11 +21,11 @@ from statscore.anova import (
     bonferroni_correction,
     sidak_correction,
 )
-from statscore.bayes import (
+from statscore.methods.bayes import (
     bayes_normal_mean_known_var,
     bayes_normal_mean_unknown_var,
 )
-from statscore.diagnostics import (
+from statscore.methods.diagnostics import (
     LeveneResult,
     MeanConfidenceIntervalResult,
     RegressionDiagnosticsResult,
@@ -36,7 +36,7 @@ from statscore.diagnostics import (
     shapiro_wilk_test,
 )
 from statscore.io import LoadedData, load_data
-from statscore.utils.plots import (
+from statscore.plots import (
     plot_anova_groups,
     plot_f_test,
     plot_qq,
@@ -45,7 +45,7 @@ from statscore.utils.plots import (
     plot_simultaneous_ci,
     plot_t_test,
 )
-from statscore.regression import (
+from statscore.methods.regression import (
     RegressionSummaryResult,
     mult_lr_least_squares,
     mult_lr_partition_tss,
@@ -58,7 +58,7 @@ from statscore.regression import (
     mult_norm_lr_test_linear_reg,
     regression_summary,
 )
-from statscore.testing import (
+from statscore.methods.testing import (
     chi2_test_variance,
     f_test_variances,
     t_test_mean,
@@ -76,12 +76,10 @@ from statscore.utils.enums import (
 __version__ = "0.0.3"
 
 __all__ = [
-    # Enums (type-safe categorical parameters)
     "AlternativeHypothesis",
     "CorrectionMethod",
     "PredictionMethod",
     "TwoWayTestFactor",
-    # ANOVA
     "anova1_partition_tss",
     "anova1_test_equality",
     "anova1_is_contrast",
@@ -93,7 +91,6 @@ __all__ = [
     "anova2_partition_tss",
     "anova2_mle",
     "anova2_test_equality",
-    # Regression
     "mult_lr_least_squares",
     "mult_lr_partition_tss",
     "mult_norm_lr_simul_ci",
@@ -105,20 +102,16 @@ __all__ = [
     "mult_norm_lr_pred_ci",
     "RegressionSummaryResult",
     "regression_summary",
-    # Testing
     "z_test_mean",
     "t_test_mean",
     "chi2_test_variance",
     "t_test_two_sample",
     "t_test_paired",
     "f_test_variances",
-    # Bayesian
     "bayes_normal_mean_known_var",
     "bayes_normal_mean_unknown_var",
-    # I/O
     "LoadedData",
     "load_data",
-    # Diagnostics
     "ShapiroWilkResult",
     "LeveneResult",
     "RegressionDiagnosticsResult",
@@ -127,7 +120,6 @@ __all__ = [
     "levene_test",
     "regression_diagnostics",
     "mean_confidence_interval",
-    # Plots
     "plot_regression",
     "plot_residuals",
     "plot_qq",

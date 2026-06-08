@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from statscore.bayes.conjugate import (
+from statscore.methods.bayes._results import NormalMeanKnownVarResult, NormalMeanUnknownVarResult
+from statscore.methods.bayes.conjugate import (
     bayes_normal_mean_known_var,
     bayes_normal_mean_unknown_var,
 )
@@ -10,4 +11,6 @@ from statscore.bayes.conjugate import (
 __all__ = [
     "bayes_normal_mean_known_var",
     "bayes_normal_mean_unknown_var",
+    "NormalMeanKnownVarResult",
+    "NormalMeanUnknownVarResult",
 ]

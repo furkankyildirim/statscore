@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from statscore.anova.multiple_tests import (
+from statscore.methods.anova.multiple_tests import (
     anova1_ci_linear_combs,
     anova1_is_contrast,
     anova1_is_orthogonal,

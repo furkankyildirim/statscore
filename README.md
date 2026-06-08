@@ -406,29 +406,42 @@ Any other extension raises `ValueError`. A missing file raises `FileNotFoundErro
 
 ```
 statscore/
-├── __init__.py              # Top-level exports
+├── __init__.py              # Top-level public API — re-exports everything
 ├── __main__.py              # python -m statscore entry point
-├── cli.py                   # Interactive CLI (15-item menu)
-├── diagnostics.py           # shapiro_wilk_test, levene_test, regression_diagnostics, mean_confidence_interval
-├── io.py                    # load_data (csv/tsv/xlsx/json → LoadedData)
-├── anova/
-│   ├── one_way.py           # anova1_partition_tss, anova1_test_equality
-│   ├── two_way.py           # anova2_partition_tss, anova2_mle, anova2_test_equality
-│   └── multiple_tests.py    # Contrasts, orthogonality, corrections, CI, tests
-├── bayes/
-│   └── conjugate.py         # bayes_normal_mean_known_var, bayes_normal_mean_unknown_var
-├── regression/
-│   ├── least_squares.py     # mult_lr_least_squares, mult_lr_partition_tss (R², adj R²)
-│   ├── inference.py         # Simultaneous CI, CR, general/component/linear tests
-│   ├── prediction.py        # mult_norm_lr_pred_ci
-│   └── summary.py           # regression_summary (full OLS summary table)
-├── testing/
-│   ├── one_sample.py        # z_test_mean, t_test_mean, chi2_test_variance
-│   └── two_sample.py        # t_test_two_sample, t_test_paired, f_test_variances
+├── plots.py                 # Shared plot utilities (7 functions)
+├── io/
+│   └── __init__.py          # load_data → LoadedData
+├── cli/
+│   ├── __init__.py          # main() entry point (15-item interactive menu)
+│   ├── _anova.py
+│   ├── _testing.py
+│   ├── _regression.py
+│   └── _io.py
+├── methods/                 # All statistical domain logic
+│   ├── anova/
+│   │   ├── _results.py      # ANOVA1*, ANOVA2*, Simultaneous* dataclasses
+│   │   ├── one_way.py       # anova1_partition_tss, anova1_test_equality
+│   │   ├── two_way.py       # anova2_partition_tss, anova2_mle, anova2_test_equality
+│   │   └── multiple_tests.py # Contrasts, corrections, simultaneous CIs/tests
+│   ├── bayes/
+│   │   ├── _results.py      # NormalMeanKnownVarResult, NormalMeanUnknownVarResult
+│   │   └── conjugate.py     # bayes_normal_mean_known_var, bayes_normal_mean_unknown_var
+│   ├── diagnostics/
+│   │   ├── __init__.py      # shapiro_wilk_test, levene_test, regression_diagnostics, mean_confidence_interval
+│   │   └── _results.py      # ShapiroWilkResult, LeveneResult, RegressionDiagnosticsResult, MeanConfidenceIntervalResult
+│   ├── regression/
+│   │   ├── _results.py      # SimultaneousCIBetaResult, ConfidenceRegionResult, HypothesisTestResult, PredictionCIResult
+│   │   ├── least_squares.py # mult_lr_least_squares, mult_lr_partition_tss (R², adj R²)
+│   │   ├── inference.py     # Simultaneous CI, CR, general/component/linear tests
+│   │   ├── prediction.py    # mult_norm_lr_pred_ci
+│   │   └── summary.py       # regression_summary (full OLS summary table)
+│   └── testing/
+│       ├── _results.py      # ZTestResult, TTest*, Chi2*, FTest* dataclasses
+│       ├── one_sample.py    # z_test_mean, t_test_mean, chi2_test_variance
+│       └── two_sample.py    # t_test_two_sample, t_test_paired, f_test_variances
 └── utils/
     ├── enums.py             # AlternativeHypothesis, CorrectionMethod, PredictionMethod, TwoWayTestFactor
     ├── distributions.py     # Critical values and p-values (F, t, chi2, z, q)
-    ├── plots.py             # Shared plot utilities (plot_regression, plot_qq, plot_t_test, …)
     └── validation.py        # Shared input validation helpers
 ```
 

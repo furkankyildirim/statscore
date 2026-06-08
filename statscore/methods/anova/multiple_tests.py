@@ -4,12 +4,15 @@ contrasts, orthogonality, corrections, simultaneous CIs and tests."""
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
 
 import numpy as np
-from matplotlib.figure import Figure
 
-from statscore.anova.one_way import anova1_partition_tss
+from statscore.methods.anova._results import (
+    OrthogonalityResult,
+    SimultaneousCIResult,
+    SimultaneousTestResult,
+)
+from statscore.methods.anova.one_way import anova1_partition_tss
 from statscore.utils.distributions import (
     f_critical,
     studentized_range_critical,
@@ -18,111 +21,6 @@ from statscore.utils.distributions import (
 )
 from statscore.utils.enums import CorrectionMethod
 from statscore.utils.validation import validate_contrast_matrix, validate_data_groups
-
-
-@dataclass
-class OrthogonalityResult:
-    """Result of orthogonality check between two contrasts."""
-
-    is_orthogonal: bool
-    c1_is_contrast: bool
-    c2_is_contrast: bool
-    warning: str | None
-
-
-@dataclass
-class SimultaneousCIResult:
-    """Simultaneous confidence intervals for linear combinations."""
-
-    intervals: list[tuple[float, float]]
-    method_used: CorrectionMethod
-    point_estimates: np.ndarray
-    half_widths: np.ndarray
-
-    def summary(self) -> None:
-        w = 60
-        print("=" * w)
-        print("  Simultaneous Confidence Intervals")
-        print(f"  Method: {self.method_used.value}")
-        print("=" * w)
-        print(
-            f"  {'Interval':<10} {'Point Est':>10} {'Half-Width':>12} {'Lower':>10} {'Upper':>10}"
-        )
-        print("-" * w)
-        for i, (lo, hi) in enumerate(self.intervals):
-            pe = float(self.point_estimates[i])
-            hw = float(self.half_widths[i])
-            print(f"  CI_{i + 1:<7} {pe:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
-        print("=" * w)
-
-    def plot(self) -> Figure:
-        from statscore.utils.plots import plot_simultaneous_ci
-
-        return plot_simultaneous_ci(
-            point_estimates=self.point_estimates,
-            intervals=self.intervals,
-            method=self.method_used.value,
-            title="Simultaneous Confidence Intervals (ANOVA)",
-        )
-
-
-@dataclass
-class SimultaneousTestResult:
-    """Results of simultaneous hypothesis tests controlling FWER."""
-
-    test_statistics: np.ndarray
-    critical_values: np.ndarray
-    p_values: np.ndarray
-    reject: np.ndarray
-    method_used: CorrectionMethod
-    FWER: float
-
-    def summary(self) -> None:
-        w = 68
-        print("=" * w)
-        print(f"  Simultaneous Hypothesis Tests   (FWER = {self.FWER})")
-        print(f"  Method: {self.method_used.value}")
-        print("=" * w)
-        print(f"  {'#':<5} {'|T|':>10} {'Critical':>10} {'p-value':>10} {'Reject?':>10}")
-        print("-" * w)
-        for i in range(len(self.test_statistics)):
-            ts = float(self.test_statistics[i])
-            cv = float(self.critical_values[i])
-            pv = float(self.p_values[i])
-            rej = "Yes" if bool(self.reject[i]) else "No"
-            print(f"  {i + 1:<5} {ts:>10.4f} {cv:>10.4f} {pv:>10.4f} {rej:>10}")
-        print("=" * w)
-
-    def plot(self) -> Figure:
-        from matplotlib import pyplot as plt
-
-        m = len(self.test_statistics)
-        fig, ax = plt.subplots(figsize=(8, max(4, m * 0.7)))
-        y_pos = np.arange(m)
-        labels = [f"Test {i+1}" for i in range(m)]
-
-        colors = ["crimson" if bool(self.reject[i]) else "steelblue" for i in range(m)]
-        ax.barh(y_pos, self.test_statistics, color=colors, edgecolor="k", linewidth=0.5, alpha=0.7)
-
-        for i in range(m):
-            ax.plot(float(self.critical_values[i]), i, marker="|", color="black", markersize=20, markeredgewidth=2)
-
-        ax.set_yticks(y_pos)
-        ax.set_yticklabels(labels)
-        ax.set_xlabel("|T|")
-        method = self.method_used.value
-        subtitle = f"Method: {method}" if method else ""
-        ax.set_title(f"Simultaneous Hypothesis Tests\n{subtitle}" if subtitle else "Simultaneous Hypothesis Tests")
-        ax.legend(
-            handles=[
-                plt.Line2D([0], [0], color="crimson", lw=6, alpha=0.7, label="Reject H0"),
-                plt.Line2D([0], [0], color="steelblue", lw=6, alpha=0.7, label="Fail to reject"),
-                plt.Line2D([0], [0], marker="|", color="black", linestyle="None", markersize=12, markeredgewidth=2, label="Critical value"),
-            ],
-        )
-        ax.grid(True, alpha=0.3, axis="x")
-        fig.tight_layout()
-        return fig
 
 
 def anova1_is_contrast(c: np.ndarray) -> bool:
@@ -560,5 +458,3 @@ def anova1_test_linear_combs(
         method_used=final_method,
         FWER=alpha,
     )
-
-

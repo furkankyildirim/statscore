@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 from matplotlib.figure import Figure
 
-from statscore.regression.least_squares import mult_lr_least_squares, mult_lr_partition_tss
+from statscore.methods.regression.least_squares import mult_lr_least_squares, mult_lr_partition_tss
 from statscore.utils.distributions import f_pvalue, t_critical, t_pvalue
 
 

@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 from matplotlib.figure import Figure
 
-from statscore.bayes.conjugate import bayes_normal_mean_known_var
-from statscore.utils.plots import (
+from statscore.methods.bayes import bayes_normal_mean_known_var
+from statscore.plots import (
     plot_anova_groups,
     plot_qq,
     plot_regression,

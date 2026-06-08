@@ -1,4 +1,4 @@
-"""Visualization utility functions returning matplotlib Figure objects."""
+"""Visualization functions returning matplotlib Figure objects."""
 
 from __future__ import annotations
 

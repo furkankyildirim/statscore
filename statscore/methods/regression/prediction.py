@@ -2,51 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 import numpy as np
-from matplotlib.figure import Figure
 
-from statscore.regression.least_squares import LeastSquaresResult, mult_lr_least_squares
+from statscore.methods.regression._results import PredictionCIResult
+from statscore.methods.regression.least_squares import LeastSquaresResult, mult_lr_least_squares
 from statscore.utils.distributions import f_critical, t_critical
 from statscore.utils.enums import PredictionMethod
 from statscore.utils.validation import validate_design_matrix
-
-
-@dataclass
-class PredictionCIResult:
-    """Simultaneous prediction confidence intervals."""
-
-    point_estimates: np.ndarray
-    intervals: list[tuple[float, float]]
-    half_widths: np.ndarray
-    method_used: PredictionMethod
-
-    def summary(self) -> None:
-        w = 64
-        print("=" * w)
-        print("  Simultaneous Prediction Intervals")
-        print(f"  Method: {self.method_used.value}")
-        print("=" * w)
-        print(f"  {'#':<5} {'Point Est':>10} {'Half-Width':>12} {'Lower':>10} {'Upper':>10}")
-        print("-" * w)
-        for i, (lo, hi) in enumerate(self.intervals):
-            pe = float(self.point_estimates[i])
-            hw = float(self.half_widths[i])
-            print(f"  {i + 1:<5} {pe:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
-        print("=" * w)
-
-    def plot(self) -> Figure:
-        from statscore.utils.plots import plot_simultaneous_ci
-
-        labels = [f"Pred {i+1}" for i in range(len(self.point_estimates))]
-        return plot_simultaneous_ci(
-            point_estimates=self.point_estimates,
-            intervals=self.intervals,
-            method=self.method_used.value,
-            labels=labels,
-            title="Simultaneous Prediction Intervals",
-        )
 
 
 def mult_norm_lr_pred_ci(

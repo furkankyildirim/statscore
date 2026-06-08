@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from scipy import stats
 
-from statscore.diagnostics import (
+from statscore.methods.diagnostics import (
     LeveneResult,
     MeanConfidenceIntervalResult,
     RegressionDiagnosticsResult,

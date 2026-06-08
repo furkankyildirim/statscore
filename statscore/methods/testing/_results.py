@@ -1,4 +1,4 @@
-"""One-sample hypothesis tests for normal population parameters."""
+"""Result dataclasses for hypothesis tests."""
 
 from __future__ import annotations
 
@@ -7,21 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 from matplotlib.figure import Figure
 
-from statscore.utils.distributions import (
-    chi2_critical,
-    chi2_pvalue,
-    norm_ppf,
-    t_cdf,
-    t_critical,
-    t_pvalue_one_sided,
-    z_pvalue,
-)
 from statscore.utils.enums import AlternativeHypothesis
-from statscore.utils.validation import (
-    validate_1d_sample,
-    validate_alternative,
-    validate_positive,
-)
 
 
 @dataclass
@@ -121,7 +107,7 @@ class TTestOneSampleResult:
         print("=" * w)
 
     def plot(self) -> Figure:
-        from statscore.utils.plots import plot_t_test
+        from statscore.plots import plot_t_test
 
         return plot_t_test(
             t_statistic=self.t_statistic,
@@ -201,191 +187,145 @@ class Chi2VarianceTestResult:
         return fig
 
 
-def z_test_mean(
-    x: np.ndarray,
-    mu0: float,
-    sigma: float,
-    alpha: float = 0.05,
-    alternative: AlternativeHypothesis = AlternativeHypothesis.TWO_SIDED,
-) -> ZTestResult:
-    """One-sample Z-test for the mean when population sigma is known.
+@dataclass
+class TTestTwoSampleResult:
+    """Result of a two-sample t-test for equality of means."""
 
-    Parameters
-    ----------
-    x : array-like
-        Sample observations.
-    mu0 : float
-        Hypothesized population mean under H0.
-    sigma : float
-        Known population standard deviation.
-    alpha : float
-        Significance level.
-    alternative : AlternativeHypothesis
-        TWO_SIDED, LESS, or GREATER.
+    t_statistic: float
+    t_critical: float
+    p_value: float
+    reject_H0: bool
+    alpha: float
+    alternative: AlternativeHypothesis
+    n1: int
+    n2: int
+    x1_bar: float
+    x2_bar: float
+    s1: float
+    s2: float
+    df: int
+    equal_var: bool
+    pooled_var: float | None
 
-    Returns
-    -------
-    ZTestResult
-    """
-    x = np.asarray(x, dtype=float)
-    validate_1d_sample(x)
-    validate_positive(sigma, "sigma")
-    validate_positive(alpha, "alpha")
-    validate_alternative(alternative)
+    def summary(self) -> None:
+        w = 60
+        decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
+        variance_label = "pooled" if self.equal_var else "Welch"
+        two_sided = self.alternative is AlternativeHypothesis.TWO_SIDED
+        crit_str = f"±{self.t_critical:.4f}" if two_sided else f"{self.t_critical:.4f}"
+        print("=" * w)
+        print(f"  Two-Sample t-Test  ({variance_label})")
+        print("=" * w)
+        print(f"  n1 = {self.n1}    x̄1 = {self.x1_bar:.4f}    s1 = {self.s1:.4f}")
+        print(f"  n2 = {self.n2}    x̄2 = {self.x2_bar:.4f}    s2 = {self.s2:.4f}")
+        print(f"  df = {self.df}    Alternative: {self.alternative.value}")
+        print("-" * w)
+        print(f"  t-statistic: {self.t_statistic:.4f}    t-critical: {crit_str}")
+        print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
+        print(f"  Decision:    {decision}")
+        print("=" * w)
 
-    n: int = len(x)
-    x_bar: float = float(x.mean())
-    z_stat: float = (x_bar - mu0) / (sigma / np.sqrt(n))
+    def plot(self) -> Figure:
+        from statscore.plots import plot_t_test
 
-    if alternative is AlternativeHypothesis.TWO_SIDED:
-        z_crit = norm_ppf(1 - alpha / 2)
-        reject = bool(abs(z_stat) > z_crit)
-    elif alternative is AlternativeHypothesis.GREATER:
-        z_crit = norm_ppf(1 - alpha)
-        reject = bool(z_stat > z_crit)
-    else:
-        z_crit = norm_ppf(alpha)
-        reject = bool(z_stat < z_crit)
-
-    p = z_pvalue(z_stat, alternative)
-
-    return ZTestResult(
-        z_statistic=z_stat,
-        z_critical=z_crit,
-        p_value=p,
-        reject_H0=reject,
-        alpha=alpha,
-        alternative=alternative,
-        n=n,
-        x_bar=x_bar,
-        mu0=mu0,
-        sigma=sigma,
-    )
+        variance_label = "pooled" if self.equal_var else "Welch"
+        return plot_t_test(
+            t_statistic=self.t_statistic,
+            t_critical=self.t_critical,
+            df=self.df,
+            alternative=self.alternative.value,
+            title=f"Two-Sample t-Test ({variance_label})",
+        )
 
 
-def t_test_mean(
-    x: np.ndarray,
-    mu0: float,
-    alpha: float = 0.05,
-    alternative: AlternativeHypothesis = AlternativeHypothesis.TWO_SIDED,
-) -> TTestOneSampleResult:
-    """One-sample t-test for the mean when population sigma is unknown.
+@dataclass
+class TTestPairedResult:
+    """Result of a paired t-test."""
 
-    Parameters
-    ----------
-    x : array-like
-        Sample observations.
-    mu0 : float
-        Hypothesized population mean under H0.
-    alpha : float
-        Significance level.
-    alternative : AlternativeHypothesis
-        TWO_SIDED, LESS, or GREATER.
+    t_statistic: float
+    t_critical: float
+    p_value: float
+    reject_H0: bool
+    alpha: float
+    alternative: AlternativeHypothesis
+    n: int
+    d_bar: float
+    s_d: float
+    df: int
 
-    Returns
-    -------
-    TTestOneSampleResult
-    """
-    x = np.asarray(x, dtype=float)
-    validate_1d_sample(x)
-    validate_positive(alpha, "alpha")
-    validate_alternative(alternative)
+    def summary(self) -> None:
+        w = 60
+        decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
+        two_sided = self.alternative is AlternativeHypothesis.TWO_SIDED
+        crit_str = f"±{self.t_critical:.4f}" if two_sided else f"{self.t_critical:.4f}"
+        print("=" * w)
+        print("  Paired t-Test")
+        print("=" * w)
+        print(f"  n = {self.n}    d̄ = {self.d_bar:.4f}    s_d = {self.s_d:.4f}    df = {self.df}")
+        print(f"  H0: μ_D = 0    Alternative: {self.alternative.value}")
+        print("-" * w)
+        print(f"  t-statistic: {self.t_statistic:.4f}    t-critical: {crit_str}")
+        print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
+        print(f"  Decision:    {decision}")
+        print("=" * w)
 
-    n: int = len(x)
-    df: int = n - 1
-    x_bar: float = float(x.mean())
-    s: float = float(x.std(ddof=1))
-    t_stat: float = (x_bar - mu0) / (s / np.sqrt(n))
+    def plot(self) -> Figure:
+        from statscore.plots import plot_t_test
 
-    if alternative is AlternativeHypothesis.TWO_SIDED:
-        t_crit = t_critical(alpha / 2, df)
-        p = float(2.0 * (1.0 - t_cdf(abs(t_stat), df)))
-        reject = bool(abs(t_stat) > t_crit)
-    elif alternative is AlternativeHypothesis.GREATER:
-        t_crit = t_critical(alpha, df)
-        p = t_pvalue_one_sided(t_stat, df, alternative)
-        reject = bool(t_stat > t_crit)
-    else:
-        t_crit = -t_critical(alpha, df)
-        p = t_pvalue_one_sided(t_stat, df, alternative)
-        reject = bool(t_stat < t_crit)
-
-    return TTestOneSampleResult(
-        t_statistic=t_stat,
-        t_critical=t_crit,
-        p_value=p,
-        reject_H0=reject,
-        alpha=alpha,
-        alternative=alternative,
-        n=n,
-        x_bar=x_bar,
-        mu0=mu0,
-        s=s,
-        df=df,
-    )
+        return plot_t_test(
+            t_statistic=self.t_statistic,
+            t_critical=self.t_critical,
+            df=self.df,
+            alternative=self.alternative.value,
+            title="Paired t-Test",
+        )
 
 
-def chi2_test_variance(
-    x: np.ndarray,
-    sigma0_sq: float,
-    alpha: float = 0.05,
-    alternative: AlternativeHypothesis = AlternativeHypothesis.TWO_SIDED,
-) -> Chi2VarianceTestResult:
-    """Chi-squared test for the population variance.
+@dataclass
+class FTestVariancesResult:
+    """Result of an F-test for equality of variances."""
 
-    Parameters
-    ----------
-    x : array-like
-        Sample observations.
-    sigma0_sq : float
-        Hypothesized population variance under H0.
-    alpha : float
-        Significance level.
-    alternative : AlternativeHypothesis
-        TWO_SIDED, LESS, or GREATER.
+    f_statistic: float
+    f_critical_lower: float
+    f_critical_upper: float
+    p_value: float
+    reject_H0: bool
+    alpha: float
+    alternative: AlternativeHypothesis
+    n1: int
+    n2: int
+    s1_sq: float
+    s2_sq: float
+    df1: int
+    df2: int
 
-    Returns
-    -------
-    Chi2VarianceTestResult
-    """
-    x = np.asarray(x, dtype=float)
-    validate_1d_sample(x)
-    validate_positive(sigma0_sq, "sigma0_sq")
-    validate_positive(alpha, "alpha")
-    validate_alternative(alternative)
+    def summary(self) -> None:
+        w = 60
+        decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
+        print("=" * w)
+        print("  F-Test for Equality of Variances")
+        print("=" * w)
+        print(f"  n1 = {self.n1}    s1² = {self.s1_sq:.4f}    df1 = {self.df1}")
+        print(f"  n2 = {self.n2}    s2² = {self.s2_sq:.4f}    df2 = {self.df2}")
+        print(f"  Alternative: {self.alternative.value}")
+        print("-" * w)
+        print(f"  F-statistic: {self.f_statistic:.4f}")
+        print(
+            f"  Critical region: < {self.f_critical_lower:.4f}  or  > {self.f_critical_upper:.4f}"
+        )
+        print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
+        print(f"  Decision:    {decision}")
+        print("=" * w)
 
-    n: int = len(x)
-    df: int = n - 1
-    s2: float = float(x.var(ddof=1))
-    chi2_stat: float = df * s2 / sigma0_sq
+    def plot(self) -> Figure:
+        from statscore.plots import plot_f_test
 
-    if alternative is AlternativeHypothesis.TWO_SIDED:
-        crit_lower = chi2_critical(1 - alpha / 2, df)
-        crit_upper = chi2_critical(alpha / 2, df)
-        reject = bool(chi2_stat < crit_lower or chi2_stat > crit_upper)
-    elif alternative is AlternativeHypothesis.GREATER:
-        crit_lower = 0.0
-        crit_upper = chi2_critical(alpha, df)
-        reject = bool(chi2_stat > crit_upper)
-    else:
-        crit_lower = chi2_critical(1 - alpha, df)
-        crit_upper = float("inf")
-        reject = bool(chi2_stat < crit_lower)
-
-    p = chi2_pvalue(chi2_stat, df, alternative)
-
-    return Chi2VarianceTestResult(
-        chi2_statistic=chi2_stat,
-        chi2_critical_lower=crit_lower,
-        chi2_critical_upper=crit_upper,
-        p_value=p,
-        reject_H0=reject,
-        alpha=alpha,
-        alternative=alternative,
-        n=n,
-        s2=s2,
-        sigma0_sq=sigma0_sq,
-        df=df,
-    )
-
-
+        return plot_f_test(
+            f_statistic=self.f_statistic,
+            f_critical_low=self.f_critical_lower,
+            f_critical_up=self.f_critical_upper,
+            df1=self.df1,
+            df2=self.df2,
+            alternative=self.alternative.value,
+            title="F-Test for Equality of Variances",
+        )

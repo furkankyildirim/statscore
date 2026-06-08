@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Domain modules consolidated under `statscore/methods/`** — `anova/`, `bayes/`, `diagnostics/`, `regression/`, and `testing/` subpackages have been moved to `statscore/methods/anova/`, `statscore/methods/bayes/`, etc. This groups all statistical computation into a single `methods/` namespace.
+- **Canonical import paths updated** — all internal imports, CLI handlers, and tests now use `statscore.methods.*` paths. No shim/compatibility layers remain.
+- **Circular import fix in `methods.regression`** — `inference.py`, `prediction.py`, and `summary.py` now import directly from `_results.py` and sibling submodules instead of from the package `__init__`, eliminating the circular dependency.
 - **Plot logic inlined into `result.plot()` methods** — all single-use standalone plot functions (`plot_z_test`, `plot_chi2_test`, `plot_anova1_test`, `plot_anova2_test`, `plot_posterior_normal`, `plot_posterior_normal_gamma`, `plot_regression_summary`, `plot_regression_diagnostics`, `plot_confidence_interval`, `plot_simultaneous_tests`) have been removed from the public API. Their logic now lives directly inside the corresponding `plot()` method on each result dataclass, eliminating the indirection layer.
 - **`plot()` methods use enum identity checks** — internal alternative-hypothesis branches inside `plot()` methods now compare `self.alternative is AlternativeHypothesis.TWO_SIDED` / `.GREATER` instead of string comparisons against `.value`.
 - **Removed from `statscore.__all__`**: `plot_z_test`, `plot_chi2_test`, `plot_anova1_test`, `plot_anova2_test`, `plot_posterior_normal`, `plot_posterior_normal_gamma`, `plot_regression_summary`, `plot_regression_diagnostics`, `plot_confidence_interval`, `plot_simultaneous_tests`. The 7 shared/multi-use plot utilities (`plot_regression`, `plot_residuals`, `plot_qq`, `plot_anova_groups`, `plot_t_test`, `plot_f_test`, `plot_simultaneous_ci`) remain in the public API.
 - **`utils/plots.py` trimmed** — now contains only shared plot utilities used by multiple result classes or directly by users.
+- **`ARCHITECTURE.md` updated** — layer diagram, layer rules table, DAG, package tree, and "Adding New Modules" guide reflect the `methods/` structure.
+- **`README.md` Package Structure updated** — tree diagram reflects new `methods/` layout.
 
 ## [0.0.2] - 2026-06-08
 

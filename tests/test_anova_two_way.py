@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from statscore.anova.two_way import anova2_mle, anova2_partition_tss, anova2_test_equality
+from statscore.methods.anova.two_way import anova2_mle, anova2_partition_tss, anova2_test_equality
 from statscore.utils.enums import TwoWayTestFactor
 
 

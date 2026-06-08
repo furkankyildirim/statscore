@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from scipy import stats
 
-from statscore.regression.summary import (
+from statscore.methods.regression import (
     RegressionSummaryResult,
     regression_summary,
 )

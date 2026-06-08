@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from scipy import stats
 
-from statscore.testing.two_sample import f_test_variances, t_test_paired, t_test_two_sample
+from statscore.methods.testing import f_test_variances, t_test_paired, t_test_two_sample
 from statscore.utils.enums import AlternativeHypothesis
 
 TWO_SIDED = AlternativeHypothesis.TWO_SIDED

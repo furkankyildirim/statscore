@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from statscore.bayes.conjugate import (
+from statscore.methods.bayes import (
     bayes_normal_mean_known_var,
     bayes_normal_mean_unknown_var,
 )

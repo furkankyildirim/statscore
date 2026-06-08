@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from scipy import stats
 
-from statscore.anova.one_way import anova1_partition_tss, anova1_test_equality
+from statscore.methods.anova.one_way import anova1_partition_tss, anova1_test_equality
 
 
 class TestANOVA1PartitionTSS:
