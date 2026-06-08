@@ -91,7 +91,9 @@ class RegressionDiagnosticsResult:
         print(f"  Influential points   (Cook's D > 4/n = {threshold_cook:.4f}): {count_infl}")
         print("-" * w)
         cooks_col = "Cook's D"
-        print(f"  {'Obs':<5} {'Leverage':>10} {'Std.Resid':>11} {cooks_col:>10} {'Leverage?':>11} {'Influential?':>13}")
+        print(
+            f"  {'Obs':<5} {'Leverage':>10} {'Std.Resid':>11} {cooks_col:>10} {'Leverage?':>11} {'Influential?':>13}"
+        )
         print("-" * w)
         for i in range(self.n):
             lev = float(self.leverage[i])
@@ -99,7 +101,9 @@ class RegressionDiagnosticsResult:
             cd = float(self.cooks_distance[i])
             lev_flag = "Yes" if bool(self.high_leverage_mask[i]) else "No"
             infl_flag = "Yes" if bool(self.influential_mask[i]) else "No"
-            print(f"  {i+1:<5} {lev:>10.4f} {sr:>11.4f} {cd:>10.4f} {lev_flag:>11} {infl_flag:>13}")
+            print(
+                f"  {i + 1:<5} {lev:>10.4f} {sr:>11.4f} {cd:>10.4f} {lev_flag:>11} {infl_flag:>13}"
+            )
         print("=" * w)
 
 
@@ -195,9 +199,7 @@ def levene_test(data: Sequence[np.ndarray], alpha: float = 0.05) -> LeveneResult
     )
 
 
-def regression_diagnostics(
-    X: np.ndarray, y: np.ndarray
-) -> RegressionDiagnosticsResult:
+def regression_diagnostics(X: np.ndarray, y: np.ndarray) -> RegressionDiagnosticsResult:
     """Compute regression diagnostic metrics.
 
     Parameters
@@ -225,10 +227,7 @@ def regression_diagnostics(
     std_resid: np.ndarray = ols.residuals / denom
 
     # Cook's D_i = (e_i^2 / (p * Se^2)) * (h_ii / (1 - h_ii)^2)
-    cooks_d: np.ndarray = (
-        (ols.residuals ** 2 / (p * ols.sigma2_unbiased))
-        * (h / (1.0 - h) ** 2)
-    )
+    cooks_d: np.ndarray = (ols.residuals**2 / (p * ols.sigma2_unbiased)) * (h / (1.0 - h) ** 2)
 
     high_leverage_mask: np.ndarray = h > (2.0 * p / n)
     influential_mask: np.ndarray = cooks_d > (4.0 / n)

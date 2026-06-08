@@ -47,8 +47,12 @@ class ANOVA1TestResult:
         print("=" * w)
         print(f"  {'Source':<12} {'df':>5} {'SS':>12} {'MS':>12} {'F':>10}")
         print("-" * w)
-        print(f"  {'Between':<12} {self.df_between:>5} {self.SS_between:>12.4f} {self.MS_between:>12.4f} {self.F_statistic:>10.4f}")
-        print(f"  {'Within':<12} {self.df_within:>5} {self.SS_within:>12.4f} {self.MS_within:>12.4f} {'':>10}")
+        print(
+            f"  {'Between':<12} {self.df_between:>5} {self.SS_between:>12.4f} {self.MS_between:>12.4f} {self.F_statistic:>10.4f}"
+        )
+        print(
+            f"  {'Within':<12} {self.df_within:>5} {self.SS_within:>12.4f} {self.MS_within:>12.4f} {'':>10}"
+        )
         print("-" * w)
         print(f"  {'Total':<12} {self.df_total:>5} {self.SS_total:>12.4f} {'':>12} {'':>10}")
         print("=" * w)
@@ -80,10 +84,9 @@ def ANOVA1_partition_TSS(data: Sequence[np.ndarray]) -> ANOVA1PartitionResult:
     grand_mean: float = float(sum(g.sum() for g in groups) / n)
 
     SS_within: float = float(sum(np.sum((g - g.mean()) ** 2) for g in groups))
-    SS_between: float = float(sum(
-        ni * (xi_bar - grand_mean) ** 2
-        for ni, xi_bar in zip(group_sizes, group_means)
-    ))
+    SS_between: float = float(
+        sum(ni * (xi_bar - grand_mean) ** 2 for ni, xi_bar in zip(group_sizes, group_means))
+    )
     SS_total: float = SS_within + SS_between
 
     return ANOVA1PartitionResult(

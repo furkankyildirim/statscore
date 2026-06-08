@@ -14,6 +14,7 @@ def _parse_data_input(prompt: str) -> np.ndarray:
 
     if raw.lower().endswith((".csv", ".tsv", ".xlsx", ".xls", ".json")):
         from statscore.io import load_data
+
         loaded = load_data(raw)
         print(f"  Loaded {loaded.n_rows} rows x {loaded.n_cols} cols from '{loaded.path}'")
         print(f"  Columns: {loaded.column_names}")
@@ -31,11 +32,12 @@ def _parse_groups_input(prompt: str) -> list[np.ndarray]:
     groups: list[np.ndarray] = []
     print(prompt)
     while True:
-        raw = input(f"  Group {len(groups)+1} (empty to finish): ").strip()
+        raw = input(f"  Group {len(groups) + 1} (empty to finish): ").strip()
         if not raw:
             break
         if raw.lower().endswith((".csv", ".tsv", ".xlsx", ".xls", ".json")):
             from statscore.io import load_data
+
             loaded = load_data(raw)
             print(f"    Loaded from '{loaded.path}'. Columns: {loaded.column_names}")
             col = input("    Enter column name: ").strip()
@@ -62,6 +64,7 @@ def _run_one_way_anova() -> None:
     show_plot = input("  Show box plot? (y/n) [n]: ").strip().lower()
     if show_plot == "y":
         from statscore.plots import plot_anova_groups
+
         fig = plot_anova_groups(groups)
         fig.savefig("anova_plot.png", dpi=150)
         print("  Plot saved to anova_plot.png")
@@ -80,7 +83,7 @@ def _run_two_way_anova() -> None:
     data = np.zeros((I, J, K))
     for i in range(I):
         for j in range(J):
-            raw = input(f"  Cell ({i+1},{j+1}) [{K} values]: ").strip().replace(",", " ")
+            raw = input(f"  Cell ({i + 1},{j + 1}) [{K} values]: ").strip().replace(",", " ")
             vals = [float(v) for v in raw.split()]
             if len(vals) != K:
                 raise ValueError(f"Expected {K} values, got {len(vals)}.")
@@ -199,6 +202,7 @@ def _run_simple_regression() -> None:
     show_reg = input("  Show regression plot? (y/n) [n]: ").strip().lower()
     if show_reg == "y":
         from statscore.plots import plot_regression
+
         fig = plot_regression(x, y, result.beta_hat)
         fig.savefig("regression_plot.png", dpi=150)
         print("  Plot saved to regression_plot.png")
@@ -206,6 +210,7 @@ def _run_simple_regression() -> None:
     show_resid = input("  Show residual plot? (y/n) [n]: ").strip().lower()
     if show_resid == "y":
         from statscore.plots import plot_residuals
+
         ols = Mult_LR_Least_squares(X, y)
         fig = plot_residuals(ols.fitted_values, ols.residuals)
         fig.savefig("residual_plot.png", dpi=150)
@@ -214,6 +219,7 @@ def _run_simple_regression() -> None:
     show_qq = input("  Show Q-Q plot of residuals? (y/n) [n]: ").strip().lower()
     if show_qq == "y":
         from statscore.plots import plot_qq
+
         ols = Mult_LR_Least_squares(X, y)
         fig = plot_qq(ols.residuals)
         fig.savefig("qq_plot.png", dpi=150)
@@ -229,7 +235,9 @@ def _run_normality_check() -> None:
     result = shapiro_wilk_test(x, alpha=alpha)
     print(f"\n  Shapiro-Wilk statistic: {result.statistic:.4f}")
     print(f"  p-value:               {result.p_value:.4f}")
-    print(f"  Decision:              {'Reject H0 (not normal)' if result.reject_H0 else 'Fail to reject H0 (consistent with normality)'}")
+    print(
+        f"  Decision:              {'Reject H0 (not normal)' if result.reject_H0 else 'Fail to reject H0 (consistent with normality)'}"
+    )
 
 
 def _run_levene_check() -> None:
@@ -241,7 +249,9 @@ def _run_levene_check() -> None:
     result = levene_test(groups, alpha=alpha)
     print(f"\n  Levene statistic: {result.statistic:.4f}")
     print(f"  p-value:          {result.p_value:.4f}")
-    print(f"  Decision:         {'Reject H0 (variances differ)' if result.reject_H0 else 'Fail to reject H0 (variances are homogeneous)'}")
+    print(
+        f"  Decision:         {'Reject H0 (variances differ)' if result.reject_H0 else 'Fail to reject H0 (variances are homogeneous)'}"
+    )
 
 
 def _run_chi2_test() -> None:
@@ -267,7 +277,7 @@ def _run_regression_diagnostics() -> None:
     print("  Type 'done' when finished.")
     rows: list[list[float]] = []
     while True:
-        raw = input(f"  Row {len(rows)+1}: ").strip()
+        raw = input(f"  Row {len(rows) + 1}: ").strip()
         if raw.lower() == "done":
             break
         raw = raw.replace(",", " ")
@@ -306,11 +316,14 @@ def _run_bayes_known_var() -> None:
     pct = int((1 - alpha) * 100)
     print(f"\n  Posterior mean:   {result.posterior_mean:.6f}")
     print(f"  Posterior std:    {result.posterior_std:.6f}")
-    print(f"  {pct}% Credible interval: ({result.credible_interval[0]:.6f}, {result.credible_interval[1]:.6f})")
+    print(
+        f"  {pct}% Credible interval: ({result.credible_interval[0]:.6f}, {result.credible_interval[1]:.6f})"
+    )
 
     show_plot = input("  Show posterior plot? (y/n) [n]: ").strip().lower()
     if show_plot == "y":
         from statscore.plots import plot_posterior_normal
+
         fig = plot_posterior_normal(result)
         fig.savefig("posterior_plot.png", dpi=150)
         print("  Plot saved to posterior_plot.png")
@@ -326,7 +339,9 @@ def _run_bayes_unknown_var() -> None:
     beta0 = float(input("  Prior rate (beta0): ").strip())
     alpha = float(input("  Alpha [0.05]: ").strip() or "0.05")
 
-    result = bayes_normal_mean_unknown_var(x, mu0=mu0, kappa0=kappa0, alpha0=alpha0, beta0=beta0, alpha=alpha)
+    result = bayes_normal_mean_unknown_var(
+        x, mu0=mu0, kappa0=kappa0, alpha0=alpha0, beta0=beta0, alpha=alpha
+    )
     result.summary()
 
 

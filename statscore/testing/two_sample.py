@@ -121,7 +121,9 @@ class FTestVariancesResult:
         print(f"  Alternative: {self.alternative.value}")
         print("-" * w)
         print(f"  F-statistic: {self.f_statistic:.4f}")
-        print(f"  Critical region: < {self.f_critical_lower:.4f}  or  > {self.f_critical_upper:.4f}")
+        print(
+            f"  Critical region: < {self.f_critical_lower:.4f}  or  > {self.f_critical_upper:.4f}"
+        )
         print(f"  p-value:     {self.p_value:.4f}    alpha: {self.alpha}")
         print(f"  Decision:    {decision}")
         print("=" * w)
@@ -173,9 +175,7 @@ def t_test_two_sample(
     else:
         se_sq: float = s1**2 / n1 + s2**2 / n2
         se = np.sqrt(se_sq)
-        nu: float = se_sq**2 / (
-            (s1**2 / n1)**2 / (n1 - 1) + (s2**2 / n2)**2 / (n2 - 1)
-        )
+        nu: float = se_sq**2 / ((s1**2 / n1) ** 2 / (n1 - 1) + (s2**2 / n2) ** 2 / (n2 - 1))
         df = int(np.floor(nu))
         pooled_var = None
 
@@ -242,9 +242,7 @@ def t_test_paired(
     if x1.ndim != 1 or x2.ndim != 1:
         raise ValueError("x1 and x2 must be 1-D arrays.")
     if len(x1) != len(x2):
-        raise ValueError(
-            f"x1 and x2 must have the same length, got {len(x1)} and {len(x2)}."
-        )
+        raise ValueError(f"x1 and x2 must have the same length, got {len(x1)} and {len(x2)}.")
     if len(x1) < 2:
         raise ValueError("Samples must have at least 2 observations.")
 

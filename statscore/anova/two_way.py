@@ -50,12 +50,12 @@ class ANOVA2TestResult:
         decision = "Reject H0" if self.reject_H0 else "Fail to reject H0"
 
         def _row(label: str, entry: dict[str, float], f_str: str = "") -> str:
-            df  = int(entry["df"])
-            ss  = entry["SS"]
-            ms  = entry.get("MS", float("nan"))
-            f   = entry.get("F", float("nan"))
+            df = int(entry["df"])
+            ss = entry["SS"]
+            ms = entry.get("MS", float("nan"))
+            f = entry.get("F", float("nan"))
             ms_s = f"{ms:>12.4f}" if ms == ms else f"{'':>12}"
-            f_s  = f"{f:>10.4f}"  if f == f else f"{'':>10}"
+            f_s = f"{f:>10.4f}" if f == f else f"{'':>10}"
             return f"  {label:<14} {df:>5} {ss:>12.4f} {ms_s} {f_s}"
 
         print("=" * w)
@@ -63,9 +63,9 @@ class ANOVA2TestResult:
         print("=" * w)
         print(f"  {'Source':<14} {'df':>5} {'SS':>12} {'MS':>12} {'F':>10}")
         print("-" * w)
-        print(_row("Factor A",      t["A"],      "f"))
-        print(_row("Factor B",      t["B"],      "f"))
-        print(_row("Interaction AB", t["AB"],    "f"))
+        print(_row("Factor A", t["A"], "f"))
+        print(_row("Factor B", t["B"], "f"))
+        print(_row("Interaction AB", t["AB"], "f"))
         print(_row("Within (Error)", t["within"], ""))
         print("-" * w)
         df_tot = int(t["total"]["df"])
@@ -103,9 +103,7 @@ def ANOVA2_partition_TSS(data: np.ndarray) -> ANOVA2PartitionResult:
 
     SS_A: float = float(J * K * np.sum((X_bar_i - X_bar) ** 2))
     SS_B: float = float(I * K * np.sum((X_bar_j - X_bar) ** 2))
-    SS_AB: float = float(K * np.sum(
-        (X_bar_ij - X_bar_i[:, None] - X_bar_j[None, :] + X_bar) ** 2
-    ))
+    SS_AB: float = float(K * np.sum((X_bar_ij - X_bar_i[:, None] - X_bar_j[None, :] + X_bar) ** 2))
     SS_E: float = float(np.sum((data - X_bar_ij[:, :, None]) ** 2))
     SS_total: float = float(np.sum((data - X_bar) ** 2))
 

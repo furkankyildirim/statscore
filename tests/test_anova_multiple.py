@@ -71,7 +71,7 @@ class TestCorrections:
     def test_sidak(self):
         alpha_corr = Sidak_correction(0.05, 10)
         # 1 - (1-0.05)^(1/10) ≈ 0.005116
-        assert np.isclose(alpha_corr, 1 - 0.95 ** 0.1, rtol=1e-10)
+        assert np.isclose(alpha_corr, 1 - 0.95**0.1, rtol=1e-10)
 
     def test_sidak_less_conservative_than_bonferroni(self):
         alpha = 0.05

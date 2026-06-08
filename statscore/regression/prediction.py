@@ -30,7 +30,7 @@ class PredictionCIResult:
         for i, (lo, hi) in enumerate(self.intervals):
             pe = float(self.point_estimates[i])
             hw = float(self.half_widths[i])
-            print(f"  {i+1:<5} {pe:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
+            print(f"  {i + 1:<5} {pe:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
         print("=" * w)
 
 
@@ -76,18 +76,16 @@ def Mult_norm_LR_pred_CI(
     df_resid: int = n - p
 
     if D.shape[1] != p:
-        raise ValueError(
-            f"D must have {p} columns matching design matrix, got {D.shape[1]}."
-        )
+        raise ValueError(f"D must have {p} columns matching design matrix, got {D.shape[1]}.")
 
     ols: LeastSquaresResult = Mult_LR_Least_squares(X, y)
     Se: float = float(np.sqrt(ols.sigma2_unbiased))
 
     point_estimates: np.ndarray = D @ ols.beta_hat
 
-    se_pred: np.ndarray = np.array([
-        Se * float(np.sqrt(D[i] @ ols.XtX_inv @ D[i])) for i in range(m)
-    ])
+    se_pred: np.ndarray = np.array(
+        [Se * float(np.sqrt(D[i] @ ols.XtX_inv @ D[i])) for i in range(m)]
+    )
 
     scheffe_mult: float = float(np.sqrt(p * f_critical(alpha, p, df_resid)))
     bonf_mult: float = t_critical(alpha / (2 * m), df_resid)
@@ -106,9 +104,7 @@ def Mult_norm_LR_pred_CI(
             multiplier = scheffe_mult
             method_used = PredictionMethod.SCHEFFE
     else:
-        raise ValueError(
-            f"Unknown method '{method}'. Use PredictionMethod enum."
-        )
+        raise ValueError(f"Unknown method '{method}'. Use PredictionMethod enum.")
 
     half_widths: np.ndarray = multiplier * se_pred
     intervals: list[tuple[float, float]] = [

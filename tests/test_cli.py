@@ -56,6 +56,7 @@ class TestCLIHelp:
 class TestCLIImport:
     def test_main_importable(self):
         from statscore.cli import main
+
         assert callable(main)
 
     def test_module_runnable(self):

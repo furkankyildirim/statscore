@@ -112,7 +112,9 @@ class Chi2VarianceTestResult:
         print(f"  H0: σ² = {self.sigma0_sq}    Alternative: {self.alternative.value}")
         print("-" * w)
         print(f"  χ²-statistic: {self.chi2_statistic:.4f}")
-        print(f"  Critical region: < {self.chi2_critical_lower:.4f}  or  > {self.chi2_critical_upper:.4f}")
+        print(
+            f"  Critical region: < {self.chi2_critical_lower:.4f}  or  > {self.chi2_critical_upper:.4f}"
+        )
         print(f"  p-value:      {self.p_value:.4f}    alpha: {self.alpha}")
         print(f"  Decision:     {decision}")
         print("=" * w)

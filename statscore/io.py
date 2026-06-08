@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
@@ -18,7 +19,7 @@ class LoadedData:
     column_names: list[str]
 
 
-def load_data(path: str, **kwargs) -> LoadedData:
+def load_data(path: str, **kwargs: Any) -> LoadedData:
     """Load tabular data from a file and return a LoadedData result.
 
     Supported formats: .csv, .tsv, .xlsx, .xls, .json.
@@ -55,8 +56,7 @@ def load_data(path: str, **kwargs) -> LoadedData:
         df = pd.read_json(path, **kwargs)
     else:
         raise ValueError(
-            f"Unsupported file extension '{ext}'. "
-            f"Supported formats: .csv, .tsv, .xlsx, .xls, .json"
+            f"Unsupported file extension '{ext}'. Supported formats: .csv, .tsv, .xlsx, .xls, .json"
         )
 
     return LoadedData(

@@ -42,14 +42,10 @@ def validate_design_matrix(X: np.ndarray) -> None:
         raise ValueError("Design matrix X must be 2-dimensional.")
     n, p = X.shape
     if n <= p:
-        raise ValueError(
-            f"Design matrix must have more rows than columns (n={n}, k+1={p})."
-        )
+        raise ValueError(f"Design matrix must have more rows than columns (n={n}, k+1={p}).")
     rank: int = int(np.linalg.matrix_rank(X))
     if rank < p:
-        raise ValueError(
-            f"Design matrix must have full column rank. Rank={rank}, expected={p}."
-        )
+        raise ValueError(f"Design matrix must have full column rank. Rank={rank}, expected={p}.")
 
 
 def validate_data_groups(data: Sequence[np.ndarray]) -> None:
@@ -90,9 +86,7 @@ def validate_contrast_matrix(C: np.ndarray, I: int) -> None:
     if C.ndim != 2:
         raise ValueError("C must be a 2-D matrix.")
     if C.shape[1] != I:
-        raise ValueError(
-            f"C must have {I} columns (number of groups), got {C.shape[1]}."
-        )
+        raise ValueError(f"C must have {I} columns (number of groups), got {C.shape[1]}.")
 
 
 def validate_C_matrix(C: np.ndarray, X: np.ndarray) -> None:
@@ -101,12 +95,8 @@ def validate_C_matrix(C: np.ndarray, X: np.ndarray) -> None:
     if C.ndim != 2:
         raise ValueError("C must be a 2-D matrix.")
     if C.shape[1] != p:
-        raise ValueError(
-            f"C must have {p} columns matching design matrix, got {C.shape[1]}."
-        )
+        raise ValueError(f"C must have {p} columns matching design matrix, got {C.shape[1]}.")
     r: int = C.shape[0]
     rank: int = int(np.linalg.matrix_rank(C))
     if rank < r:
-        raise ValueError(
-            f"C must have full row rank. Rank={rank}, expected={r}."
-        )
+        raise ValueError(f"C must have full row rank. Rank={rank}, expected={r}.")

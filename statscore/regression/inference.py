@@ -27,7 +27,9 @@ class SimultaneousCIBetaResult:
         print("  Simultaneous CIs for Regression Coefficients")
         print(f"  Method: {self.method.value}")
         print("=" * w)
-        print(f"  {'Coefficient':<14} {'Estimate':>10} {'Half-Width':>12} {'Lower':>10} {'Upper':>10}")
+        print(
+            f"  {'Coefficient':<14} {'Estimate':>10} {'Half-Width':>12} {'Lower':>10} {'Upper':>10}"
+        )
         print("-" * w)
         for i, (lo, hi) in enumerate(self.intervals):
             b = float(self.beta_hat[i])
@@ -306,7 +308,7 @@ def Mult_norm_LR_test_comp(
 
     for j in components_list:
         if j < 0 or j >= p:
-            raise ValueError(f"Component index {j} out of range [0, {p-1}].")
+            raise ValueError(f"Component index {j} out of range [0, {p - 1}].")
 
     C: np.ndarray = np.zeros((r, p))
     for i, j in enumerate(components_list):

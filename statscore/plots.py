@@ -7,6 +7,8 @@ from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from scipy import stats
 
+from statscore.bayes.conjugate import NormalMeanKnownVarResult
+
 
 def plot_regression(
     x: np.ndarray,
@@ -149,7 +151,7 @@ def plot_anova_groups(
     n_groups = len(groups)
 
     if group_labels is None:
-        group_labels = [f"Group {i+1}" for i in range(n_groups)]
+        group_labels = [f"Group {i + 1}" for i in range(n_groups)]
 
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.boxplot(groups, tick_labels=group_labels, widths=0.5)
@@ -174,7 +176,7 @@ def plot_anova_groups(
 
 
 def plot_posterior_normal(
-    result,
+    result: NormalMeanKnownVarResult,
     x_range_sigma: float = 4.0,
     title: str = "Posterior Distribution",
 ) -> Figure:
@@ -203,7 +205,9 @@ def plot_posterior_normal(
     prior_var = post_var * result.kappa_n / kappa0 if kappa0 > 0 else post_var * 10
     prior_std = float(np.sqrt(prior_var))
     # prior mean: mu0 = (mu_n * kappa_n - n * x_bar) / kappa0
-    prior_mean = (post_mean * result.kappa_n - result.n * result.x_bar) / kappa0 if kappa0 > 0 else post_mean
+    prior_mean = (
+        (post_mean * result.kappa_n - result.n * result.x_bar) / kappa0 if kappa0 > 0 else post_mean
+    )
 
     x_min = post_mean - x_range_sigma * max(post_std, prior_std)
     x_max = post_mean + x_range_sigma * max(post_std, prior_std)
@@ -217,8 +221,10 @@ def plot_posterior_normal(
     ax.plot(x, post_pdf, color="steelblue", linewidth=2, label="Posterior")
 
     ci_lower, ci_upper = result.credible_interval
-    ci_mask = (x >= ci_lower) & (x <= ci_upper)
-    ax.fill_between(x, post_pdf, where=ci_mask, alpha=0.3, color="steelblue", label="Credible interval")
+    ci_mask: list[bool] = ((x >= ci_lower) & (x <= ci_upper)).tolist()
+    ax.fill_between(
+        x, post_pdf, where=ci_mask, alpha=0.3, color="steelblue", label="Credible interval"
+    )
 
     ax.axvline(post_mean, color="crimson", linestyle="-", linewidth=1.2, alpha=0.8)
 

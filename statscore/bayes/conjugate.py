@@ -92,8 +92,12 @@ class NormalMeanUnknownVarResult:
             print("    E[sigma^2] = undefined (alpha_n <= 1)")
         print("-" * 60)
         print(f"  {pct}% Credible Intervals:")
-        print(f"    mu:      ({self.mu_credible_interval[0]:.6f}, {self.mu_credible_interval[1]:.6f})")
-        print(f"    sigma^2: ({self.variance_credible_interval[0]:.6f}, {self.variance_credible_interval[1]:.6f})")
+        print(
+            f"    mu:      ({self.mu_credible_interval[0]:.6f}, {self.mu_credible_interval[1]:.6f})"
+        )
+        print(
+            f"    sigma^2: ({self.variance_credible_interval[0]:.6f}, {self.variance_credible_interval[1]:.6f})"
+        )
         print("=" * 60)
 
 
@@ -214,9 +218,7 @@ def bayes_normal_mean_unknown_var(
     beta_n: float = beta0 + 0.5 * ss + (kappa0 * n * (x_bar - mu0) ** 2) / (2.0 * kappa_n)
 
     posterior_mean_precision: float = alpha_n / beta_n
-    posterior_mean_variance: float | None = (
-        beta_n / (alpha_n - 1) if alpha_n > 1 else None
-    )
+    posterior_mean_variance: float | None = beta_n / (alpha_n - 1) if alpha_n > 1 else None
 
     # Marginal posterior for mu: Student-t with df=2*alpha_n, loc=mu_n, scale=sqrt(beta_n/(alpha_n*kappa_n))
     df_mu: float = 2.0 * alpha_n
@@ -247,5 +249,3 @@ def bayes_normal_mean_unknown_var(
         x_bar=x_bar,
         alpha=alpha,
     )
-
-

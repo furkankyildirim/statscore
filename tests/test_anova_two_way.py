@@ -13,10 +13,13 @@ class TestANOVA2PartitionTSS:
         # Factor A: detergent (Super, Best) -> I=2
         # Factor B: temperature (Cold, Warm, Hot) -> J=3
         # K=4 replicates
-        self.data = np.array([
-            [[4, 5, 6, 5], [7, 9, 8, 12], [10, 12, 11, 19]],   # Super
-            [[6, 6, 4, 4], [13, 15, 12, 12], [12, 13, 10, 13]],  # Best
-        ], dtype=float)
+        self.data = np.array(
+            [
+                [[4, 5, 6, 5], [7, 9, 8, 12], [10, 12, 11, 19]],  # Super
+                [[6, 6, 4, 4], [13, 15, 12, 12], [12, 13, 10, 13]],  # Best
+            ],
+            dtype=float,
+        )
 
     def test_partition_identity(self):
         result = ANOVA2_partition_TSS(self.data)
@@ -25,16 +28,19 @@ class TestANOVA2PartitionTSS:
 
     def test_known_values(self):
         # Simple 2x2x2 dataset for hand verification
-        data = np.array([
-            [[1, 2], [3, 4]],
-            [[5, 6], [7, 8]],
-        ], dtype=float)
+        data = np.array(
+            [
+                [[1, 2], [3, 4]],
+                [[5, 6], [7, 8]],
+            ],
+            dtype=float,
+        )
         result = ANOVA2_partition_TSS(data)
         # grand mean = 4.5
         # X_bar_i: [2.5, 6.5], X_bar_j: [3.5, 5.5]
         I, J, K = 2, 2, 2
-        assert np.isclose(result.SS_A, J * K * ((2.5 - 4.5)**2 + (6.5 - 4.5)**2))
-        assert np.isclose(result.SS_B, I * K * ((3.5 - 4.5)**2 + (5.5 - 4.5)**2))
+        assert np.isclose(result.SS_A, J * K * ((2.5 - 4.5) ** 2 + (6.5 - 4.5) ** 2))
+        assert np.isclose(result.SS_B, I * K * ((3.5 - 4.5) ** 2 + (5.5 - 4.5) ** 2))
 
     def test_nonnegative(self):
         result = ANOVA2_partition_TSS(self.data)
@@ -47,10 +53,13 @@ class TestANOVA2PartitionTSS:
 class TestANOVA2MLE:
     def test_constraints(self):
         """MLE estimates must satisfy sum constraints."""
-        data = np.array([
-            [[4, 5, 6, 5], [7, 9, 8, 12], [10, 12, 11, 19]],
-            [[6, 6, 4, 4], [13, 15, 12, 12], [12, 13, 10, 13]],
-        ], dtype=float)
+        data = np.array(
+            [
+                [[4, 5, 6, 5], [7, 9, 8, 12], [10, 12, 11, 19]],
+                [[6, 6, 4, 4], [13, 15, 12, 12], [12, 13, 10, 13]],
+            ],
+            dtype=float,
+        )
         result = ANOVA2_MLE(data)
         I, J, K = data.shape
         # sum(a_i) = 0
@@ -66,10 +75,13 @@ class TestANOVA2MLE:
 
     def test_reconstruction(self):
         """mu + a_i + b_j + delta_ij = X_bar_ij."""
-        data = np.array([
-            [[4, 5, 6, 5], [7, 9, 8, 12], [10, 12, 11, 19]],
-            [[6, 6, 4, 4], [13, 15, 12, 12], [12, 13, 10, 13]],
-        ], dtype=float)
+        data = np.array(
+            [
+                [[4, 5, 6, 5], [7, 9, 8, 12], [10, 12, 11, 19]],
+                [[6, 6, 4, 4], [13, 15, 12, 12], [12, 13, 10, 13]],
+            ],
+            dtype=float,
+        )
         result = ANOVA2_MLE(data)
         X_bar_ij = data.mean(axis=2)
         I, J, _ = data.shape
@@ -81,10 +93,13 @@ class TestANOVA2MLE:
 
 class TestANOVA2TestEquality:
     def setup_method(self):
-        self.data = np.array([
-            [[4, 5, 6, 5], [7, 9, 8, 12], [10, 12, 11, 19]],
-            [[6, 6, 4, 4], [13, 15, 12, 12], [12, 13, 10, 13]],
-        ], dtype=float)
+        self.data = np.array(
+            [
+                [[4, 5, 6, 5], [7, 9, 8, 12], [10, 12, 11, 19]],
+                [[6, 6, 4, 4], [13, 15, 12, 12], [12, 13, 10, 13]],
+            ],
+            dtype=float,
+        )
 
     def test_factor_A(self):
         result = ANOVA2_test_equality(self.data, alpha=0.05, test=TwoWayTestFactor.A)

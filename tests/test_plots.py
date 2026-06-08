@@ -101,9 +101,7 @@ class TestPlotAnovaGroups:
     def test_custom_labels_and_title(self):
         g1 = np.array([1.0, 2.0])
         g2 = np.array([3.0, 4.0])
-        fig = plot_anova_groups(
-            [g1, g2], x_label="Treatment", y_label="Response", title="My Plot"
-        )
+        fig = plot_anova_groups([g1, g2], x_label="Treatment", y_label="Response", title="My Plot")
         ax = fig.axes[0]
         assert ax.get_xlabel() == "Treatment"
         assert ax.get_ylabel() == "Response"

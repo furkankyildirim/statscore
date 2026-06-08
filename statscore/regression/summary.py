@@ -27,7 +27,7 @@ class RegressionSummaryResult:
     Se: float
     alpha: float
 
-    def summary(self, feature_names=None) -> None:
+    def summary(self, feature_names: list[str] | None = None) -> None:
         p = self.p
         if feature_names is None:
             names = ["(Intercept)"] + [f"x{i}" for i in range(1, p)]
@@ -54,9 +54,7 @@ class RegressionSummaryResult:
         print("  Regression Summary")
         print("=" * w)
         print(
-            f"  Observations: {self.n}    "
-            f"Parameters: {self.p}    "
-            f"df_residual: {self.df_residual}"
+            f"  Observations: {self.n}    Parameters: {self.p}    df_residual: {self.df_residual}"
         )
         print(
             f"  R² = {self.R_squared:.4f}    "
@@ -121,15 +119,15 @@ def regression_summary(
     Se: float = float(np.sqrt(ols.sigma2_unbiased))
     std_errors: np.ndarray = Se * np.sqrt(np.diag(ols.XtX_inv))
     with np.errstate(divide="ignore", invalid="ignore"):
-        t_stats: np.ndarray = np.where(
-            std_errors > 0, ols.beta_hat / std_errors, 0.0
-        )
+        t_stats: np.ndarray = np.where(std_errors > 0, ols.beta_hat / std_errors, 0.0)
     p_values: np.ndarray = np.array([t_pvalue(float(t_stats[i]), df_resid) for i in range(p)])
 
     t_crit: float = t_critical(alpha / 2, df_resid)
     conf_intervals: list[tuple[float, float]] = [
-        (float(ols.beta_hat[i] - t_crit * std_errors[i]),
-         float(ols.beta_hat[i] + t_crit * std_errors[i]))
+        (
+            float(ols.beta_hat[i] - t_crit * std_errors[i]),
+            float(ols.beta_hat[i] + t_crit * std_errors[i]),
+        )
         for i in range(p)
     ]
 
@@ -158,5 +156,3 @@ def regression_summary(
         Se=Se,
         alpha=alpha,
     )
-
-

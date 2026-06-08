@@ -105,14 +105,15 @@ def Mult_LR_partition_TSS(X: np.ndarray, y: np.ndarray) -> PartitionTSSResult:
     n, p = X.shape
     y_bar: float = float(y.mean())
     TSS: float = float(np.sum((y - y_bar) ** 2))
-    RSS: float = float(np.sum(result.residuals ** 2))
+    RSS: float = float(np.sum(result.residuals**2))
     RegSS: float = TSS - RSS
     R_squared: float = RegSS / TSS if TSS > 0 else 0.0
-    adj_R_squared: float = (
-        1.0 - (1.0 - R_squared) * (n - 1) / (n - p) if TSS > 0 else 0.0
-    )
+    adj_R_squared: float = 1.0 - (1.0 - R_squared) * (n - 1) / (n - p) if TSS > 0 else 0.0
 
     return PartitionTSSResult(
-        TSS=TSS, RegSS=RegSS, RSS=RSS,
-        R_squared=R_squared, adj_R_squared=adj_R_squared,
+        TSS=TSS,
+        RegSS=RegSS,
+        RSS=RSS,
+        R_squared=R_squared,
+        adj_R_squared=adj_R_squared,
     )

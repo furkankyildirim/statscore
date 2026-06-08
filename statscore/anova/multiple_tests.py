@@ -44,12 +44,14 @@ class SimultaneousCIResult:
         print("  Simultaneous Confidence Intervals")
         print(f"  Method: {self.method_used.value}")
         print("=" * w)
-        print(f"  {'Interval':<10} {'Point Est':>10} {'Half-Width':>12} {'Lower':>10} {'Upper':>10}")
+        print(
+            f"  {'Interval':<10} {'Point Est':>10} {'Half-Width':>12} {'Lower':>10} {'Upper':>10}"
+        )
         print("-" * w)
         for i, (lo, hi) in enumerate(self.intervals):
             pe = float(self.point_estimates[i])
             hw = float(self.half_widths[i])
-            print(f"  CI_{i+1:<7} {pe:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
+            print(f"  CI_{i + 1:<7} {pe:>10.4f} {hw:>12.4f} {lo:>10.4f} {hi:>10.4f}")
         print("=" * w)
 
 
@@ -77,7 +79,7 @@ class SimultaneousTestResult:
             cv = float(self.critical_values[i])
             pv = float(self.p_values[i])
             rej = "Yes" if bool(self.reject[i]) else "No"
-            print(f"  {i+1:<5} {ts:>10.4f} {cv:>10.4f} {pv:>10.4f} {rej:>10}")
+            print(f"  {i + 1:<5} {ts:>10.4f} {cv:>10.4f} {pv:>10.4f} {rej:>10}")
         print("=" * w)
 
 
@@ -97,9 +99,7 @@ def ANOVA1_is_contrast(c: np.ndarray) -> bool:
     return bool(np.abs(c.sum()) < 1e-10)
 
 
-def ANOVA1_is_orthogonal(
-    n: np.ndarray, c1: np.ndarray, c2: np.ndarray
-) -> OrthogonalityResult:
+def ANOVA1_is_orthogonal(n: np.ndarray, c1: np.ndarray, c2: np.ndarray) -> OrthogonalityResult:
     """Check whether two contrasts are orthogonal given group sizes.
 
     Orthogonality condition: sum(c1_i * c2_i / n_i) = 0.
@@ -131,7 +131,9 @@ def ANOVA1_is_orthogonal(
             parts.append("c1")
         if not c2_is_contrast:
             parts.append("c2")
-        warning = f"Warning: {' and '.join(parts)} is not a contrast (coefficients do not sum to 0)."
+        warning = (
+            f"Warning: {' and '.join(parts)} is not a contrast (coefficients do not sum to 0)."
+        )
 
     inner_product: float = float(np.sum(c1 * c2 / n))
     is_orthogonal: bool = bool(np.abs(inner_product) < 1e-10)
@@ -229,7 +231,9 @@ def _compute_ci_half_width(
     se_term: float = float(np.sqrt((SS_w / df_w) * np.sum(c_row**2 / n)))
 
     if method == CorrectionMethod.SCHEFFE:
-        M: float = float(np.sqrt(scheffe_numerator_df * f_critical(alpha, scheffe_numerator_df, df_w)))
+        M: float = float(
+            np.sqrt(scheffe_numerator_df * f_critical(alpha, scheffe_numerator_df, df_w))
+        )
         return M * se_term
     elif method == CorrectionMethod.BONFERRONI:
         t_crit: float = t_critical(alpha / (2 * m), df_w)
@@ -259,9 +263,7 @@ def _validate_method_for_data(
 
     if method == CorrectionMethod.TUKEY:
         if not all_pairwise:
-            raise ValueError(
-                "Tukey's method is valid only for pairwise comparisons."
-            )
+            raise ValueError("Tukey's method is valid only for pairwise comparisons.")
         if n_equal is None:
             raise ValueError("Tukey's method requires equal group sizes.")
         return CorrectionMethod.TUKEY
@@ -280,9 +282,7 @@ def _validate_method_for_data(
     elif method == CorrectionMethod.BEST:
         return _choose_best_method(C, n, all_contrasts, all_pairwise)
     else:
-        raise ValueError(
-            f"Unknown method '{method}'. Use CorrectionMethod enum."
-        )
+        raise ValueError(f"Unknown method '{method}'. Use CorrectionMethod enum.")
 
 
 def _choose_best_method(
@@ -355,10 +355,14 @@ def ANOVA1_CI_linear_combs(
         best_method: CorrectionMethod | None = None
         best_half_widths: np.ndarray | None = None
         for candidate in resolved:
-            hws: np.ndarray = np.array([
-                _compute_ci_half_width(candidate, C[j], n, SS_w, df_w, I, m, alpha, n_equal, s_df)
-                for j in range(m)
-            ])
+            hws: np.ndarray = np.array(
+                [
+                    _compute_ci_half_width(
+                        candidate, C[j], n, SS_w, df_w, I, m, alpha, n_equal, s_df
+                    )
+                    for j in range(m)
+                ]
+            )
             total: float = float(hws.sum())
             if best_half_widths is None or total < float(best_half_widths.sum()):
                 best_half_widths = hws
@@ -367,10 +371,12 @@ def ANOVA1_CI_linear_combs(
         half_widths: np.ndarray = best_half_widths  # type: ignore[assignment]
     else:
         final_method = resolved
-        half_widths = np.array([
-            _compute_ci_half_width(resolved, C[j], n, SS_w, df_w, I, m, alpha, n_equal, s_df)
-            for j in range(m)
-        ])
+        half_widths = np.array(
+            [
+                _compute_ci_half_width(resolved, C[j], n, SS_w, df_w, I, m, alpha, n_equal, s_df)
+                for j in range(m)
+            ]
+        )
 
     point_estimates: np.ndarray = C @ group_means
     intervals: list[tuple[float, float]] = [
@@ -446,10 +452,14 @@ def ANOVA1_test_linear_combs(
         best_method: CorrectionMethod | None = None
         best_crit: np.ndarray | None = None
         for candidate in resolved:
-            hws: np.ndarray = np.array([
-                _compute_ci_half_width(candidate, C[j], n, SS_w, df_w, I, m, alpha, n_equal, s_df)
-                for j in range(m)
-            ])
+            hws: np.ndarray = np.array(
+                [
+                    _compute_ci_half_width(
+                        candidate, C[j], n, SS_w, df_w, I, m, alpha, n_equal, s_df
+                    )
+                    for j in range(m)
+                ]
+            )
             if best_crit is None or float(hws.sum()) < float(best_crit.sum()):
                 best_crit = hws
                 best_method = candidate
@@ -458,9 +468,9 @@ def ANOVA1_test_linear_combs(
         final_method = resolved
 
     point_estimates: np.ndarray = C @ group_means
-    se_terms: np.ndarray = np.array([
-        np.sqrt((SS_w / df_w) * np.sum(C[j] ** 2 / n)) for j in range(m)
-    ])
+    se_terms: np.ndarray = np.array(
+        [np.sqrt((SS_w / df_w) * np.sum(C[j] ** 2 / n)) for j in range(m)]
+    )
     with np.errstate(divide="ignore", invalid="ignore"):
         test_statistics: np.ndarray = np.abs((point_estimates - d) / se_terms)
     test_statistics = np.where(np.isfinite(test_statistics), test_statistics, 0.0)
@@ -472,6 +482,7 @@ def ANOVA1_test_linear_combs(
         M: float = float(np.sqrt(s_df * f_critical(alpha, s_df, df_w)))
         critical_values[:] = M
         from scipy import stats as _st
+
         for j in range(m):
             F_obs: float = float(test_statistics[j] ** 2 / s_df)
             p_values[j] = 1.0 - _st.f.cdf(F_obs, s_df, df_w)
@@ -492,6 +503,7 @@ def ANOVA1_test_linear_combs(
         q_crit: float = studentized_range_critical(alpha, I, df_w)
         critical_values[:] = q_crit / np.sqrt(2)
         from scipy import stats as _st
+
         for j in range(m):
             q_obs: float = float(test_statistics[j] * np.sqrt(2))
             p_values[j] = 1.0 - _st.studentized_range.cdf(q_obs, I, df_w)
