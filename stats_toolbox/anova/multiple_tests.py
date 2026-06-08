@@ -149,7 +149,7 @@ def Sidak_correction(alpha: float, m: int) -> float:
     """
     if m < 1:
         raise ValueError("Number of tests m must be >= 1.")
-    return 1.0 - (1.0 - alpha) ** (1.0 / m)
+    return float(1.0 - (1.0 - alpha) ** (1.0 / m))
 
 
 def _all_are_contrasts(C: np.ndarray) -> bool:
@@ -212,7 +212,7 @@ def _compute_ci_half_width(
         if n_equal is None:
             raise ValueError("Tukey method requires equal group sizes.")
         q_crit: float = studentized_range_critical(alpha, I, df_w)
-        return (q_crit / np.sqrt(2)) * np.sqrt((SS_w / df_w) * (2.0 / n_equal))
+        return float((q_crit / np.sqrt(2)) * np.sqrt((SS_w / df_w) * (2.0 / n_equal)))
     else:
         raise ValueError(f"Unknown method: {method}")
 
