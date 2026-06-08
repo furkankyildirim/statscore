@@ -13,7 +13,6 @@ from scipy import stats
 from statscore.bayes.conjugate import NormalMeanKnownVarResult
 
 _MPL_VER = tuple(int(x) for x in matplotlib.__version__.split(".")[:2])
-_BOXPLOT_LABEL_KW = "tick_labels" if _MPL_VER >= (3, 9) else "labels"
 
 
 def plot_regression(
@@ -160,7 +159,10 @@ def plot_anova_groups(
         group_labels = [f"Group {i + 1}" for i in range(n_groups)]
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.boxplot(groups, **{_BOXPLOT_LABEL_KW: group_labels}, widths=0.5)
+    if _MPL_VER >= (3, 9):
+        ax.boxplot(groups, tick_labels=group_labels, widths=0.5)
+    else:
+        ax.boxplot(groups, labels=group_labels, widths=0.5)  # type: ignore[call-arg]
 
     for i, g in enumerate(groups):
         jitter = np.random.default_rng(42).uniform(-0.1, 0.1, size=len(g))
